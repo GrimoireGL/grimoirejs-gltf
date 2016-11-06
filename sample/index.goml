@@ -1,0 +1,11 @@
+<goml width="fit" height="fit" bgColor="blue">
+  <import-material typeName="gltf" src="./gltf.sort"/>
+  <scene>
+    <camera position="0,0,10" far="1000">
+      <camera.components>
+        <MouseCameraControl/>
+      </camera.components>
+    </camera>
+    <model src="./Duck/Duck.gltf"/>
+  </scene>
+</goml>
