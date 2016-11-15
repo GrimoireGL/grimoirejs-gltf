@@ -109,7 +109,8 @@ lib-es5
 lib-ts
 lib-test
 lib-md
-product
+ref
+register
 
 # If you are using atom-typescript without any configuration, that plugin would generate js files in ts folder.
 # To prevent conflict by this files, any js files included src folder would be ignored.

@@ -1,6 +1,6 @@
 import GLTF from "./Schema/GLTF";
-import Texture2D from "grimoirejs-fundamental/lib/Resource/Texture2D";
-import Geometry from "grimoirejs-fundamental/lib/Geometry/Geometry";
+import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
+import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
 
 interface ParsedGLTF {
   tf: GLTF;

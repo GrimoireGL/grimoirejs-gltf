@@ -1,14 +1,23 @@
-// Please do not change the name of variable on the line below.
-import GrimoireInterface from "grimoirejs";
-// IMPORTS would be replaced for importing components.
-//<%=IMPORTS%>
+  import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
+  import ParserGLTFParser from "./Parser/GLTFParser";
+  import __INTERFACE__1 from "./Parser/ParsedGLTF";
+  import __INTERFACE__2 from "./Parser/Schema/GLTF";
 
-import GLTFParser from "./Parser/GLTFParser";
-GrimoireInterface.register(async () => {
-  // REGISTER would be replaced to actual codes to register components.
-  //<%=REGISTER%>
+import __MAIN__ from "./main"
 
-  // You can edit code here.
-  GrimoireInterface.registerNode("model", ["Transform", "GLTFModel"]);
-  GrimoireInterface.registerNode("gltf-mesh", ["Transform", "MaterialContainer", "MeshRenderer"]);
-});
+var __EXPOSE__ = {
+  "Components": {
+    "GLTFModelComponent": ComponentsGLTFModelComponent
+  },
+  "Parser": {
+    "GLTFParser": ParserGLTFParser
+  }
+};
+
+let __BASE__ = __MAIN__();
+
+Object.assign(__BASE__|| {},__EXPOSE__);
+
+window["GrimoireJS"].lib.gltf = __EXPOSE__;
+
+export default __BASE__;

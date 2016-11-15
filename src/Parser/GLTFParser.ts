@@ -1,12 +1,12 @@
 import ParsedGLTF from "./ParsedGLTF";
-import TextFileResolver from "grimoirejs-fundamental/lib/Asset/TextFileResolver";
+import TextFileResolver from "grimoirejs-fundamental/ref/Asset/TextFileResolver";
 import GLTF from "./Schema/GLTF";
-import Buffer from "grimoirejs-fundamental/lib/Resource/Buffer";
-import Geometry from "grimoirejs-fundamental/lib/Geometry/Geometry";
-import VertexBufferAttribInfo from "grimoirejs-fundamental/lib/Geometry/VertexBufferAttribInfo";
-import IndexBufferInfo from "grimoirejs-fundamental/lib/Geometry/IndexBufferInfo";
-import ImageResolver from "grimoirejs-fundamental/lib/Asset/ImageResolver";
-import Texture2D from "grimoirejs-fundamental/lib/Resource/Texture2D";
+import Buffer from "grimoirejs-fundamental/ref/Resource/Buffer";
+import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
+import VertexBufferAttribInfo from "grimoirejs-fundamental/ref/Geometry/VertexBufferAttribInfo";
+import IndexBufferInfo from "grimoirejs-fundamental/ref/Geometry/IndexBufferInfo";
+import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
+import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 export default class GLTFParser {
   public static async parseFromURL(gl: WebGLRenderingContext, url: string): Promise<ParsedGLTF> {
     const baseUrl = GLTFParser.getBaseDir(url);

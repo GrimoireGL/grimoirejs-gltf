@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "es6",
     "module": "es6",
-    "noImplicitAny": true
+    "outDir": "./lib",
+    "declaration": true,
+    "moduleResolution": "node",
+    "declarationDir": "./ref"
   },
   "filesGlob": [
     "./src/**/*.ts"
@@ -10,6 +13,7 @@
   "files": [
     "./src/Components/GLTFModelComponent.ts",
     "./src/index.ts",
+    "./src/main.ts",
     "./src/Parser/GLTFParser.ts",
     "./src/Parser/ParsedGLTF.ts",
     "./src/Parser/Schema/GLTF.ts"

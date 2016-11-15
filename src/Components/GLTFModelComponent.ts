@@ -1,6 +1,6 @@
 import ParsedGLTF from "../Parser/ParsedGLTF";
-import Component from "grimoirejs/lib/Node/Component";
-import IAttributeDeclaration from "grimoirejs/lib/Node/IAttributeDeclaration";
+import Component from "grimoirejs/ref/Node/Component";
+import IAttributeDeclaration from "grimoirejs/ref/Node/IAttributeDeclaration";
 import GLTFParser from "../Parser/GLTFParser";
 
 
