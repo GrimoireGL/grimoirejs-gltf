@@ -3,7 +3,7 @@ const webpack = require("webpack");
 const shell = require("webpack-shell-plugin");
 const argv = require("yargs").argv;
 const fs = require("fs");
-const fnPrefix = JSON.parse(fs.readFileSync(path.resolve(__dirname, "package.json"), "utf-8")).name;
+const fnPrefix = JSON.parse(fs.readFileSync(path.resolve(__dirname, "package.json"), "utf-8")).name.replace("grimoirejs","grimoire");
 
 const getBuildTask = (fileName, plugins) => {
   return {
@@ -18,7 +18,7 @@ const getBuildTask = (fileName, plugins) => {
       loaders: [{
         test: /\.ts$/,
         exclude: /node_modules/,
-        loader: "babel-loader?presets[]=es2015,presets[]=stage-2,plugins[]=transform-runtime!ts-loader"
+        loader: "babel-loader?presets[]=es2015,presets[]=stage-2!ts-loader"
       }]
     },
     resolve: {

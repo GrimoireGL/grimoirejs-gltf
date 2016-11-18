@@ -16,7 +16,8 @@
     "./src/main.ts",
     "./src/Parser/GLTFParser.ts",
     "./src/Parser/ParsedGLTF.ts",
-    "./src/Parser/Schema/GLTF.ts"
+    "./src/Parser/Schema/GLTF.ts",
+    "./src/raw.d.ts"
   ],
   "exclude": [],
   "atom": {

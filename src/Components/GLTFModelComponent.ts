@@ -33,7 +33,6 @@ export default class GLTFModelComponent extends Component {
         // instanciate the mesh
         this.node.addChildByName("gltf-mesh", {
           geometry: mesh,
-          material: "new(gltf)",
           texture: data.textures[data.material[mesh["materialName"]].texture]
         });
       }
