@@ -6,10 +6,12 @@ interface ParsedGLTF {
   tf: GLTF;
   meshes: { [key: string]: Geometry };
   textures: { [key: string]: Texture2D };
-  scene: {
-    nodes: string[]
+  materials: {
+    [key: string]: {
+      type: string;
+      [key: string]: any;
+    }
   };
-  material: { [key: string]: any };
 }
 
 export default ParsedGLTF;

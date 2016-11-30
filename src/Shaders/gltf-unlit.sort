@@ -1,8 +1,6 @@
 @Pass
-@NoBlend()
 @NoCull()
 FS_PREC(mediump,float)
-
 varying vec3 vNormal;
 varying vec2 vUV;
 
@@ -23,10 +21,19 @@ varying vec2 vUV;
 
 
 #ifdef FS
-
+  @{usedFlag:"_textureUsed"}
   uniform sampler2D texture;
 
+  uniform bool _textureUsed;
+
+  @{type:"color"}
+  uniform vec4 diffuse;
+
   void main(){
-    gl_FragColor = texture2D(texture,vUV);
+    if(_textureUsed){
+      gl_FragColor = vec4(1,0,0,1);//texture2D(texture,vUV);
+    }else{
+      gl_FragColor = diffuse;
+    }
   }
 #endif

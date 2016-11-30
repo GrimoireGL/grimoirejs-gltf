@@ -1,4 +1,6 @@
   import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
+  import ParserGLTFConstantConvert from "./Parser/GLTFConstantConvert";
+  import ParserGLTFMaterialsCommonParser from "./Parser/GLTFMaterialsCommonParser";
   import ParserGLTFParser from "./Parser/GLTFParser";
   import __INTERFACE__1 from "./Parser/ParsedGLTF";
   import __INTERFACE__2 from "./Parser/Schema/GLTF";
@@ -10,6 +12,8 @@ var __EXPOSE__ = {
     "GLTFModelComponent": ComponentsGLTFModelComponent
   },
   "Parser": {
+    "GLTFConstantConvert": ParserGLTFConstantConvert,
+    "GLTFMaterialsCommonParser": ParserGLTFMaterialsCommonParser,
     "GLTFParser": ParserGLTFParser
   }
 };

@@ -1,3 +1,7 @@
+import GLTFMaterialsCommonParser from "./GLTFMaterialsCommonParser";
+import GLTFConstantConvert from "./GLTFConstantConvert";
+import Vector3 from "grimoirejs-math/ref/Vector3";
+import AABB from "grimoirejs-math/ref/AABB";
 import ParsedGLTF from "./ParsedGLTF";
 import TextFileResolver from "grimoirejs-fundamental/ref/Asset/TextFileResolver";
 import GLTF from "./Schema/GLTF";
@@ -13,24 +17,33 @@ export default class GLTFParser {
     const resolved = (await TextFileResolver.resolve(url));
     const tf = JSON.parse(resolved);
     const rawArrayView: { [key: string]: ArrayBuffer } = {};
+    const dViews: { [key: string]: DataView } = {};
     const meshes = {};
     const buffers = {};
     const images = {};
     const textures = {};
-    const materials = {};
+    const materials: { [key: string]: { type: string;[key: string]: any; } } = {};
     const accessors: { [key: string]: VertexBufferAttribInfo } = {};
+    // constructing buffers
     for (let key in tf.buffers) {
       rawArrayView[key] = await GLTFParser.bufferFromURL(tf, key, baseUrl);
     }
     for (let key in tf.bufferViews) {
       const bufferView = tf.bufferViews[key];
-      const rawBuffer = rawArrayView[bufferView.buffer] as ArrayBuffer;
-      const buffer = buffers[key] = new Buffer(gl, bufferView.target, WebGLRenderingContext.STATIC_DRAW);
-      buffer.update(new DataView(rawBuffer, bufferView.byteOffset, bufferView.byteLength));
+      if (bufferView.target === void 0) {
+        // skin or animation data
+      } else {
+        const rawBuffer = rawArrayView[bufferView.buffer] as ArrayBuffer;
+        const buffer = buffers[key] = new Buffer(gl, bufferView.target, WebGLRenderingContext.STATIC_DRAW);
+        dViews[key] = new DataView(rawBuffer, bufferView.byteOffset, bufferView.byteLength);
+        buffer.update(dViews[key]);
+      }
     }
+    // constructing meshes
     for (let key in tf.meshes) {
-      meshes[key] = GLTFParser._parseMesh(tf, tf.meshes[key], buffers);
+      meshes[key] = GLTFParser._parseMesh(gl, tf, key, buffers, dViews);
     }
+    // constructing textures
     const imgLoadTask = [];
     for (let key in tf.images) {
       const imgKey = key;
@@ -44,14 +57,10 @@ export default class GLTFParser {
       const tex = textures[key] = new Texture2D(gl);
       tex.update(images[texInfo.source]);
     }
-    const scene = tf.scenes[tf.scene];
     for (let key in tf.materials) {
       const material = tf.materials[key];
       if (material.extensions !== void 0 && material.extensions.KHR_materials_common) {
-        const commonMaterial = material.extensions.KHR_materials_common;
-        materials[key] = {
-          texture: commonMaterial.values.diffuse
-        };
+        materials[key] = GLTFMaterialsCommonParser.parse(tf, key, baseUrl);
       } else {
         throw new Error("Unsupported material type");
       }
@@ -60,12 +69,12 @@ export default class GLTFParser {
       meshes: meshes,
       textures: textures,
       tf: tf,
-      scene: scene,
-      material: materials
+      materials: materials
     };
   }
 
-  private static _parseMesh(tf: GLTF, meshInfo: any, buffers: { [key: string]: Buffer }): Geometry {
+  private static _parseMesh(gl: WebGLRenderingContext, tf: GLTF, meshName: string, buffers: { [key: string]: Buffer }, dviews: { [key: string]: DataView }): Geometry {
+    const meshInfo = tf.meshes[meshName];
     const primitive = meshInfo.primitives[0];
     // construct index buffer
     const indexAccessor = tf.accessors[primitive.indices];
@@ -73,73 +82,47 @@ export default class GLTFParser {
     index.topology = primitive.mode;
     index.type = indexAccessor.componentType;
     index.index = buffers[indexAccessor.bufferView];
-    index.byteSize = GLTFParser._asByteSize(index.type);
+    index.byteSize = GLTFConstantConvert.asByteSize(index.type);
     index.count = indexAccessor.count;
     // parse verticies
     const attribInfo = {} as { [key: string]: VertexBufferAttribInfo };
     const usedBuffers = {} as { [key: string]: Buffer };
+    let aabb;
+    if (!primitive.attributes["TEXCOORD_0"]) { // needs generating texture buffer
+      const posAttr = tf.accessors[primitive.attributes["POSITION"]];
+      const uvBuf = new Buffer(gl, WebGLRenderingContext.ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
+      uvBuf.update(new Float32Array(new ArrayBuffer(8 * posAttr.count)));
+      usedBuffers["@@UV"] = uvBuf;
+      attribInfo["texCoord"] = {
+        bufferName: "@@UV",
+        size: 2,
+        offset: 0,
+        stride: 0,
+        type: WebGLRenderingContext.FLOAT
+      };
+    }
     for (let attrib in primitive.attributes) {
-      const grAttrib = GLTFParser._asGrAttribName(attrib);
+      const grAttrib = GLTFConstantConvert.asGrAttribName(attrib);
       const accessor = tf.accessors[primitive.attributes[attrib]];
       usedBuffers[accessor.bufferView] = buffers[accessor.bufferView];
-      attribInfo[GLTFParser._asGrAttribName(attrib)] = {
+      if (attrib === "POSITION") {
+        if (accessor.max && accessor.min) { // when the aabb can be constructed with min and max values.
+          aabb = new AABB([new Vector3(accessor.max[0], accessor.max[1], accessor.max[2]), new Vector3(accessor.min[0], accessor.min[1], accessor.min[2])]);
+        } else { // when the accessor does not contain min or max
+          aabb = GLTFParser._genAABB(dviews[accessor.bufferView], accessor.byteStride, accessor.byteOffset, accessor.count);
+        }
+      }
+      attribInfo[grAttrib] = {
         bufferName: accessor.bufferView,
-        size: GLTFParser._asVectorSize(accessor.type),
+        size: GLTFConstantConvert.asVectorSize(accessor.type),
         type: accessor.componentType,
         stride: accessor.byteStride,
         offset: accessor.byteOffset
       };
     }
-    const geometry = new Geometry(usedBuffers, attribInfo, { default: index });
+    const geometry = new Geometry(usedBuffers, attribInfo, { default: index }, aabb);
     geometry["materialName"] = primitive.material; // TODO fix this bad implementation to find material from geometry
     return geometry;
-  }
-
-  private static _asColorValue(a: number[]): string {
-    if (a.length === 3) {
-      return `rgb(${(a[0] * 255).toFixed()},${(a[1] * 255).toFixed()},${(a[2] * 255).toFixed()}`;
-    } else {
-      return `rgb(${(a[0] * 255).toFixed()},${(a[1] * 255).toFixed()},${(a[2] * 255).toFixed()},${(a[3] * 255).toFixed()}`;
-    }
-  }
-
-  private static _asVectorSize(type: string): number {
-    switch (type) {
-      case "SCALAR":
-        return 1;
-      case "VEC2":
-        return 2;
-      case "VEC3":
-        return 3;
-      case "VEC4":
-        return 4;
-      default:
-        throw new Error("Invalid vectorSize");
-    }
-  }
-
-  private static _asByteSize(indexType: number): number {
-    switch (indexType) {
-      case WebGLRenderingContext.UNSIGNED_BYTE:
-        return 1;
-      case WebGLRenderingContext.UNSIGNED_SHORT:
-        return 2;
-      case WebGLRenderingContext.UNSIGNED_INT:
-        return 4;
-      default:
-        throw new Error("Unknown index size!");
-    }
-  }
-
-  private static _asGrAttribName(bufferName: string): string {
-    switch (bufferName) {
-      case "POSITION":
-        return "position";
-      case "NORMAL":
-        return "normal";
-      case "TEXCOORD_0":
-        return "texCoord";
-    }
   }
 
   private static async bufferFromURL(tf: GLTF, bufferName: string, baseUrl: string): Promise<ArrayBuffer> {
@@ -155,6 +138,14 @@ export default class GLTFParser {
       };
       xhr.send();
     });
+  }
+
+  private static _genAABB(view: DataView, stride: number, offset: number, count: number): AABB {
+    const aabb = new AABB();
+    for (var i = offset; i < offset + (count - 1) * stride; i += stride) {
+      aabb.expand(new Vector3(view.getFloat32(i, true), view.getFloat32(i + 4, true), view.getFloat32(i + 8, true)));
+    }
+    return aabb;
   }
 
   private static getBaseDir(url: string): string {

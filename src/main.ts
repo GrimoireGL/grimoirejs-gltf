@@ -7,9 +7,10 @@ export default () => {
     async () => {
       GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
       GrimoireInterface.registerNode("model", ["Transform", "GLTFModel"]);
-      GrimoireInterface.registerNode("gltf-mesh", ["Transform", "MaterialContainer", "MeshRenderer"], {
+      GrimoireInterface.registerNode("gltf-mesh", [], {
         material: "new(gltf-unlit)"
-      });
+      }, "mesh");
+      GrimoireInterface.registerNode("gltf-assets", [], {});
       MaterialFactory.addSORTMaterial("gltf-unlit", gltfUnlit);
     }
   );
