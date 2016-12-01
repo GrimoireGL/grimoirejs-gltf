@@ -37,6 +37,32 @@ export default class GLTFConstantConvert {
     }
   }
 
+  public static indexCountToBufferInfo(count: number): {
+    elementType: number,
+    byteSize: number,
+    ctor: new (length: number) => any
+  } {
+    if (count < 256) {
+      return {
+        elementType: WebGLRenderingContext.UNSIGNED_BYTE,
+        byteSize: 1,
+        ctor: Uint8Array
+      };
+    } else if (count < 65536) {
+      return {
+        elementType: WebGLRenderingContext.UNSIGNED_SHORT,
+        byteSize: 2,
+        ctor: Uint16Array
+      };
+    } else {
+      return {
+        elementType: WebGLRenderingContext.UNSIGNED_INT,
+        byteSize: 4,
+        ctor: Uint32Array
+      };
+    }
+  }
+
   public static asGrAttribName(bufferName: string): string {
     switch (bufferName) {
       case "POSITION":
@@ -45,8 +71,12 @@ export default class GLTFConstantConvert {
         return "normal";
       case "TEXCOORD_0":
         return "texCoord";
+      case "JOINT":
+        return "joint";
+      case "WEIGHT":
+        return "weight";
       default:
-        throw new Error("Unknown semantic");
+        throw new Error("Unknown semantic" + bufferName);
     }
   }
 

@@ -76,15 +76,31 @@ export default class GLTFParser {
   private static _parseMesh(gl: WebGLRenderingContext, tf: GLTF, meshName: string, buffers: { [key: string]: Buffer }, dviews: { [key: string]: DataView }): Geometry {
     const meshInfo = tf.meshes[meshName];
     const primitive = meshInfo.primitives[0];
-    // construct index buffer
-    const indexAccessor = tf.accessors[primitive.indices];
     const index = {} as IndexBufferInfo;
-    index.topology = primitive.mode;
-    index.type = indexAccessor.componentType;
-    index.index = buffers[indexAccessor.bufferView];
-    index.byteSize = GLTFConstantConvert.asByteSize(index.type);
-    index.byteOffset = indexAccessor.byteOffset;
-    index.count = indexAccessor.count;
+    index.topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
+    if (primitive.indices) {
+      // construct index buffer
+      const indexAccessor = tf.accessors[primitive.indices];
+      index.type = indexAccessor.componentType;
+      index.index = buffers[indexAccessor.bufferView];
+      index.byteSize = GLTFConstantConvert.asByteSize(index.type);
+      index.byteOffset = indexAccessor.byteOffset;
+      index.count = indexAccessor.count;
+    } else {
+      // should generate new index buffer for primitives
+      const vertCount = tf.accessors[primitive.attributes["POSITION"]].count;
+      const bufferInfo = GLTFConstantConvert.indexCountToBufferInfo(vertCount);
+      index.type = bufferInfo.elementType;
+      index.index = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
+      index.byteSize = bufferInfo.byteSize;
+      index.byteOffset = 0;
+      index.count = vertCount;
+      const array = new bufferInfo.ctor(index.count);
+      for (var i = 0; i < index.count; i++) {
+        array[i] = i;
+      }
+      index.index.update(array);
+    }
     // parse verticies
     const attribInfo = {} as { [key: string]: VertexBufferAttribInfo };
     const usedBuffers = {} as { [key: string]: Buffer };
