@@ -1811,9 +1811,9 @@ grimoirejs-cauldron@^2.1.0, grimoirejs-cauldron@^2.1.2:
     watch "^1.0.1"
     yargs "^6.3.0"
 
-grimoirejs-fundamental@^0.7.5:
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/grimoirejs-fundamental/-/grimoirejs-fundamental-0.7.5.tgz#73e697aace76c13b0be404cd9f088ce0e87c9273"
+grimoirejs-fundamental@^0.7.6:
+  version "0.7.6"
+  resolved "https://registry.yarnpkg.com/grimoirejs-fundamental/-/grimoirejs-fundamental-0.7.6.tgz#3dfa98f34924637ed08214d559a557845d84c321"
   dependencies:
     "@types/json5" "0.0.29"
     grimoirejs "^0.11.11"

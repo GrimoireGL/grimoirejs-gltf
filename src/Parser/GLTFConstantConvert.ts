@@ -45,6 +45,8 @@ export default class GLTFConstantConvert {
         return "normal";
       case "TEXCOORD_0":
         return "texCoord";
+      default:
+        throw new Error("Unknown semantic");
     }
   }
 

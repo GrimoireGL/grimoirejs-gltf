@@ -5,8 +5,8 @@ varying vec3 vNormal;
 varying vec2 vUV;
 
 #ifdef VS
-  attribute vec3 position;
   attribute vec3 normal;
+  attribute vec3 position;
   attribute vec2 texCoord;
 
   uniform mat4 _matPVM;
@@ -16,6 +16,7 @@ varying vec2 vUV;
     vNormal = normal;
     vUV = texCoord;
   }
+
 
 #endif
 
@@ -31,7 +32,7 @@ varying vec2 vUV;
 
   void main(){
     if(_textureUsed){
-      gl_FragColor = vec4(1,0,0,1);//texture2D(texture,vUV);
+      gl_FragColor = texture2D(texture,vUV);
     }else{
       gl_FragColor = diffuse;
     }

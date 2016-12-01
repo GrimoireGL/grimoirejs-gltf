@@ -83,6 +83,7 @@ export default class GLTFParser {
     index.type = indexAccessor.componentType;
     index.index = buffers[indexAccessor.bufferView];
     index.byteSize = GLTFConstantConvert.asByteSize(index.type);
+    index.byteOffset = indexAccessor.byteOffset;
     index.count = indexAccessor.count;
     // parse verticies
     const attribInfo = {} as { [key: string]: VertexBufferAttribInfo };
