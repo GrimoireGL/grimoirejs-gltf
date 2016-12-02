@@ -99,6 +99,27 @@ type GLTF = {
       wrapS: number,
       wrapT: number
     }
+  },
+  animations: {
+    [animationKey: string]: {
+      channels: {
+        target: {
+          id: string,
+          path: string
+        },
+        sampler: string
+      }[],
+      samplers: {
+        [samplerKey: string]: {
+          input: string,
+          interpolation: string,
+          output: string
+        }
+      },
+      parameters: {
+        [paramKey: string]: string
+      }
+    }
   }
 };
 

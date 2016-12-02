@@ -11,13 +11,18 @@
     "./src/**/*.ts"
   ],
   "files": [
+    "./src/Accessor/Accessor.ts",
+    "./src/Animator/Animator.ts",
+    "./src/Animator/Interpolator.ts",
+    "./src/Animator/Interpolators.ts",
+    "./src/Components/GLTFAnimatorComponent.ts",
     "./src/Components/GLTFModelComponent.ts",
     "./src/index.ts",
     "./src/main.ts",
-    "./src/Parser/GLTFConstantConvert.ts",
-    "./src/Parser/GLTFMaterialsCommonParser.ts",
-    "./src/Parser/GLTFParser.ts",
+    "./src/Parser/ConstantConverter.ts",
+    "./src/Parser/MaterialsCommonParser.ts",
     "./src/Parser/ParsedGLTF.ts",
+    "./src/Parser/Parser.ts",
     "./src/Parser/Schema/GLTF.ts",
     "./src/raw.d.ts"
   ],

@@ -3,7 +3,7 @@ import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import ParsedGLTF from "../Parser/ParsedGLTF";
 import Component from "grimoirejs/ref/Node/Component";
 import IAttributeDeclaration from "grimoirejs/ref/Node/IAttributeDeclaration";
-import GLTFParser from "../Parser/GLTFParser";
+import GLTFParser from "../Parser/Parser";
 
 
 export default class GLTFModelComponent extends Component {
@@ -54,7 +54,7 @@ export default class GLTFModelComponent extends Component {
   private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
     const node = data.tf.nodes[nodeName];
     let gomlNode;
-    if (node.meshes !== void 0) {
+    if (node.meshes !== void 0 && data.meshes[node.meshes[0]]) {
       const mesh = data.meshes[node.meshes[0]];
       // instanciate the mesh
       gomlNode = parentNode.addChildByName("gltf-mesh", {

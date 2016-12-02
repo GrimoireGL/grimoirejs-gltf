@@ -1,4 +1,4 @@
-import GLTFConstantConvert from "./GLTFConstantConvert";
+import GLTFConstantConvert from "./ConstantConverter";
 import GLTF from "./Schema/GLTF";
 export default class GLTFMaterialsCommonParser {
   public static parse(tf: GLTF, matKey: string, baseUrl: string) {
