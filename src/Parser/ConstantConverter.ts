@@ -37,6 +37,19 @@ export default class GLTFConstantConvert {
     }
   }
 
+  public static elementTypeToTypedArray(type: number): new (arr: ArrayBuffer) => BufferSource {
+    switch (type) {
+      case WebGLRenderingContext.UNSIGNED_BYTE:
+        return Uint8Array;
+      case WebGLRenderingContext.UNSIGNED_SHORT:
+        return Uint16Array;
+      case WebGLRenderingContext.UNSIGNED_INT:
+        return Uint32Array;
+      default:
+        throw new Error("Unsupported");
+    }
+  }
+
   public static indexCountToBufferInfo(count: number): {
     elementType: number,
     byteSize: number,

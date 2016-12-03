@@ -37,13 +37,16 @@ type GLTF = {
           technique: string,
           transparent: boolean,
           values: {
-            ambient: number[],
-            diffuse: number[] | string,
-            emission: number[],
-            shininess: number,
-            specular: number[]
+            ambient?: number[],
+            diffuse?: number[] | string,
+            emission?: number[],
+            shininess?: number,
+            specular?: number[]
           }
         }
+      },
+      values: {
+        [paramName: string]: any
       },
       name: string
     }

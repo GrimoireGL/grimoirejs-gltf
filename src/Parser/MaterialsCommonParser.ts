@@ -1,7 +1,8 @@
+import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import GLTFConstantConvert from "./ConstantConverter";
 import GLTF from "./Schema/GLTF";
 export default class GLTFMaterialsCommonParser {
-  public static parse(tf: GLTF, matKey: string, baseUrl: string) {
+  public static parse(tf: GLTF, matKey: string, baseUrl: string, textures: { [key: string]: Texture2D }) {
 
     const material = tf.materials[matKey];
     if (material.extensions.KHR_materials_common) {
@@ -15,7 +16,7 @@ export default class GLTFMaterialsCommonParser {
             class: "gltf-" + matKey
           };
           if (typeof matValues.diffuse === "string") {
-            result["texture"] = baseUrl + tf.images[tf.textures[matValues.diffuse].source].uri; // use sampler
+            result["texture"] = textures[matValues.diffuse];
           } else if (Array.isArray(matValues.diffuse)) {
             result["diffuse"] = GLTFConstantConvert.asColorValue(matValues.diffuse);
           }

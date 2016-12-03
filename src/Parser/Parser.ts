@@ -27,6 +27,7 @@ export default class GLTFParser {
     // constructing buffers
     for (let key in tf.buffers) {
       rawBuffer[key] = await GLTFParser.bufferFromURL(tf, key, baseUrl);
+      console.log(rawBuffer[key]);
     }
     for (let key in tf.bufferViews) {
       const bufferView = tf.bufferViews[key];
@@ -35,8 +36,13 @@ export default class GLTFParser {
       } else {
         const currentBuffer = rawBuffer[bufferView.buffer];
         const buffer = buffers[key] = new Buffer(gl, bufferView.target, WebGLRenderingContext.STATIC_DRAW);
-        rawbufferView[key] = currentBuffer.slice(bufferView.byteOffset, bufferView.byteOffset + bufferView.byteLength);
+        if (bufferView.target === WebGLRenderingContext.ELEMENT_ARRAY_BUFFER) {
+          console.log(new Uint16Array(currentBuffer));
+          console.log(bufferView.byteOffset);
+        }
+        rawbufferView[key] = currentBuffer.slice(bufferView.byteOffset);
         buffer.update(rawbufferView[key]);
+
       }
     }
     // constructing meshes
@@ -46,10 +52,20 @@ export default class GLTFParser {
     // constructing textures
     const imgLoadTask = [];
     for (let key in tf.images) {
-      const imgKey = key;
-      imgLoadTask.push(ImageResolver.resolve(baseUrl + tf.images[key].uri).then(t => {
-        images[imgKey] = t;
-      }));
+      if (GLTFParser.isDataUri(tf.images[key].uri)) {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var image = new Image();
+        image.src = tf.images[key].uri;;
+        canvas.width = image.width;
+        canvas.height = image.height;
+        context.drawImage(image, 0, 0);
+        images[key] = canvas;
+      } else {
+        imgLoadTask.push(ImageResolver.resolve(baseUrl + tf.images[key].uri).then(t => {
+          images[key] = t;
+        }));
+      }
     }
     await Promise.all(imgLoadTask);
     for (let key in tf.textures) {
@@ -60,9 +76,18 @@ export default class GLTFParser {
     for (let key in tf.materials) {
       const material = tf.materials[key];
       if (material.extensions !== void 0 && material.extensions.KHR_materials_common) {
-        materials[key] = GLTFMaterialsCommonParser.parse(tf, key, baseUrl);
+        materials[key] = GLTFMaterialsCommonParser.parse(tf, key, baseUrl, textures);
       } else {
-        throw new Error("Unsupported material type");
+        console.warn("program is not parsed. Common material configuration are used alternatively");
+        tf.materials[key].extensions = {};
+        tf.materials[key].extensions.KHR_materials_common = {
+          values: material.values,
+          technique: "PHONG",
+          transparent: true,
+          jointCount: 0,
+          doubleSided: true
+        };
+        materials[key] = GLTFMaterialsCommonParser.parse(tf, key, baseUrl, textures);
       }
     }
     return {
@@ -75,17 +100,25 @@ export default class GLTFParser {
 
   private static _parseMesh(gl: WebGLRenderingContext, tf: GLTF, meshName: string, buffers: { [key: string]: Buffer }, arrayBuffers: { [key: string]: ArrayBuffer }): Geometry {
     const meshInfo = tf.meshes[meshName];
+    let log = `${meshName}\n\n`;
     const primitive = meshInfo.primitives[0];
     const index = {} as IndexBufferInfo;
     index.topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
     if (primitive.indices) {
       // construct index buffer
       const indexAccessor = tf.accessors[primitive.indices];
+      const baseBuffer = arrayBuffers[indexAccessor.bufferView];
+      const typedArrCtor = GLTFConstantConverter.elementTypeToTypedArray(indexAccessor.componentType);
+      const indexBufferSrc = new typedArrCtor(baseBuffer.slice(index.byteOffset));
+      const indexBuffer = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
+      indexBuffer.update(indexBufferSrc);
       index.type = indexAccessor.componentType;
-      index.index = buffers[indexAccessor.bufferView];
+      index.index = indexBuffer;
       index.byteSize = GLTFConstantConverter.asByteSize(index.type);
-      index.byteOffset = indexAccessor.byteOffset;
+      index.byteOffset = 0;
       index.count = indexAccessor.count;
+      log += `Index info:\ntype:${index.type}\nbyteSize:${index.byteSize}\nbyteOffset${index.byteOffset}\ncount:${index.count}\n\n`;
+      console.log(indexBufferSrc);
     } else {
       // should generate new index buffer for primitives
       const vertCount = tf.accessors[primitive.attributes["POSITION"]].count;
@@ -118,6 +151,7 @@ export default class GLTFParser {
         type: WebGLRenderingContext.FLOAT
       };
     }
+    log += "Buffers:\n";
     for (let attrib in primitive.attributes) {
       const grAttrib = GLTFConstantConverter.asGrAttribName(attrib);
       const accessor = tf.accessors[primitive.attributes[attrib]];
@@ -129,6 +163,7 @@ export default class GLTFParser {
           aabb = GLTFParser._genAABB(arrayBuffers[accessor.bufferView], accessor.byteStride, accessor.byteOffset, accessor.count);
         }
       }
+      log += `attrib:${attrib}\nbufferName:${accessor.bufferView}\nsize:${GLTFConstantConverter.asVectorSize(accessor.type)}\ntype:${accessor.componentType}\nstride${accessor.byteStride}\noffset${accessor.byteOffset}\n\n`;
       attribInfo[grAttrib] = {
         bufferName: accessor.bufferView,
         size: GLTFConstantConverter.asVectorSize(accessor.type),
@@ -139,10 +174,16 @@ export default class GLTFParser {
     }
     const geometry = new Geometry(usedBuffers, attribInfo, { default: index }, aabb);
     geometry["materialName"] = primitive.material; // TODO fix this bad implementation to find material from geometry
+    console.log(log);
     return geometry;
   }
 
-  private static async bufferFromURL(tf: GLTF, bufferName: string, baseUrl: string): Promise<ArrayBuffer> {
+  private static bufferFromURL(tf: GLTF, bufferName: string, baseUrl: string): Promise<ArrayBuffer> {
+    if (GLTFParser.isDataUri(tf.buffers[bufferName].uri)) {
+      return new Promise((resolve, reject) => {
+        resolve(GLTFParser.dataUriToArrayBuffer(tf.buffers[bufferName].uri));
+      });
+    }
     return new Promise<ArrayBuffer>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("GET", baseUrl + tf.buffers[bufferName].uri);
@@ -164,6 +205,22 @@ export default class GLTFParser {
       aabb.expand(new Vector3(dView.getFloat32(i, true), dView.getFloat32(i + 4, true), dView.getFloat32(i + 8, true)));
     }
     return aabb;
+  }
+
+  private static isDataUri(dataUri: string): boolean {
+    return !!dataUri.match(/^\s*data\:.*;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/);
+  }
+
+  private static dataUriToArrayBuffer(dataUri: string): ArrayBuffer {
+    const splittedUri = dataUri.split(",");
+    const byteString = atob(splittedUri[1]);
+    const byteStringLength = byteString.length;
+    const arrayBuffer = new ArrayBuffer(byteStringLength);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteStringLength; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
+    }
+    return arrayBuffer;
   }
 
   private static getBaseDir(url: string): string {

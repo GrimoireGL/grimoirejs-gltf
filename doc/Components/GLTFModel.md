@@ -6,14 +6,22 @@
 <!-- ATTRS -->
 | 属性名 | コンバーター | デフォルト値 | その他 |
 |:------:|:------:|:------:|:------:|
-| src | String | undefined | なし |
+| src | String | null | なし |
+| scene | String | null | なし |
 
 <!-- /ATTRS -->
 <!-- /DO NOT EDIT -->
 ### src 属性
 
  * `converter`: String
- * `defaultValue`: undefined
+ * `defaultValue`: null
 
 <!-- EDIT HERE(src)-->
+<!-- /EDIT HERE-->
+### scene 属性
+
+ * `converter`: String
+ * `defaultValue`: null
+
+<!-- EDIT HERE(scene)-->
 <!-- /EDIT HERE-->
