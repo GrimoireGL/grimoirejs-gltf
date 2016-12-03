@@ -27,7 +27,6 @@ export default class GLTFParser {
     // constructing buffers
     for (let key in tf.buffers) {
       rawBuffer[key] = await GLTFParser.bufferFromURL(tf, key, baseUrl);
-      console.log(rawBuffer[key]);
     }
     for (let key in tf.bufferViews) {
       const bufferView = tf.bufferViews[key];
@@ -36,11 +35,7 @@ export default class GLTFParser {
       } else {
         const currentBuffer = rawBuffer[bufferView.buffer];
         const buffer = buffers[key] = new Buffer(gl, bufferView.target, WebGLRenderingContext.STATIC_DRAW);
-        if (bufferView.target === WebGLRenderingContext.ELEMENT_ARRAY_BUFFER) {
-          console.log(new Uint16Array(currentBuffer));
-          console.log(bufferView.byteOffset);
-        }
-        rawbufferView[key] = currentBuffer.slice(bufferView.byteOffset);
+        rawbufferView[key] = currentBuffer.slice(bufferView.byteOffset, bufferView.byteOffset + bufferView.byteLength);
         buffer.update(rawbufferView[key]);
 
       }
@@ -100,25 +95,22 @@ export default class GLTFParser {
 
   private static _parseMesh(gl: WebGLRenderingContext, tf: GLTF, meshName: string, buffers: { [key: string]: Buffer }, arrayBuffers: { [key: string]: ArrayBuffer }): Geometry {
     const meshInfo = tf.meshes[meshName];
-    let log = `${meshName}\n\n`;
     const primitive = meshInfo.primitives[0];
     const index = {} as IndexBufferInfo;
     index.topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
     if (primitive.indices) {
-      // construct index buffer
       const indexAccessor = tf.accessors[primitive.indices];
+      index.byteSize = GLTFConstantConverter.asByteSize(indexAccessor.componentType);
+      // construct index buffer
       const baseBuffer = arrayBuffers[indexAccessor.bufferView];
       const typedArrCtor = GLTFConstantConverter.elementTypeToTypedArray(indexAccessor.componentType);
-      const indexBufferSrc = new typedArrCtor(baseBuffer.slice(index.byteOffset));
+      const indexBufferSrc = new typedArrCtor(baseBuffer.slice(indexAccessor.byteOffset, indexAccessor.byteOffset + index.byteSize * indexAccessor.count));
       const indexBuffer = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
       indexBuffer.update(indexBufferSrc);
       index.type = indexAccessor.componentType;
       index.index = indexBuffer;
-      index.byteSize = GLTFConstantConverter.asByteSize(index.type);
       index.byteOffset = 0;
       index.count = indexAccessor.count;
-      log += `Index info:\ntype:${index.type}\nbyteSize:${index.byteSize}\nbyteOffset${index.byteOffset}\ncount:${index.count}\n\n`;
-      console.log(indexBufferSrc);
     } else {
       // should generate new index buffer for primitives
       const vertCount = tf.accessors[primitive.attributes["POSITION"]].count;
@@ -151,7 +143,6 @@ export default class GLTFParser {
         type: WebGLRenderingContext.FLOAT
       };
     }
-    log += "Buffers:\n";
     for (let attrib in primitive.attributes) {
       const grAttrib = GLTFConstantConverter.asGrAttribName(attrib);
       const accessor = tf.accessors[primitive.attributes[attrib]];
@@ -163,7 +154,6 @@ export default class GLTFParser {
           aabb = GLTFParser._genAABB(arrayBuffers[accessor.bufferView], accessor.byteStride, accessor.byteOffset, accessor.count);
         }
       }
-      log += `attrib:${attrib}\nbufferName:${accessor.bufferView}\nsize:${GLTFConstantConverter.asVectorSize(accessor.type)}\ntype:${accessor.componentType}\nstride${accessor.byteStride}\noffset${accessor.byteOffset}\n\n`;
       attribInfo[grAttrib] = {
         bufferName: accessor.bufferView,
         size: GLTFConstantConverter.asVectorSize(accessor.type),
@@ -174,7 +164,6 @@ export default class GLTFParser {
     }
     const geometry = new Geometry(usedBuffers, attribInfo, { default: index }, aabb);
     geometry["materialName"] = primitive.material; // TODO fix this bad implementation to find material from geometry
-    console.log(log);
     return geometry;
   }
 
@@ -208,7 +197,7 @@ export default class GLTFParser {
   }
 
   private static isDataUri(dataUri: string): boolean {
-    return !!dataUri.match(/^\s*data\:.*;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/);
+    return !!dataUri.match(/^\s*data\:.*;base64/);
   }
 
   private static dataUriToArrayBuffer(dataUri: string): ArrayBuffer {
