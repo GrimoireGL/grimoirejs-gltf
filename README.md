@@ -10,7 +10,10 @@ Describe about this package here.
   npm install grimoirejs-gltf --save
 ```
 
-
+## GLTFAnimator コンポーネント
+<!-- EDIT HERE(@Component)-->
+<!-- /EDIT HERE-->
+属性なし
 ## GLTFModel コンポーネント
 <!-- EDIT HERE(@Component)-->
 <!-- /EDIT HERE-->

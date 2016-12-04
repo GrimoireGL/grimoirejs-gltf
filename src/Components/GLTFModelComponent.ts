@@ -1,3 +1,4 @@
+import Animator from "../Animator/Animator";
 import Matrix from "grimoirejs-math/ref/Matrix";
 import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import ParsedGLTF from "../Parser/ParsedGLTF";
@@ -54,15 +55,18 @@ export default class GLTFModelComponent extends Component {
   private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
     const node = data.tf.nodes[nodeName];
     let gomlNode;
-    if (node.meshes !== void 0 && data.meshes[node.meshes[0]]) {
-      const mesh = data.meshes[node.meshes[0]];
-      // instanciate the mesh
-      gomlNode = parentNode.addChildByName("gltf-mesh", {
-        geometry: mesh,
-        material: ".gltf-" + data.tf.meshes[node.meshes[0]].primitives[0].material
-      });
-    } else {
-      gomlNode = parentNode.addChildByName("object", {});
+    gomlNode = parentNode.addChildByName("object", {});
+    if (node.meshes !== void 0) {
+      for (let i = 0; i < node.meshes.length; i++) {
+        const mesh = data.meshes[node.meshes[i]];
+        for (let j = 0; j < mesh.length; j++) {
+          // instanciate the mesh
+          gomlNode.addChildByName("gltf-mesh", {
+            geometry: mesh[j],
+            material: ".gltf-" + data.tf.meshes[node.meshes[i]].primitives[j].material
+          });
+        }
+      }
     }
     if (node.translation) {
       gomlNode.setAttribute("position", node.translation);

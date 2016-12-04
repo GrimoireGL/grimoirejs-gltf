@@ -4,7 +4,7 @@ import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
 
 interface ParsedGLTF {
   tf: GLTF;
-  meshes: { [key: string]: Geometry };
+  meshes: { [key: string]: Geometry[] };
   textures: { [key: string]: Texture2D };
   materials: {
     [key: string]: {

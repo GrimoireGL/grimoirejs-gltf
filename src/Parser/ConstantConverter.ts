@@ -24,27 +24,39 @@ export default class GLTFConstantConvert {
     }
   }
 
-  public static asByteSize(indexType: number): number {
-    switch (indexType) {
+  public static asByteSize(componentType: number): number {
+    switch (componentType) {
       case WebGLRenderingContext.UNSIGNED_BYTE:
+      case WebGLRenderingContext.BYTE:
         return 1;
       case WebGLRenderingContext.UNSIGNED_SHORT:
+      case WebGLRenderingContext.SHORT:
         return 2;
       case WebGLRenderingContext.UNSIGNED_INT:
+      case WebGLRenderingContext.INT:
+      case WebGLRenderingContext.FLOAT:
         return 4;
       default:
-        throw new Error("Unknown index size!");
+        throw new Error("Unknown size!");
     }
   }
 
-  public static elementTypeToTypedArray(type: number): new (arr: ArrayBuffer) => BufferSource {
+  public static elementTypeToTypedArray(type: number): new (arr: ArrayBuffer, offset?: number, length?: number) => BufferSource {
     switch (type) {
       case WebGLRenderingContext.UNSIGNED_BYTE:
         return Uint8Array;
+      case WebGLRenderingContext.BYTE:
+        return Int8Array;
       case WebGLRenderingContext.UNSIGNED_SHORT:
         return Uint16Array;
+      case WebGLRenderingContext.SHORT:
+        return Int16Array;
       case WebGLRenderingContext.UNSIGNED_INT:
         return Uint32Array;
+      case WebGLRenderingContext.INT:
+        return Int32Array;
+      case WebGLRenderingContext.FLOAT:
+        return Float32Array;
       default:
         throw new Error("Unsupported");
     }

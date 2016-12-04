@@ -1,12 +1,18 @@
-export default class AccessorBase {
-
-  private _getSingleByIndex: (index: number, indexOfElement: number) => number;
-
+import ConstantConverter from "../Parser/ConstantConverter";
+/**
+ * The accessor class to be used for fetching animation frames
+ */
+export default class Accessor {
   private _resultMemoryCache: number[] = [];
 
-  constructor(public bufffer: DataView, public count: number, public componentType: number, public elementSize: number, public byteOffset: number, public byteStride: number) {
-    this._getSingleByIndex = this._generateSingleSamplerDelegate();
+  private _dView: DataView;
+
+  private _elementByteSize: number;
+
+  constructor(public buffer: ArrayBufferView, public count: number, public componentType: number, public elementSize: number, public byteOffset: number, public byteStride: number) {
     this._resultMemoryCache = new Array(elementSize);
+    this._dView = new DataView(buffer.buffer, buffer.byteOffset + byteOffset);
+    this._elementByteSize = ConstantConverter.asByteSize(componentType);
   }
 
   public getByIndex(index: number): number[] {
@@ -16,22 +22,12 @@ export default class AccessorBase {
     return this._resultMemoryCache;
   }
 
-  private _generateSingleSamplerDelegate(): (index: number, indexOfElement: number) => number {
+  private _getSingleByIndex(index: number, elementIndex: number): number {
     switch (this.componentType) {
       case WebGLRenderingContext.FLOAT:
-        return (index, indexOfElement) => this.bufffer.getFloat32(this.byteOffset + index * (4 * this.elementSize + this.byteStride) + indexOfElement * 4, true);
-      case WebGLRenderingContext.INT:
-        return (index, indexOfElement) => this.bufffer.getInt32(this.byteOffset + index * (4 * this.elementSize + this.byteStride) + indexOfElement * 4, true);
-      case WebGLRenderingContext.SHORT:
-        return (index, indexOfElement) => this.bufffer.getInt16(this.byteOffset + index * (2 * this.elementSize + this.byteStride) + indexOfElement * 2, true);
-      case WebGLRenderingContext.BYTE:
-        return (index, indexOfElement) => this.bufffer.getInt8(this.byteOffset + index * (1 * this.elementSize + this.byteStride) + indexOfElement * 1);
-      case WebGLRenderingContext.UNSIGNED_INT:
-        return (index, indexOfElement) => this.bufffer.getUint32(this.byteOffset + index * (4 * this.elementSize + this.byteStride) + indexOfElement * 4, true);
-      case WebGLRenderingContext.UNSIGNED_SHORT:
-        return (index, indexOfElement) => this.bufffer.getUint16(this.byteOffset + index * (2 * this.elementSize + this.byteStride) + indexOfElement * 2, true);
-      case WebGLRenderingContext.UNSIGNED_BYTE:
-        return (index, indexOfElement) => this.bufffer.getUint8(this.byteOffset + index * (1 * this.elementSize + this.byteStride) + indexOfElement * 1);
+        return this._dView.getFloat32(index * (this.elementSize * this._elementByteSize + this.byteStride) + this._elementByteSize * elementIndex, true);
+      default:
+        throw new Error("Unsupported element type");
     }
   }
 }

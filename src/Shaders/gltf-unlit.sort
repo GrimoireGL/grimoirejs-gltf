@@ -10,10 +10,11 @@ varying vec2 vUV;
   attribute vec2 texCoord;
 
   uniform mat4 _matPVM;
+  uniform mat4 _matM;
 
   void main(){
     gl_Position = _matPVM * vec4(position,1);
-    vNormal = normal;
+    vNormal = normalize((_matM * vec4(normal,0)).xyz);
     vUV = texCoord;
   }
 
@@ -30,11 +31,17 @@ varying vec2 vUV;
   @{type:"color"}
   uniform vec4 diffuse;
 
+  @{default:"n(1,1,-1)"}
+  uniform vec3 sunDir;
+
   void main(){
+    vec4 dColor;
     if(_textureUsed){
-      gl_FragColor = texture2D(texture,vUV);
+      dColor = texture2D(texture,vUV);
     }else{
-      gl_FragColor = diffuse;
+      dColor = diffuse;
     }
+    gl_FragColor.xyz = dot(sunDir,vNormal) * dColor.xyz;
+    gl_FragColor.w = dColor.w;
   }
 #endif
