@@ -1,11 +1,11 @@
 @Pass
 @NoCull()
 FS_PREC(mediump,float)
-// varying vec3 vNormal;
+ varying vec3 vNormal;
 varying vec2 vUV;
 
 #ifdef VS
-  //attribute vec3 normal;
+  attribute vec3 normal;
   attribute vec3 position;
   attribute vec2 texCoord;
 
@@ -13,7 +13,7 @@ varying vec2 vUV;
 
   void main(){
     gl_Position = _matPVM * vec4(position,1);
-  //  vNormal = normal;
+    vNormal = normal;
     vUV = texCoord;
   }
 

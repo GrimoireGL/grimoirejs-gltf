@@ -6,7 +6,7 @@ export default () => {
   GrimoireInterface.register(
     async () => {
       GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
-      GrimoireInterface.registerNode("model", ["Transform", "GLTFModel"]);
+      GrimoireInterface.registerNode("model", ["GLTFModel"], {}, "object");
       GrimoireInterface.registerNode("gltf-mesh", [], {
         material: "new(gltf-unlit)"
       }, "mesh");

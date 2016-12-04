@@ -37,7 +37,6 @@ export default class GLTFParser {
         const buffer = buffers[key] = new Buffer(gl, bufferView.target, WebGLRenderingContext.STATIC_DRAW);
         rawbufferView[key] = currentBuffer.slice(bufferView.byteOffset, bufferView.byteOffset + bufferView.byteLength);
         buffer.update(rawbufferView[key]);
-
       }
     }
     // constructing meshes
