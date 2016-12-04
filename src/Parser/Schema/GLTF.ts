@@ -1,66 +1,25 @@
+import GLTFAnimation from "./GLTFAnimation";
+import GLTFMesh from "./GLTFMesh";
+import GLTFMaterial from "./GLTFMaterial";
+import GLTFBuffer from "./GLTFBuffer";
+import GLTFBufferView from "./GLTFBufferView";
+import GLTFAccessor from "./GLTFAccessor";
 type GLTF = {
   accessors: {
-    [acName: string]: {
-      bufferView: string,
-      byteOffset: number,
-      byteStride: number,
-      count: number,
-      componentType: number,
-      type: string,
-      max?: number[],
-      min?: number[]
-    }
+    [acName: string]: GLTFAccessor;
   },
   bufferViews: {
-    [bufName: string]: {
-      buffer: string,
-      byteLength: number,
-      byteOffset: number,
-      target: number
-    }
+    [bufName: string]: GLTFBufferView;
   },
   buffers: {
-    [bufName: string]: {
-      byteLength: number,
-      type: string,
-      uri: string
-    }
+    [bufName: string]: GLTFBuffer;
   },
   extensionUsed: string[],
   materials: {
-    [matName: string]: {
-      extensions: {
-        [key: string]: any,
-        KHR_materials_common?: {
-          doubleSided: boolean,
-          jointCount: number,
-          technique: string,
-          transparent: boolean,
-          values: {
-            ambient?: number[],
-            diffuse?: number[] | string,
-            emission?: number[],
-            shininess?: number,
-            specular?: number[]
-          }
-        }
-      },
-      values: {
-        [paramName: string]: any
-      },
-      name: string
-    }
+    [matName: string]: GLTFMaterial;
   },
   meshes: {
-    [meshName: string]: {
-      name: string,
-      primitives: {
-        attributes: { [semantic: string]: string },
-        indices: string,
-        material: string,
-        mode: number
-      }[]
-    }
+    [meshName: string]: GLTFMesh;
   },
   nodes: {
     [nodeName: string]: {
@@ -104,25 +63,7 @@ type GLTF = {
     }
   },
   animations: {
-    [animationKey: string]: {
-      channels: {
-        target: {
-          id: string,
-          path: string
-        },
-        sampler: string
-      }[],
-      samplers: {
-        [samplerKey: string]: {
-          input: string,
-          interpolation: string,
-          output: string
-        }
-      },
-      parameters: {
-        [paramKey: string]: string
-      }
-    }
+    [animationKey: string]: GLTFAnimation;
   }
 };
 

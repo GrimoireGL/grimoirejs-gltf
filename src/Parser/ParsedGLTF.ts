@@ -1,3 +1,4 @@
+import Animation from "./Schema/GLTFAnimation";
 import GLTF from "./Schema/GLTF";
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
@@ -12,6 +13,7 @@ interface ParsedGLTF {
       [key: string]: any;
     }
   };
+  animations: { [key: string]: Animation; };
 }
 
 export default ParsedGLTF;

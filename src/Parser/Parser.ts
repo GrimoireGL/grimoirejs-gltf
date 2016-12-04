@@ -1,4 +1,4 @@
-import Animator from "../Animator/Animator";
+import Animation from "../Animation/Animation";
 import GLTFMaterialsCommonParser from "./MaterialsCommonParser";
 import GLTFConstantConverter from "./ConstantConverter";
 import Vector3 from "grimoirejs-math/ref/Vector3";
@@ -89,14 +89,15 @@ export default class GLTFParser {
     // parse animations
     if (tf.animations) {
       for (let key in tf.animations) {
-        animations[key] = new Animator(tf, key, rawbufferView);
+        animations[key] = new Animation(tf, key, rawbufferView);
       }
     }
     return {
       meshes: meshes,
       textures: textures,
       tf: tf,
-      materials: materials
+      materials: materials,
+      animations: animations
     };
   }
 

@@ -1,4 +1,4 @@
-import Animator from "../Animator/Animator";
+import Animation from "../Animation/Animation";
 import Matrix from "grimoirejs-math/ref/Matrix";
 import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import ParsedGLTF from "../Parser/ParsedGLTF";
@@ -50,12 +50,18 @@ export default class GLTFModelComponent extends Component {
       const node = assetRoot.addChildByName("material", data.materials[key]);
       node.element.className = data.materials[key]["class"]; // hack for bug
     }
+    for (let key in data.animations) {
+      assetRoot.addChildByName("gltf-animation", {
+        animation: data.animations[key]
+      });
+    }
   }
 
   private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
     const node = data.tf.nodes[nodeName];
     let gomlNode;
     gomlNode = parentNode.addChildByName("object", {});
+    gomlNode.element.className = nodeName;
     if (node.meshes !== void 0) {
       for (let i = 0; i < node.meshes.length; i++) {
         const mesh = data.meshes[node.meshes[i]];
