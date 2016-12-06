@@ -1,3 +1,8 @@
+import GLTFSkin from "./GLTFSkin";
+import GLTFSampler from "./GLTFSampler";
+import GLTFTexture from "./GLTFTexture";
+import GLTFImage from "./GLTFImage";
+import GLTFNode from "./GLTFNode";
 import GLTFAnimation from "./GLTFAnimation";
 import GLTFMesh from "./GLTFMesh";
 import GLTFMaterial from "./GLTFMaterial";
@@ -22,15 +27,7 @@ type GLTF = {
     [meshName: string]: GLTFMesh;
   },
   nodes: {
-    [nodeName: string]: {
-      children: string[],
-      matrix: number[],
-      translation: number[],
-      rotation: number[],
-      scale: number[],
-      meshes: string[],
-      name: string
-    }
+    [nodeName: string]: GLTFNode;
   },
   scene: string,
   scenes: {
@@ -39,31 +36,19 @@ type GLTF = {
     }
   },
   images: {
-    [imgKey: string]: {
-      name: string,
-      uri: string
-    }
+    [imgKey: string]: GLTFImage;
   },
   textures: {
-    [textureKey: string]: {
-      format: number,
-      internalFormat: number,
-      sampler: string,
-      source: string,
-      target: number,
-      type: number
-    }
+    [textureKey: string]: GLTFTexture;
   },
   samplers: {
-    [samplerKey: string]: {
-      magFilter: number,
-      minFilter: number,
-      wrapS: number,
-      wrapT: number
-    }
+    [samplerKey: string]: GLTFSampler;
   },
   animations: {
     [animationKey: string]: GLTFAnimation;
+  },
+  skins: {
+    [skinKey: string]: GLTFSkin;
   }
 };
 

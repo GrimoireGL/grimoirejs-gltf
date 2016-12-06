@@ -2,6 +2,7 @@
   import AnimationAnimation from "./Animation/Animation";
   import AnimationInterpolators from "./Animation/Interpolators";
   import ComponentsGLTFAnimationComponent from "./Components/GLTFAnimationComponent";
+  import ComponentsGLTFJointComponent from "./Components/GLTFJointComponent";
   import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
   import ParserConstantConverter from "./Parser/ConstantConverter";
   import ParserMaterialsCommonParser from "./Parser/MaterialsCommonParser";
@@ -15,8 +16,13 @@
   import __INTERFACE__7 from "./Parser/Schema/GLTFAnimationSampler";
   import __INTERFACE__8 from "./Parser/Schema/GLTFBuffer";
   import __INTERFACE__9 from "./Parser/Schema/GLTFBufferView";
-  import __INTERFACE__10 from "./Parser/Schema/GLTFMaterial";
-  import __INTERFACE__11 from "./Parser/Schema/GLTFMesh";
+  import __INTERFACE__10 from "./Parser/Schema/GLTFImage";
+  import __INTERFACE__11 from "./Parser/Schema/GLTFMaterial";
+  import __INTERFACE__12 from "./Parser/Schema/GLTFMesh";
+  import __INTERFACE__13 from "./Parser/Schema/GLTFNode";
+  import __INTERFACE__14 from "./Parser/Schema/GLTFSampler";
+  import __INTERFACE__15 from "./Parser/Schema/GLTFSkin";
+  import __INTERFACE__16 from "./Parser/Schema/GLTFTexture";
 
 import __MAIN__ from "./main"
 
@@ -30,6 +36,7 @@ var __EXPOSE__ = {
   },
   "Components": {
     "GLTFAnimationComponent": ComponentsGLTFAnimationComponent,
+    "GLTFJointComponent": ComponentsGLTFJointComponent,
     "GLTFModelComponent": ComponentsGLTFModelComponent
   },
   "Parser": {

@@ -64,12 +64,12 @@
     "typescript": "^2.0.10",
     "webpack": "^1.13.3",
     "webpack-dev-server": "^1.16.2",
-    "webpack-shell-plugin": "^0.4.3",
-    "yargs": "^6.4.0"
+    "webpack-shell-plugin": "^0.4.6",
+    "yargs": "^6.5.0"
   },
   "dependencies": {
-    "grimoirejs": "^0.11.11",
-    "grimoirejs-fundamental": "^0.7.6",
+    "grimoirejs": "^0.11.15",
+    "grimoirejs-fundamental": "^0.7.9",
     "grimoirejs-math": "^1.7.0"
   }
 }

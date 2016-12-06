@@ -1,3 +1,5 @@
+import Accessor from "../Accessor/Accessor";
+import Matrix from "grimoirejs-math/ref/Matrix";
 import Animation from "./Schema/GLTFAnimation";
 import GLTF from "./Schema/GLTF";
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
@@ -14,6 +16,14 @@ interface ParsedGLTF {
     }
   };
   animations: { [key: string]: Animation; };
+  skins: {
+    [key: string]: {
+      bindShapeMatrix: Matrix,
+      jointNames: string[],
+      inverseBindMatrices: Accessor,
+      jointMatrices: Float32Array
+    }
+  }
 }
 
 export default ParsedGLTF;

@@ -1,3 +1,5 @@
+import Accessor from "../Accessor/Accessor";
+import Matrix from "grimoirejs-math/ref/Matrix";
 import Animation from "../Animation/Animation";
 import GLTFMaterialsCommonParser from "./MaterialsCommonParser";
 import GLTFConstantConverter from "./ConstantConverter";
@@ -24,6 +26,7 @@ export default class GLTFParser {
     const images = {};
     const textures = {};
     const animations = {};
+    const skins = {};
     const materials: { [key: string]: { type: string;[key: string]: any; } } = {};
     const accessors: { [key: string]: VertexBufferAttribInfo } = {};
     // constructing buffers
@@ -36,6 +39,7 @@ export default class GLTFParser {
       rawbufferView[key] = new Uint8Array(currentBuffer, bufferView.byteOffset, bufferView.byteLength);
       if (bufferView.target === void 0) {
         // skin or animation data
+
       } else {
         const buffer = buffers[key] = new Buffer(gl, bufferView.target, WebGLRenderingContext.STATIC_DRAW);
         buffer.update(rawbufferView[key]);
@@ -49,14 +53,9 @@ export default class GLTFParser {
     const imgLoadTask = [];
     for (let key in tf.images) {
       if (GLTFParser.isDataUri(tf.images[key].uri)) {
-        var canvas = document.createElement('canvas');
-        var context = canvas.getContext('2d');
-        var image = new Image();
-        image.src = tf.images[key].uri;;
-        canvas.width = image.width;
-        canvas.height = image.height;
-        context.drawImage(image, 0, 0);
-        images[key] = canvas;
+        imgLoadTask.push(this.imageFromDataUrl(tf.images[key].uri).then(t => {
+          images[key] = t;
+        }));
       } else {
         imgLoadTask.push(ImageResolver.resolve(baseUrl + tf.images[key].uri).then(t => {
           images[key] = t;
@@ -92,12 +91,25 @@ export default class GLTFParser {
         animations[key] = new Animation(tf, key, rawbufferView);
       }
     }
+    if (tf.skins) {
+      for (let key in tf.skins) {
+        const skin = tf.skins[key];
+        const accessor = tf.accessors[skin.inverseBindMatrices];
+        skins[key] = {
+          bindShapeMatrix: new Matrix(skin.bindShapeMatrix),
+          jointNames: skin.jointNames,
+          inverseBindMatrices: new Accessor(rawbufferView[accessor.bufferView], accessor.count, accessor.componentType, GLTFConstantConverter.asVectorSize(accessor.type), accessor.byteOffset || 0, accessor.byteStride || 0),
+          jointMatrices: new Float32Array(16 * skin.jointNames.length)
+        };
+      }
+    }
     return {
       meshes: meshes,
       textures: textures,
       tf: tf,
       materials: materials,
-      animations: animations
+      animations: animations,
+      skins: skins
     };
   }
 
@@ -222,6 +234,23 @@ export default class GLTFParser {
       uint8Array[i] = byteString.charCodeAt(i);
     }
     return arrayBuffer;
+  }
+
+  private static imageFromDataUrl(dataUrl: string): Promise<HTMLCanvasElement> {
+    return new Promise((resolve, reject) => {
+      var canvas = document.createElement('canvas');
+      var context = canvas.getContext('2d');
+      var image = new Image();
+      image.src = dataUrl;
+      image.onload = function() {
+        const cWidth = Math.pow(2, Math.log(image.width) / Math.LN2 | 0) * 2;
+        const cHeight = Math.pow(2, Math.log(image.height) / Math.LN2 | 0) * 2;
+        canvas.width = cWidth;
+        canvas.height = cHeight;
+        context.drawImage(image, 0, 0, image.width, image.height, 0, 0, cWidth, cHeight);
+        resolve(canvas);
+      };
+    });
   }
 
   private static getBaseDir(url: string): string {

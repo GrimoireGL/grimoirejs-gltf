@@ -1,3 +1,5 @@
+import TransformComponent from "grimoirejs-fundamental/ref/Components/TransformComponent";
+import GLTFNode from "../Parser/Schema/GLTFNode";
 import Animation from "../Animation/Animation";
 import Matrix from "grimoirejs-math/ref/Matrix";
 import GomlNode from "grimoirejs/ref/Node/GomlNode";
@@ -47,6 +49,7 @@ export default class GLTFModelComponent extends Component {
   private _populateAssets(data: ParsedGLTF): void {
     const assetRoot = this.node.addChildByName("gltf-assets", {});
     for (let key in data.materials) {
+      //data.materials[key]["boneMatricies"] = data.skins["Armature_Cylinder-skin"].jointMatrices;
       const node = assetRoot.addChildByName("material", data.materials[key]);
       node.element.className = data.materials[key]["class"]; // hack for bug
     }
@@ -59,21 +62,53 @@ export default class GLTFModelComponent extends Component {
 
   private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
     const node = data.tf.nodes[nodeName];
-    let gomlNode;
-    gomlNode = parentNode.addChildByName("object", {});
+    const gomlNode = parentNode.addChildByName("object", {});
     gomlNode.element.className = nodeName;
     if (node.meshes !== void 0) {
       for (let i = 0; i < node.meshes.length; i++) {
         const mesh = data.meshes[node.meshes[i]];
         for (let j = 0; j < mesh.length; j++) {
-          // instanciate the mesh
           gomlNode.addChildByName("gltf-mesh", {
             geometry: mesh[j],
-            material: ".gltf-" + data.tf.meshes[node.meshes[i]].primitives[j].material
+            material: ".gltf-" + data.tf.meshes[node.meshes[i]].primitives[j].material,
+            boneMatricies: node.skin ? data.skins[node.skin].jointMatrices : undefined
           });
         }
       }
     }
+    this._applyTransform(node, gomlNode);
+    if (node.children) {
+      for (let chNodeName of node.children) {
+        this._populateNode(data, chNodeName, gomlNode);
+      }
+    }
+    if (node.skeletons && node.skin) {
+      for (let i = 0; i < node.skeletons.length; i++) {
+        const jointNode = this.node.getChildrenByClass(node.skeletons[i]);
+        this._injectJoint(data, jointNode[0], node.skeletons[i], this.node.getComponent(TransformComponent), node.skin);
+      }
+    }
+  }
+
+  private _injectJoint(data: ParsedGLTF, gomlNode: GomlNode, nodeName: string, skeletonTransform: TransformComponent, skinName: string): void {
+    gomlNode.addComponent("GLTFJoint", {
+      skinInfo: data.skins[skinName],
+      jointName: nodeName,
+      skeletonTransform: skeletonTransform,
+      jointMatrices: data.skins[skinName].jointMatrices
+    });
+    if (data.tf.nodes[nodeName].children) {
+      const node = data.tf.nodes[nodeName];
+      for (let i = 0; i < node.children.length; i++) {
+        const jointNode = this.node.getChildrenByClass(node.children[i]);
+        this._injectJoint(data, jointNode[0], node.children[i], skeletonTransform, skinName);
+      }
+    }
+  }
+
+
+
+  private _applyTransform(node: GLTFNode, gomlNode: GomlNode): void {
     if (node.translation) {
       gomlNode.setAttribute("position", node.translation);
     }
@@ -88,11 +123,6 @@ export default class GLTFModelComponent extends Component {
       gomlNode.setAttribute("position", mat.getTranslation());
       gomlNode.setAttribute("scale", mat.getScaling());
       gomlNode.setAttribute("rotation", mat.getRotation());
-    }
-    if (node.children) {
-      for (let chNodeName of node.children) {
-        this._populateNode(data, chNodeName, gomlNode);
-      }
     }
   }
 }

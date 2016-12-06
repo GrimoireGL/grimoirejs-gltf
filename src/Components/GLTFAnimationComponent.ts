@@ -35,7 +35,7 @@ export default class GLTFAnimationComponent extends Component {
       }
     }
     const t = ((new Date()).getTime() - this._startTime) / 1000;
-    this._animation.processCurrentFrame(t % 3, (id, path, v) => {
+    this._animation.processCurrentFrame(t % 5, (id, path, v) => {
       const transform = this._targetTransforms[id];
       switch (path) {
         case "translation":
@@ -45,8 +45,10 @@ export default class GLTFAnimationComponent extends Component {
           transform.localRotation.rawElements = v;
           break;
       }
-      transform.updateTransform();
     });
+    for (let tr in this._targetTransforms) {
+      this._targetTransforms[tr].updateTransform();
+    }
   }
 
   public $unmount(): void {
