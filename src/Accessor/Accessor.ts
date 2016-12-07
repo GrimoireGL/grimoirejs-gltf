@@ -10,6 +10,9 @@ export default class Accessor {
   constructor(public buffer: ArrayBufferView, public count: number, public componentType: number, public elementSize: number, public byteOffset: number, public byteStride: number) {
     this._dView = new DataView(buffer.buffer, buffer.byteOffset + byteOffset);
     this._elementByteSize = ConstantConverter.asByteSize(componentType);
+    if (byteStride === 0) {
+      this.byteStride = this.elementSize * this._elementByteSize;
+    }
   }
 
   public getByIndex(index: number): number[] {
@@ -26,7 +29,7 @@ export default class Accessor {
   private _getSingleByIndex(index: number, elementIndex: number): number {
     switch (this.componentType) {
       case WebGLRenderingContext.FLOAT:
-        return this._dView.getFloat32(index * (this.elementSize * this._elementByteSize + this.byteStride) + this._elementByteSize * elementIndex, true);
+        return this._dView.getFloat32(index * this.byteStride + this._elementByteSize * elementIndex, true);
       default:
         throw new Error("Unsupported element type");
     }

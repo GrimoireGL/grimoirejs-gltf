@@ -243,8 +243,8 @@ export default class GLTFParser {
       var image = new Image();
       image.src = dataUrl;
       image.onload = function() {
-        const cWidth = Math.pow(2, Math.log(image.width) / Math.LN2 | 0) * 2;
-        const cHeight = Math.pow(2, Math.log(image.height) / Math.LN2 | 0) * 2;
+        const cWidth = Math.pow(2, Math.ceil(Math.log(image.width) / Math.LN2));
+        const cHeight = Math.pow(2, Math.ceil(Math.log(image.height) / Math.LN2));
         canvas.width = cWidth;
         canvas.height = cHeight;
         context.drawImage(image, 0, 0, image.width, image.height, 0, 0, cWidth, cHeight);

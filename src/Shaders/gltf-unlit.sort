@@ -1,24 +1,32 @@
 @Pass
 @NoCull()
+@ExposeMacro(int,boneCount,BONE_COUNT,0)
 FS_PREC(mediump,float)
  varying vec3 vNormal;
 varying vec2 vUV;
 
 #ifdef VS
-  uniform mat4 boneMatricies[2];
+#if BONE_COUNT > 0
+  uniform mat4 boneMatrices[BONE_COUNT];
+#endif
   attribute vec3 normal;
   attribute vec3 position;
   attribute vec2 texCoord;
-  // attribute vec4 joint;
-  // attribute vec4 weight;
-
+#if BONE_COUNT > 0
+  attribute vec4 joint;
+  attribute vec4 weight;
+#endif
   uniform mat4 _matPVM;
   uniform mat4 _matM;
-
   void main(){
-  //  mat4 skinMat = weight.x * boneMatricies[int(joint.x)] + weight.y * boneMatricies[int(joint.y)] + weight.z * boneMatricies[int(joint.z)] + weight.w * boneMatricies[int(joint.w)];
-    gl_Position = _matPVM  * vec4(position,1);
-    vNormal = normalize((_matM  * vec4(normal,0)).xyz);
+    #if BONE_COUNT > 0
+      mat4 skinMat = weight.x * boneMatrices[int(joint.x)] + weight.y * boneMatrices[int(joint.y)] + weight.z * boneMatrices[int(joint.z)] + weight.w * boneMatrices[int(joint.w)];
+      gl_Position = _matPVM * skinMat * vec4(position,1);
+      vNormal = normalize((_matM * skinMat  * vec4(normal,0)).xyz);
+    #else
+      gl_Position = _matPVM  * vec4(position,1);
+      vNormal = normalize((_matM  * vec4(normal,0)).xyz);
+    #endif
     vUV = texCoord;
   }
 

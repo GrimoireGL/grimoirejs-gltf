@@ -24,14 +24,28 @@ export default class GLTFModelComponent extends Component {
     }
   };
 
+  private _assetRoot: GomlNode;
+
+  private _parsedData: ParsedGLTF;
+
   public $mount(): void {
     const src = this.getValue("src");
     if (src) {
       const gl: WebGLRenderingContext = this.companion.get("gl") as WebGLRenderingContext;
       GLTFParser.parseFromURL(gl, src).then((data) => {
+        this._parsedData = data;
         this._populateAssets(data);
         this._populateScene(data);
       });
+    }
+  }
+
+  public $update(): void {
+    if (this._parsedData) {
+      const skins = this._parsedData.skins;
+      for (let key in skins) {
+        console.log(key, skins[key].jointMatrices);
+      }
     }
   }
 
@@ -47,31 +61,51 @@ export default class GLTFModelComponent extends Component {
   }
 
   private _populateAssets(data: ParsedGLTF): void {
-    const assetRoot = this.node.addChildByName("gltf-assets", {});
-    for (let key in data.materials) {
-      //data.materials[key]["boneMatricies"] = data.skins["Armature_Cylinder-skin"].jointMatrices;
-      const node = assetRoot.addChildByName("material", data.materials[key]);
-      node.element.className = data.materials[key]["class"]; // hack for bug
-    }
+    this._assetRoot = this.node.addChildByName("gltf-assets", {});
     for (let key in data.animations) {
-      assetRoot.addChildByName("gltf-animation", {
-        animation: data.animations[key]
+      this._assetRoot.addChildByName("gltf-animation", {
+        animation: data.animations[key],
       });
     }
   }
 
+  private _populateMaterial(data: ParsedGLTF, materialName: string, skinName?: string): string {
+    const query = skinName ? `gltf-${materialName}-${skinName}` : `gltf-${materialName}`;
+    const matNodes = this.node.getChildrenByClass(query);
+    if (matNodes.length === 0) {
+      const mat = this._assetRoot.addChildByName("material", Object.assign({
+        boneMatrices: skinName ? data.skins[skinName].jointMatrices : undefined,
+        boneCount: skinName ? data.skins[skinName].jointNames.length : undefined,
+      }, data.materials[materialName]));
+      let className = data.materials[materialName]["class"];
+      if (!!skinName) {
+        className += " " + query;
+      }
+      mat.element.className = className;
+    }
+    return "." + query;
+  }
+
   private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
     const node = data.tf.nodes[nodeName];
+    if (node.skin) {
+      // adjust skin to node
+      parentNode = parentNode.addChildByName("object", {});
+      const mat = Matrix.inverse(data.skins[node.skin].bindShapeMatrix);
+      parentNode.setAttribute("position", mat.getTranslation());
+      parentNode.setAttribute("scale", mat.getScaling());
+      parentNode.setAttribute("rotation", mat.getRotation());
+    }
     const gomlNode = parentNode.addChildByName("object", {});
     gomlNode.element.className = nodeName;
     if (node.meshes !== void 0) {
       for (let i = 0; i < node.meshes.length; i++) {
         const mesh = data.meshes[node.meshes[i]];
         for (let j = 0; j < mesh.length; j++) {
+          const matquery = this._populateMaterial(data, data.tf.meshes[node.meshes[i]].primitives[j].material, node.skin);
           gomlNode.addChildByName("gltf-mesh", {
             geometry: mesh[j],
-            material: ".gltf-" + data.tf.meshes[node.meshes[i]].primitives[j].material,
-            boneMatricies: node.skin ? data.skins[node.skin].jointMatrices : undefined
+            material: matquery
           });
         }
       }
@@ -93,7 +127,7 @@ export default class GLTFModelComponent extends Component {
   private _injectJoint(data: ParsedGLTF, gomlNode: GomlNode, nodeName: string, skeletonTransform: TransformComponent, skinName: string): void {
     gomlNode.addComponent("GLTFJoint", {
       skinInfo: data.skins[skinName],
-      jointName: nodeName,
+      jointName: data.tf.nodes[nodeName].jointName,
       skeletonTransform: skeletonTransform,
       jointMatrices: data.skins[skinName].jointMatrices
     });
