@@ -40,15 +40,6 @@ export default class GLTFModelComponent extends Component {
     }
   }
 
-  public $update(): void {
-    if (this._parsedData) {
-      const skins = this._parsedData.skins;
-      for (let key in skins) {
-        console.log(key, skins[key].jointMatrices);
-      }
-    }
-  }
-
   private _populateScene(data: ParsedGLTF): void {
     let sceneName = this.getValue("scene");
     if (!sceneName) {

@@ -65,7 +65,12 @@ export default class GLTFParser {
     await Promise.all(imgLoadTask);
     for (let key in tf.textures) {
       const texInfo = tf.textures[key];
+      const sampler = tf.samplers[texInfo.sampler];
       const tex = textures[key] = new Texture2D(gl);
+      tex.magFilter = sampler.magFilter || WebGLRenderingContext.LINEAR;
+      tex.minFilter = sampler.minFilter || WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
+      tex.wrapS = sampler.wrapS || WebGLRenderingContext.REPEAT;
+      tex.wrapT = sampler.wrapT || WebGLRenderingContext.REPEAT;
       tex.update(images[texInfo.source]);
     }
     for (let key in tf.materials) {
@@ -236,7 +241,7 @@ export default class GLTFParser {
     return arrayBuffer;
   }
 
-  private static imageFromDataUrl(dataUrl: string): Promise<HTMLCanvasElement> {
+  private static imageFromDataUrl(dataUrl: string): Promise<HTMLCanvasElement | HTMLImageElement> {
     return new Promise((resolve, reject) => {
       var canvas = document.createElement('canvas');
       var context = canvas.getContext('2d');
@@ -245,6 +250,9 @@ export default class GLTFParser {
       image.onload = function() {
         const cWidth = Math.pow(2, Math.ceil(Math.log(image.width) / Math.LN2));
         const cHeight = Math.pow(2, Math.ceil(Math.log(image.height) / Math.LN2));
+        if (cWidth === image.width && cHeight == image.height) {
+          resolve(image);
+        }
         canvas.width = cWidth;
         canvas.height = cHeight;
         context.drawImage(image, 0, 0, image.width, image.height, 0, 0, cWidth, cHeight);

@@ -31,12 +31,17 @@ export default class GLTFAnimationComponent extends Component {
       const targets = this._animation.targetNodes;
       for (let target of targets) {
         const nodes = this.node.parent.parent.parent.getChildrenByClass(target);
-        this._targetTransforms[target] = nodes[0].getComponent("Transform") as TransformComponent;
+        if (nodes.length > 0) {
+          this._targetTransforms[target] = nodes[0].getComponent(TransformComponent);
+        }
       }
     }
     const t = ((new Date()).getTime() - this._startTime) / 1000;
     this._animation.processCurrentFrame(t % 5, (id, path, v) => {
       const transform = this._targetTransforms[id];
+      if (!transform) {
+        return;
+      }
       switch (path) {
         case "translation":
           transform.localPosition.rawElements = v;
