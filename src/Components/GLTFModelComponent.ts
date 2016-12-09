@@ -110,7 +110,7 @@ export default class GLTFModelComponent extends Component {
     if (node.skeletons && node.skin) {
       for (let i = 0; i < node.skeletons.length; i++) {
         const jointNode = this.node.getChildrenByClass(node.skeletons[i]);
-        this._injectJoint(data, jointNode[0], node.skeletons[i], this.node.getComponent(TransformComponent), node.skin);
+        this._injectJoint(data, jointNode[0], node.skeletons[i], gomlNode.getComponent(TransformComponent), node.skin);
       }
     }
   }

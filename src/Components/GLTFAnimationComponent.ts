@@ -37,7 +37,7 @@ export default class GLTFAnimationComponent extends Component {
       }
     }
     const t = ((new Date()).getTime() - this._startTime) / 1000;
-    this._animation.processCurrentFrame(t % 5, (id, path, v) => {
+    this._animation.processCurrentFrame(t % this._animation.timeLength, (id, path, v) => {
       const transform = this._targetTransforms[id];
       if (!transform) {
         return;
@@ -49,6 +49,8 @@ export default class GLTFAnimationComponent extends Component {
         case "rotation":
           transform.localRotation.rawElements = v;
           break;
+        case "scale":
+          transform.localScale.rawElements = v;
       }
     });
     for (let tr in this._targetTransforms) {
