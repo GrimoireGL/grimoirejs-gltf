@@ -16,11 +16,11 @@ export default class GLTFModelComponent extends Component {
   public static attributes: { [key: string]: IAttributeDeclaration } = {
     src: {
       converter: "String",
-      defaultValue: null
+      default: null
     },
     scene: {
       converter: "String",
-      defaultValue: null
+      default: null
     }
   };
 
@@ -29,7 +29,7 @@ export default class GLTFModelComponent extends Component {
   private _parsedData: ParsedGLTF;
 
   public $mount(): void {
-    const src = this.getValue("src");
+    const src = this.getAttribute("src");
     if (src) {
       const gl: WebGLRenderingContext = this.companion.get("gl") as WebGLRenderingContext;
       GLTFParser.parseFromURL(gl, src).then((data) => {
@@ -41,7 +41,7 @@ export default class GLTFModelComponent extends Component {
   }
 
   private _populateScene(data: ParsedGLTF): void {
-    let sceneName = this.getValue("scene");
+    let sceneName = this.getAttribute("scene");
     if (!sceneName) {
       sceneName = data.tf.scene;
     }
@@ -145,9 +145,7 @@ export default class GLTFModelComponent extends Component {
     }
     if (node.matrix) {
       const mat = new Matrix(node.matrix);
-      gomlNode.setAttribute("position", mat.getTranslation());
-      gomlNode.setAttribute("scale", mat.getScaling());
-      gomlNode.setAttribute("rotation", mat.getRotation());
+      gomlNode.setAttribute("rawMatrix", mat);
     }
   }
 }

@@ -6,22 +6,22 @@
 <!-- ATTRS -->
 | 属性名 | コンバーター | デフォルト値 | その他 |
 |:------:|:------:|:------:|:------:|
-| play | Boolean | false | なし |
-| animation | Object | null | なし |
+| play | Boolean |  | `default`</br> false</br>    </br> |
+| animation | Object |  | `default`</br> null</br>    </br>  </br> |
 
 <!-- /ATTRS -->
 <!-- /DO NOT EDIT -->
 ### play 属性
 
  * `converter`: Boolean
- * `defaultValue`: false
+ * `defaultValue`: 
 
 <!-- EDIT HERE(play)-->
 <!-- /EDIT HERE-->
 ### animation 属性
 
  * `converter`: Object
- * `defaultValue`: null
+ * `defaultValue`: 
 
 <!-- EDIT HERE(animation)-->
 <!-- /EDIT HERE-->

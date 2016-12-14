@@ -6,11 +6,11 @@ export default class GLTFAnimationComponent extends Component {
   public static attributes: { [key: string]: IAttributeDeclaration } = {
     play: {
       converter: "Boolean",
-      defaultValue: false
+      default: false
     },
     animation: {
       converter: "Object",
-      defaultValue: null
+      default: null
     }
   };
 
@@ -22,7 +22,7 @@ export default class GLTFAnimationComponent extends Component {
 
   public $mount(): void {
     this._startTime = (new Date()).getTime();
-    this._animation = this.getValue("animation");
+    this._animation = this.getAttribute("animation");
   }
 
   public $update(): void {
