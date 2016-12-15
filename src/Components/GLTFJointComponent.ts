@@ -7,19 +7,19 @@ export default class GLTFJointComponent extends Component {
   public static attributes: { [key: string]: IAttributeDeclaration } = {
     skinInfo: {
       converter: "Object",
-      defaultValue: null
+      default: null
     },
     jointName: {
       converter: "String",
-      defaultValue: null
+      default: null
     },
     skeletonTransform: {
       converter: "Object",
-      defaultValue: null
+      default: null
     },
     jointMatrices: {
       converter: "Object",
-      defaultValue: null
+      default: null
     }
   };
 
@@ -37,10 +37,10 @@ export default class GLTFJointComponent extends Component {
 
   public $mount(): void {
     this._transform = this.node.getComponent(TransformComponent);
-    this._skeletonTransform = this.getValue("skeletonTransform");
-    const skinInfo = this.getValue("skinInfo");
-    this._poseIndex = skinInfo.jointNames.indexOf(this.getValue("jointName"));
-    this._jointMatrices = this.getValue("jointMatrices");
+    this._skeletonTransform = this.getAttribute("skeletonTransform");
+    const skinInfo = this.getAttribute("skinInfo");
+    this._poseIndex = skinInfo.jointNames.indexOf(this.getAttribute("jointName"));
+    this._jointMatrices = this.getAttribute("jointMatrices");
     this._bindShapeMatrix = skinInfo.bindShapeMatrix;
     this._invBindMatrix = new Matrix(skinInfo.inverseBindMatrices.getByIndex(this._poseIndex));
   }
