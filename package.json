@@ -1,6 +1,6 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "1.3.0beta",
+  "version": "1.3.0",
   "description": "",
   "main": "./ref/index.js",
   "scripts": {
