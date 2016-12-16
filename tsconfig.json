@@ -24,6 +24,7 @@
     "./src/Parser/MaterialsCommonParser.ts",
     "./src/Parser/ParsedGLTF.ts",
     "./src/Parser/Parser.ts",
+    "./src/Parser/ResourceResolver.ts",
     "./src/Parser/Schema/GLTF.ts",
     "./src/Parser/Schema/GLTFAccessor.ts",
     "./src/Parser/Schema/GLTFAnimation.ts",

@@ -7,6 +7,7 @@
   import ParserConstantConverter from "./Parser/ConstantConverter";
   import ParserMaterialsCommonParser from "./Parser/MaterialsCommonParser";
   import ParserParser from "./Parser/Parser";
+  import ParserResourceResolver from "./Parser/ResourceResolver";
   import __INTERFACE__1 from "./Animation/Interpolator";
   import __INTERFACE__2 from "./Parser/ParsedGLTF";
   import __INTERFACE__3 from "./Parser/Schema/GLTF";
@@ -42,7 +43,8 @@ var __EXPOSE__ = {
   "Parser": {
     "ConstantConverter": ParserConstantConverter,
     "MaterialsCommonParser": ParserMaterialsCommonParser,
-    "Parser": ParserParser
+    "Parser": ParserParser,
+    "ResourceResolver": ParserResourceResolver
   }
 };
 
