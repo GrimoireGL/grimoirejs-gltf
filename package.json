@@ -1,6 +1,6 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "",
   "main": "./ref/index.js",
   "scripts": {
@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "ava": "^0.17.0",
+    "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-runtime": "^6.15.0",
@@ -68,9 +69,8 @@
     "yargs": "^6.5.0"
   },
   "dependencies": {
-    "babel": "^6.5.2",
     "grimoirejs": "^0.13.0",
-    "grimoirejs-fundamental": "^0.10.1",
+    "grimoirejs-fundamental": "^0.10.3",
     "grimoirejs-math": "^1.8.0"
   }
 }
