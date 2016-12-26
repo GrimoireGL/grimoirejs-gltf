@@ -1,6 +1,6 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "",
   "main": "./ref/index.js",
   "scripts": {
@@ -70,7 +70,7 @@
   "dependencies": {
     "babel": "^6.5.2",
     "grimoirejs": "^0.13.0",
-    "grimoirejs-fundamental": "^0.10.0",
-    "grimoirejs-math": "^1.7.2"
+    "grimoirejs-fundamental": "^0.10.1",
+    "grimoirejs-math": "^1.8.0"
   }
 }
