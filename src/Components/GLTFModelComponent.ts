@@ -83,9 +83,9 @@ export default class GLTFModelComponent extends Component {
       // adjust skin to node
       parentNode = parentNode.addChildByName("object", {});
       const mat = Matrix.inverse(data.skins[node.skin].bindShapeMatrix);
-      parentNode.setAttribute("position", mat.getTranslation());
-      parentNode.setAttribute("scale", mat.getScaling());
-      parentNode.setAttribute("rotation", mat.getRotation());
+      // parentNode.setAttribute("position", mat.getTranslation());
+      // parentNode.setAttribute("scale", mat.getScaling());
+      // parentNode.setAttribute("rotation", mat.getRotation());
     }
     const gomlNode = parentNode.addChildByName("object", {});
     gomlNode.element.className = nodeName;
