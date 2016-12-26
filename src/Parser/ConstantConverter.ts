@@ -93,21 +93,4 @@ export default class GLTFConstantConvert {
     }
   }
 
-  public static asGrAttribName(bufferName: string): string {
-    switch (bufferName) {
-      case "POSITION":
-        return "position";
-      case "NORMAL":
-        return "normal";
-      case "TEXCOORD_0":
-        return "texCoord";
-      case "JOINT":
-        return "joint";
-      case "WEIGHT":
-        return "weight";
-      default:
-        throw new Error("Unknown semantic" + bufferName);
-    }
-  }
-
 }

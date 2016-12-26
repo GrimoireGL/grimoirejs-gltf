@@ -68,6 +68,7 @@
     "yargs": "^6.5.0"
   },
   "dependencies": {
+    "babel": "^6.5.2",
     "grimoirejs": "beta",
     "grimoirejs-fundamental": "^0.7.9",
     "grimoirejs-math": "^1.7.0"

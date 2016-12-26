@@ -162,7 +162,7 @@ export default class GLTFParser {
         const uvBuf = new Buffer(gl, WebGLRenderingContext.ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
         uvBuf.update(new Float32Array(new ArrayBuffer(8 * posAttr.count)));
         usedBuffers["@@UV"] = uvBuf;
-        attribInfo["texCoord"] = {
+        attribInfo["TEXCOORD_0"] = {
           bufferName: "@@UV",
           size: 2,
           offset: 0,
@@ -171,7 +171,6 @@ export default class GLTFParser {
         };
       }
       for (let attrib in primitive.attributes) {
-        const grAttrib = GLTFConstantConverter.asGrAttribName(attrib);
         const accessor = tf.accessors[primitive.attributes[attrib]];
         usedBuffers[accessor.bufferView] = buffers[accessor.bufferView];
         if (attrib === "POSITION") {
@@ -181,7 +180,7 @@ export default class GLTFParser {
             aabb = GLTFParser._genAABB(arrayBuffers[accessor.bufferView], accessor.byteStride, accessor.byteOffset, accessor.count);
           }
         }
-        attribInfo[grAttrib] = {
+        attribInfo[attrib] = {
           bufferName: accessor.bufferView,
           size: GLTFConstantConverter.asVectorSize(accessor.type),
           type: accessor.componentType,
