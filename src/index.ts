@@ -24,6 +24,9 @@
   import __INTERFACE__15 from "./Parser/Schema/GLTFSkin";
   import __INTERFACE__16 from "./Parser/Schema/GLTFTexture";
 
+var __VERSION__ = "1.7.1";
+var __NAME__ = "grimoirejs-gltf";
+
 import __MAIN__ from "./main"
 
 var __EXPOSE__ = {
@@ -48,6 +51,10 @@ var __EXPOSE__ = {
 
 let __BASE__ = __MAIN__();
 
+Object.assign(__EXPOSE__,{
+    __VERSION__:__VERSION__,
+    __NAME__:__NAME__
+});
 Object.assign(__BASE__|| {},__EXPOSE__);
 
 window["GrimoireJS"].lib.gltf = __EXPOSE__;

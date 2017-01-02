@@ -10,7 +10,7 @@ import TextFileResolver from "grimoirejs-fundamental/ref/Asset/TextFileResolver"
 import GLTF from "./Schema/GLTF";
 import Buffer from "grimoirejs-fundamental/ref/Resource/Buffer";
 import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
-import VertexBufferAttribInfo from "grimoirejs-fundamental/ref/Geometry/VertexBufferAttribInfo";
+import VertexBufferAccessor from "grimoirejs-fundamental/ref/Geometry/VertexBufferAccessor";
 import IndexBufferInfo from "grimoirejs-fundamental/ref/Geometry/IndexBufferInfo";
 import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
@@ -28,7 +28,7 @@ export default class GLTFParser {
     const animations = {};
     const skins = {};
     const materials: { [key: string]: { type: string;[key: string]: any; } } = {};
-    const accessors: { [key: string]: VertexBufferAttribInfo } = {};
+    const accessors: { [key: string]: VertexBufferAccessor } = {};
     // constructing buffers
     for (let key in tf.buffers) {
       rawBuffer[key] = await GLTFParser.bufferFromURL(tf, key, baseUrl);
@@ -122,39 +122,34 @@ export default class GLTFParser {
     const meshInfo = tf.meshes[meshName];
     const geometries: Geometry[] = [];
     for (let p = 0; p < meshInfo.primitives.length; p++) {
+      const geometry = new Geometry(gl);
       const primitive = meshInfo.primitives[p];
       const index = {} as IndexBufferInfo;
-      index.topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
+      const topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
       if (primitive.indices) {
         const indexAccessor = tf.accessors[primitive.indices];
-        index.byteSize = GLTFConstantConverter.asByteSize(indexAccessor.componentType);
         // construct index buffer
         const baseBuffer = arrayBuffers[indexAccessor.bufferView];
         const typedArrCtor = GLTFConstantConverter.elementTypeToTypedArray(indexAccessor.componentType);
         const indexBufferSrc = new typedArrCtor(baseBuffer.buffer, indexAccessor.byteOffset + baseBuffer.byteOffset);
-        const indexBuffer = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
-        indexBuffer.update(indexBufferSrc);
-        index.type = indexAccessor.componentType;
-        index.index = indexBuffer;
-        index.byteOffset = 0;
-        index.count = indexAccessor.count;
+        const iBuf = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
+        iBuf.update(indexBufferSrc);
+        geometry.addIndex("default",iBuf,topology,0,indexAccessor.count,indexAccessor.componentType);
       } else {
         // should generate new index buffer for primitives
         const vertCount = tf.accessors[primitive.attributes["POSITION"]].count;
         const bufferInfo = GLTFConstantConverter.indexCountToBufferInfo(vertCount);
         index.type = bufferInfo.elementType;
-        index.index = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
-        index.byteSize = bufferInfo.byteSize;
-        index.byteOffset = 0;
-        index.count = vertCount;
+        const ibuf =  new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
         const array = new bufferInfo.ctor(index.count);
         for (var i = 0; i < index.count; i++) {
           array[i] = i;
         }
         index.index.update(array);
+        geometry.addIndex("default",ibuf,topology,0,vertCount,bufferInfo.elementType);
       }
       // parse verticies
-      const attribInfo = {} as { [key: string]: VertexBufferAttribInfo };
+      const attribInfo = {} as { [key: string]: VertexBufferAccessor };
       const usedBuffers = {} as { [key: string]: Buffer };
       let aabb;
       if (!primitive.attributes["TEXCOORD_0"]) { // needs generating texture buffer
@@ -162,14 +157,13 @@ export default class GLTFParser {
         const uvBuf = new Buffer(gl, WebGLRenderingContext.ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
         uvBuf.update(new Float32Array(new ArrayBuffer(8 * posAttr.count)));
         usedBuffers["@@UV"] = uvBuf;
-        attribInfo["TEXCOORD_0"] = {
-          bufferName: "@@UV",
-          size: 2,
-          offset: 0,
-          stride: 0,
-          type: WebGLRenderingContext.FLOAT
-        };
+        geometry.addAttributes(uvBuf,{
+          TEXCOORD_0:{
+            size:2
+          }
+        });
       }
+
       for (let attrib in primitive.attributes) {
         const accessor = tf.accessors[primitive.attributes[attrib]];
         usedBuffers[accessor.bufferView] = buffers[accessor.bufferView];
@@ -180,15 +174,15 @@ export default class GLTFParser {
             aabb = GLTFParser._genAABB(arrayBuffers[accessor.bufferView], accessor.byteStride, accessor.byteOffset, accessor.count);
           }
         }
-        attribInfo[attrib] = {
-          bufferName: accessor.bufferView,
+        const bufAccessor = {};
+        bufAccessor[attrib] = {
           size: GLTFConstantConverter.asVectorSize(accessor.type),
           type: accessor.componentType,
           stride: accessor.byteStride,
           offset: accessor.byteOffset
         };
+        geometry.addAttributes(buffers[accessor.bufferView],bufAccessor);
       }
-      const geometry = new Geometry(usedBuffers, attribInfo, { default: index }, aabb);
       geometry["materialName"] = primitive.material; // TODO fix this bad implementation to find material from geometry
       geometries.push(geometry);
     }
