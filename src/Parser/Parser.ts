@@ -124,7 +124,6 @@ export default class GLTFParser {
     for (let p = 0; p < meshInfo.primitives.length; p++) {
       const geometry = new Geometry(gl);
       const primitive = meshInfo.primitives[p];
-      const index = {} as IndexBufferInfo;
       const topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
       if (primitive.indices) {
         const indexAccessor = tf.accessors[primitive.indices];
@@ -139,13 +138,12 @@ export default class GLTFParser {
         // should generate new index buffer for primitives
         const vertCount = tf.accessors[primitive.attributes["POSITION"]].count;
         const bufferInfo = GLTFConstantConverter.indexCountToBufferInfo(vertCount);
-        index.type = bufferInfo.elementType;
         const ibuf =  new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
-        const array = new bufferInfo.ctor(index.count);
-        for (var i = 0; i < index.count; i++) {
+        const array = new bufferInfo.ctor(vertCount);
+        for (var i = 0; i < vertCount; i++) {
           array[i] = i;
         }
-        index.index.update(array);
+        ibuf.update(array);
         geometry.addIndex("default",ibuf,topology,0,vertCount,bufferInfo.elementType);
       }
       // parse verticies
