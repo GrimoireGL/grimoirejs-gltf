@@ -1,3 +1,4 @@
+import Program from "grimoirejs-fundamental/ref/Resource/Program";
 import ResourceResolver from "./ResourceResolver";
 import Shader from "grimoirejs-fundamental/ref/Resource/Shader";
 import Accessor from "../Accessor/Accessor";
@@ -28,7 +29,9 @@ export default class GLTFParser {
         const images = {};
         const textures = {};
         const animations = {};
+        const shaders = {};
         const skins = {};
+        const programs = {};
         const materials: { [key: string]: { type: string;[key: string]: any; } } = {};
         const accessors: { [key: string]: VertexBufferAttribInfo } = {};
         // constructing buffers
@@ -69,12 +72,22 @@ export default class GLTFParser {
             tex.wrapT = sampler.wrapT || WebGLRenderingContext.REPEAT;
             tex.update(images[texInfo.source]);
         }
+        const shaderLoadTasks = [];
         // parse shaders
         for (let key in tf.shaders) {
             const shaderInfo = tf.shaders[key];
-            const shaderText = await resourceResolver.fetchText(shaderInfo.uri);
-            const shader = new Shader(gl, shaderInfo.type);
-            shader.update(shaderText);
+            shaderLoadTasks.push(resourceResolver.fetchText(shaderInfo.uri).then(s => {
+                const shader = new Shader(gl, shaderInfo.type);
+                shader.update(s);
+                shaders[key] = shader;
+            }));
+        }
+        await Promise.all(shaderLoadTasks);
+        // parse programs
+        for (let key in tf.programs) {
+            const programInfo = tf.programs[key];
+            const program = programs[key] = new Program(gl);
+            program.update([shaders[programInfo.vertexShader], shaders[programInfo.fragmentShader]]);
         }
         for (let key in tf.materials) {
             const material = tf.materials[key];

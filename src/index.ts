@@ -5,6 +5,7 @@
   import ComponentsGLTFJointComponent from "./Components/GLTFJointComponent";
   import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
   import ParserConstantConverter from "./Parser/ConstantConverter";
+  import ParserGLTFMaterialFactory from "./Parser/GLTFMaterialFactory";
   import ParserMaterialsCommonParser from "./Parser/MaterialsCommonParser";
   import ParserParser from "./Parser/Parser";
   import ParserResourceResolver from "./Parser/ResourceResolver";
@@ -23,7 +24,8 @@
   import __INTERFACE__13 from "./Parser/Schema/GLTFNode";
   import __INTERFACE__14 from "./Parser/Schema/GLTFSampler";
   import __INTERFACE__15 from "./Parser/Schema/GLTFSkin";
-  import __INTERFACE__16 from "./Parser/Schema/GLTFTexture";
+  import __INTERFACE__16 from "./Parser/Schema/GLTFTechnique";
+  import __INTERFACE__17 from "./Parser/Schema/GLTFTexture";
 
 import __MAIN__ from "./main"
 
@@ -42,6 +44,7 @@ var __EXPOSE__ = {
   },
   "Parser": {
     "ConstantConverter": ParserConstantConverter,
+    "GLTFMaterialFactory": ParserGLTFMaterialFactory,
     "MaterialsCommonParser": ParserMaterialsCommonParser,
     "Parser": ParserParser,
     "ResourceResolver": ParserResourceResolver

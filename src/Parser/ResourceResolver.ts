@@ -39,7 +39,7 @@ export default class ResourceResolver {
         if (this.isDataUri(uri)) {
             throw new Error("Not implemented");
         } else {
-            return TextFileResolver.resolve(uri);
+            return TextFileResolver.resolve(this.baseUrl + uri);
         }
     }
 

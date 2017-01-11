@@ -21,6 +21,7 @@
     "./src/index.ts",
     "./src/main.ts",
     "./src/Parser/ConstantConverter.ts",
+    "./src/Parser/GLTFMaterialFactory.ts",
     "./src/Parser/MaterialsCommonParser.ts",
     "./src/Parser/ParsedGLTF.ts",
     "./src/Parser/Parser.ts",
@@ -38,6 +39,7 @@
     "./src/Parser/Schema/GLTFNode.ts",
     "./src/Parser/Schema/GLTFSampler.ts",
     "./src/Parser/Schema/GLTFSkin.ts",
+    "./src/Parser/Schema/GLTFTechnique.ts",
     "./src/Parser/Schema/GLTFTexture.ts",
     "./src/raw.d.ts"
   ],
