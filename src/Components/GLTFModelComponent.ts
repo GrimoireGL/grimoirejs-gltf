@@ -77,27 +77,37 @@ export default class GLTFModelComponent extends Component {
         return "." + query;
     }
 
-  private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
-    const node = data.tf.nodes[nodeName];
-    if (node.skin) {
-      // adjust skin to node
-      parentNode = parentNode.addChildByName("object", {});
-      const mat = Matrix.inverse(data.skins[node.skin].bindShapeMatrix);
-      // parentNode.setAttribute("position", mat.getTranslation());
-      // parentNode.setAttribute("scale", mat.getScaling());
-      // parentNode.setAttribute("rotation", mat.getRotation());
-    }
-    const gomlNode = parentNode.addChildByName("object", {});
-    gomlNode.element.className = nodeName;
-    if (node.meshes !== void 0) {
-      for (let i = 0; i < node.meshes.length; i++) {
-        const mesh = data.meshes[node.meshes[i]];
-        for (let j = 0; j < mesh.length; j++) {
-          const matquery = this._populateMaterial(data, data.tf.meshes[node.meshes[i]].primitives[j].material, node.skin);
-          gomlNode.addChildByName("gltf-mesh", {
-            geometry: mesh[j],
-            material: matquery
-          });
+    private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
+        const node = data.tf.nodes[nodeName];
+        if (node.skin) {
+            // adjust skin to node
+            parentNode = parentNode.addChildByName("object", {});
+        }
+        const gomlNode = parentNode.addChildByName("object", {});
+        gomlNode.element.className = nodeName;
+        if (node.meshes !== void 0) {
+            for (let i = 0; i < node.meshes.length; i++) {
+                const mesh = data.meshes[node.meshes[i]];
+                for (let j = 0; j < mesh.length; j++) {
+                    const matquery = this._populateMaterial(data, data.tf.meshes[node.meshes[i]].primitives[j].material, node.skin);
+                    gomlNode.addChildByName("gltf-mesh", {
+                        geometry: mesh[j],
+                        material: matquery
+                    });
+                }
+            }
+        }
+        this._applyTransform(node, gomlNode);
+        if (node.children) {
+            for (let chNodeName of node.children) {
+                this._populateNode(data, chNodeName, gomlNode);
+            }
+        }
+        if (node.skeletons && node.skin) {
+            for (let i = 0; i < node.skeletons.length; i++) {
+                const jointNode = this.node.getChildrenByClass(node.skeletons[i]);
+                this._injectJoint(data, jointNode[0], node.skeletons[i], gomlNode.getComponent(TransformComponent), node.skin);
+            }
         }
     }
 
