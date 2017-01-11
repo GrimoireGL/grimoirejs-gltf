@@ -1,7 +1,8 @@
+import ResourceResolver from "../Util/ResourceResolver";
 import Accessor from "../Accessor/Accessor";
 import Matrix from "grimoirejs-math/ref/Matrix";
 import Animation from "../Animation/Animation";
-import GLTFMaterialsCommonParser from "./MaterialsCommonParser";
+import MaterialParser from "./MaterialParser";
 import GLTFConstantConverter from "./ConstantConverter";
 import Vector3 from "grimoirejs-math/ref/Vector3";
 import AABB from "grimoirejs-math/ref/AABB";
@@ -16,7 +17,7 @@ import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 export default class GLTFParser {
   public static async parseFromURL(gl: WebGLRenderingContext, url: string): Promise<ParsedGLTF> {
-    const baseUrl = GLTFParser.getBaseDir(url);
+    const resourceResolver = new ResourceResolver(url);
     const resolved = (await TextFileResolver.resolve(url));
     const tf = JSON.parse(resolved) as GLTF;
     const rawBuffer: { [key: string]: ArrayBuffer } = {};
@@ -27,11 +28,11 @@ export default class GLTFParser {
     const textures = {};
     const animations = {};
     const skins = {};
-    const materials: { [key: string]: { type: string;[key: string]: any; } } = {};
+    const materials: { [key: string]: { [key: string]: any; } } = {};
     const accessors: { [key: string]: VertexBufferAccessor } = {};
     // constructing buffers
     for (let key in tf.buffers) {
-      rawBuffer[key] = await GLTFParser.bufferFromURL(tf, key, baseUrl);
+      rawBuffer[key] = await resourceResolver.loadBuffer(tf.buffers[key].uri);
     }
     for (let key in tf.bufferViews) {
       const bufferView = tf.bufferViews[key];
@@ -52,17 +53,12 @@ export default class GLTFParser {
     // constructing textures
     const imgLoadTask = [];
     for (let key in tf.images) {
-      if (GLTFParser.isDataUri(tf.images[key].uri)) {
-        imgLoadTask.push(this.imageFromDataUrl(tf.images[key].uri).then(t => {
+        imgLoadTask.push(resourceResolver.loadImage(tf.images[key].uri).then(t=>{
           images[key] = t;
         }));
-      } else {
-        imgLoadTask.push(ImageResolver.resolve(baseUrl + tf.images[key].uri).then(t => {
-          images[key] = t;
-        }));
-      }
     }
     await Promise.all(imgLoadTask);
+    // parse textures
     for (let key in tf.textures) {
       const texInfo = tf.textures[key];
       const sampler = tf.samplers[texInfo.sampler];
@@ -76,18 +72,9 @@ export default class GLTFParser {
     for (let key in tf.materials) {
       const material = tf.materials[key];
       if (material.extensions !== void 0 && material.extensions.KHR_materials_common) {
-        materials[key] = GLTFMaterialsCommonParser.parse(tf, key, baseUrl, textures);
+        materials[key] =await MaterialParser.parse(tf, key, resourceResolver, textures);
       } else {
-        console.warn("program is not parsed. Common material configuration are used alternatively");
-        tf.materials[key].extensions = {};
-        tf.materials[key].extensions.KHR_materials_common = {
-          values: material.values,
-          technique: "PHONG",
-          transparent: true,
-          jointCount: 0,
-          doubleSided: true
-        };
-        materials[key] = GLTFMaterialsCommonParser.parse(tf, key, baseUrl, textures);
+        materials[key] =await MaterialParser.parse(tf, key, resourceResolver, textures);
       }
     }
     // parse animations
@@ -187,26 +174,6 @@ export default class GLTFParser {
     return geometries;
   }
 
-  private static bufferFromURL(tf: GLTF, bufferName: string, baseUrl: string): Promise<ArrayBuffer> {
-    if (GLTFParser.isDataUri(tf.buffers[bufferName].uri)) {
-      return new Promise((resolve, reject) => {
-        resolve(GLTFParser.dataUriToArrayBuffer(tf.buffers[bufferName].uri));
-      });
-    }
-    return new Promise<ArrayBuffer>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", baseUrl + tf.buffers[bufferName].uri);
-      xhr.responseType = "arraybuffer";
-      xhr.onload = (v) => {
-        resolve(xhr.response);
-      };
-      xhr.onerror = (e) => {
-        reject(e);
-      };
-      xhr.send();
-    });
-  }
-
   private static _genAABB(view: ArrayBufferView, stride: number, offset: number, count: number): AABB {
     const aabb = new AABB();
     const dView = new Float32Array(view.buffer, view.byteOffset);
@@ -214,45 +181,5 @@ export default class GLTFParser {
       aabb.expand(new Vector3(dView[i], dView[i + 1], dView[i + 2]));
     }
     return aabb;
-  }
-
-  private static isDataUri(dataUri: string): boolean {
-    return !!dataUri.match(/^\s*data\:.*;base64/);
-  }
-
-  private static dataUriToArrayBuffer(dataUri: string): ArrayBuffer {
-    const splittedUri = dataUri.split(",");
-    const byteString = atob(splittedUri[1]);
-    const byteStringLength = byteString.length;
-    const arrayBuffer = new ArrayBuffer(byteStringLength);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < byteStringLength; i++) {
-      uint8Array[i] = byteString.charCodeAt(i);
-    }
-    return arrayBuffer;
-  }
-
-  private static imageFromDataUrl(dataUrl: string): Promise<HTMLCanvasElement | HTMLImageElement> {
-    return new Promise((resolve, reject) => {
-      var canvas = document.createElement('canvas');
-      var context = canvas.getContext('2d');
-      var image = new Image();
-      image.src = dataUrl;
-      image.onload = function() {
-        const cWidth = Math.pow(2, Math.ceil(Math.log(image.width) / Math.LN2));
-        const cHeight = Math.pow(2, Math.ceil(Math.log(image.height) / Math.LN2));
-        if (cWidth === image.width && cHeight == image.height) {
-          resolve(image);
-        }
-        canvas.width = cWidth;
-        canvas.height = cHeight;
-        context.drawImage(image, 0, 0, image.width, image.height, 0, 0, cWidth, cHeight);
-        resolve(canvas);
-      };
-    });
-  }
-
-  private static getBaseDir(url: string): string {
-    return url.substr(0, url.lastIndexOf("/") + 1);
   }
 }

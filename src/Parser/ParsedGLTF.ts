@@ -11,7 +11,6 @@ interface ParsedGLTF {
   textures: { [key: string]: Texture2D };
   materials: {
     [key: string]: {
-      type: string;
       [key: string]: any;
     }
   };

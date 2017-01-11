@@ -19,6 +19,7 @@ interface GLTFMaterial {
     [paramName: string]: any;
   };
   name: string;
+  technique:string;
 }
 
 export default GLTFMaterial;

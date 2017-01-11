@@ -1,5 +1,4 @@
 @Pass{
-@Disable(CULL_FACE)
 @ExposeMacro(int,boneCount,BONE_COUNT,0)
 FS_PREC(mediump,float)
 
