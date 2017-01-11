@@ -5,7 +5,11 @@
   import ComponentsGLTFJointComponent from "./Components/GLTFJointComponent";
   import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
   import ParserConstantConverter from "./Parser/ConstantConverter";
+<<<<<<< HEAD
   import ParserMaterialParser from "./Parser/MaterialParser";
+=======
+  import ParserGLTFMaterialFactory from "./Parser/GLTFMaterialFactory";
+>>>>>>> 131f15060617e43d5780407ef8492899d0c1ce60
   import ParserMaterialsCommonParser from "./Parser/MaterialsCommonParser";
   import ParserParser from "./Parser/Parser";
   import ParserResourceResolver from "./Parser/ResourceResolver";
@@ -25,7 +29,8 @@
   import __INTERFACE__13 from "./Parser/Schema/GLTFNode";
   import __INTERFACE__14 from "./Parser/Schema/GLTFSampler";
   import __INTERFACE__15 from "./Parser/Schema/GLTFSkin";
-  import __INTERFACE__16 from "./Parser/Schema/GLTFTexture";
+  import __INTERFACE__16 from "./Parser/Schema/GLTFTechnique";
+  import __INTERFACE__17 from "./Parser/Schema/GLTFTexture";
 
 var __VERSION__ = "1.7.1";
 var __NAME__ = "grimoirejs-gltf";
@@ -47,7 +52,11 @@ var __EXPOSE__ = {
   },
   "Parser": {
     "ConstantConverter": ParserConstantConverter,
+<<<<<<< HEAD
     "MaterialParser": ParserMaterialParser,
+=======
+    "GLTFMaterialFactory": ParserGLTFMaterialFactory,
+>>>>>>> 131f15060617e43d5780407ef8492899d0c1ce60
     "MaterialsCommonParser": ParserMaterialsCommonParser,
     "Parser": ParserParser,
     "ResourceResolver": ParserResourceResolver

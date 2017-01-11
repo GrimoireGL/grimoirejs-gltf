@@ -1,3 +1,4 @@
+import GLTFTechnique from "./GLTFTechnique";
 import GLTFSkin from "./GLTFSkin";
 import GLTFSampler from "./GLTFSampler";
 import GLTFTexture from "./GLTFTexture";
@@ -40,6 +41,16 @@ type GLTF = {
             type: number,
             uri: string
         }
+    },
+    programs: {
+        [programKey: string]: {
+            attributes: string[],
+            fragmentShader: string,
+            vertexShader: string
+        }
+    },
+    techniques: {
+        [techniqueKey: string]: GLTFTechnique;
     },
     images: {
         [imgKey: string]: GLTFImage;
