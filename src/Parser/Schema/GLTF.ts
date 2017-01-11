@@ -10,50 +10,56 @@ import GLTFBuffer from "./GLTFBuffer";
 import GLTFBufferView from "./GLTFBufferView";
 import GLTFAccessor from "./GLTFAccessor";
 type GLTF = {
-  accessors: {
-    [acName: string]: GLTFAccessor;
-  },
-  bufferViews: {
-    [bufName: string]: GLTFBufferView;
-  },
-  buffers: {
-    [bufName: string]: GLTFBuffer;
-  },
-  extensionUsed: string[],
-  materials: {
-    [matName: string]: GLTFMaterial;
-  },
-  meshes: {
-    [meshName: string]: GLTFMesh;
-  },
-  nodes: {
-    [nodeName: string]: GLTFNode;
-  },
-  scene: string,
-  scenes: {
-    [sceneName: string]: {
-      nodes: string[]
+    accessors: {
+        [acName: string]: GLTFAccessor;
+    },
+    bufferViews: {
+        [bufName: string]: GLTFBufferView;
+    },
+    buffers: {
+        [bufName: string]: GLTFBuffer;
+    },
+    extensionUsed: string[],
+    materials: {
+        [matName: string]: GLTFMaterial;
+    },
+    meshes: {
+        [meshName: string]: GLTFMesh;
+    },
+    nodes: {
+        [nodeName: string]: GLTFNode;
+    },
+    scene: string,
+    scenes: {
+        [sceneName: string]: {
+            nodes: string[]
+        }
+    },
+    shaders: {
+        [shaderKey: string]: {
+            type: number,
+            uri: string
+        }
+    },
+    images: {
+        [imgKey: string]: GLTFImage;
+    },
+    textures: {
+        [textureKey: string]: GLTFTexture;
+    },
+    samplers: {
+        [samplerKey: string]: GLTFSampler;
+    },
+    animations: {
+        [animationKey: string]: GLTFAnimation;
+    },
+    skins: {
+        [skinKey: string]: GLTFSkin;
     }
-  },
-  images: {
-    [imgKey: string]: GLTFImage;
-  },
-  textures: {
-    [textureKey: string]: GLTFTexture;
-  },
-  samplers: {
-    [samplerKey: string]: GLTFSampler;
-  },
-  animations: {
-    [animationKey: string]: GLTFAnimation;
-  },
-  skins: {
-    [skinKey: string]: GLTFSkin;
-  }
 };
 
 interface Dummy {
-  // tricky way not to be included as export
+    // tricky way not to be included as export
 }
 
 export default GLTF;

@@ -6,7 +6,9 @@
   import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
   import ParserConstantConverter from "./Parser/ConstantConverter";
   import ParserMaterialParser from "./Parser/MaterialParser";
+  import ParserMaterialsCommonParser from "./Parser/MaterialsCommonParser";
   import ParserParser from "./Parser/Parser";
+  import ParserResourceResolver from "./Parser/ResourceResolver";
   import UtilResourceResolver from "./Util/ResourceResolver";
   import __INTERFACE__1 from "./Animation/Interpolator";
   import __INTERFACE__2 from "./Parser/ParsedGLTF";
@@ -46,7 +48,9 @@ var __EXPOSE__ = {
   "Parser": {
     "ConstantConverter": ParserConstantConverter,
     "MaterialParser": ParserMaterialParser,
-    "Parser": ParserParser
+    "MaterialsCommonParser": ParserMaterialsCommonParser,
+    "Parser": ParserParser,
+    "ResourceResolver": ParserResourceResolver
   },
   "Util": {
     "ResourceResolver": UtilResourceResolver
