@@ -114,13 +114,13 @@ export default class GLTFParser {
       const topology = primitive.mode || WebGLRenderingContext.TRIANGLES;
       if (primitive.indices) {
         const indexAccessor = tf.accessors[primitive.indices];
-        // construct index buffer
-        const baseBuffer = arrayBuffers[indexAccessor.bufferView];
-        const typedArrCtor = GLTFConstantConverter.elementTypeToTypedArray(indexAccessor.componentType);
-        const indexBufferSrc = new typedArrCtor(baseBuffer.buffer, indexAccessor.byteOffset + baseBuffer.byteOffset);
-        const iBuf = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
-        iBuf.update(indexBufferSrc);
-        geometry.addIndex("default",iBuf,topology,0,indexAccessor.count,indexAccessor.componentType);
+        // // construct index buffer
+        // const baseBuffer = arrayBuffers[indexAccessor.bufferView];
+        // const typedArrCtor = GLTFConstantConverter.elementTypeToTypedArray(indexAccessor.componentType);
+        // const indexBufferSrc = new typedArrCtor(baseBuffer.buffer, indexAccessor.byteOffset + baseBuffer.byteOffset);
+        // const iBuf = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
+        // iBuf.update(indexBufferSrc);
+        geometry.addIndex("default",buffers[indexAccessor.bufferView],topology,indexAccessor.byteOffset,indexAccessor.count,indexAccessor.componentType);
       } else {
         // should generate new index buffer for primitives
         const vertCount = tf.accessors[primitive.attributes["POSITION"]].count;

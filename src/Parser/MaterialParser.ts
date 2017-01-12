@@ -31,7 +31,7 @@ export default class MaterialParser {
                 const teq = tf.techniques[material.technique];
                 const tv = teq.parameters[key];
                 let valName = "";
-                for(let uKey in teq.uniforms){
+                for(let uKey in teq.uniforms){　// to find variable name from info
                   if(teq.uniforms[uKey] === key){
                     valName = uKey;
                   }
