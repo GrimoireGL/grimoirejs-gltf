@@ -5,14 +5,15 @@ interface GLTFTechnique {
     parameters: {
         [variableName: string]: {
             type: number,
-            semantic: string
+            semantic: string,
+            value?:any;
         }
     },
     program: string,
     states: {
         enable: number[]
     },
-    unifroms: {
+    uniforms: {
         [variableName: string]: string;
     }
 }

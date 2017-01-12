@@ -1,3 +1,7 @@
+import IState from "grimoirejs-fundamental/ref/Material/IState";
+import IVariableInfo from "grimoirejs-fundamental/ref/Material/IVariableInfo";
+import GLTFTechnique from "./Schema/GLTFTechnique";
+import TextFileResolver from "grimoirejs-fundamental/ref/Asset/TextFileResolver";
 import TechniqueRecipe from "grimoirejs-fundamental/ref/Material/ITechniqueRecipe";
 import Material from "../../node_modules/grimoirejs-fundamental/ref/Material/Material";
 import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
@@ -7,24 +11,117 @@ import GLTFConstantConvert from "./ConstantConverter";
 import ResourceResolver from "../Util/ResourceResolver";
 import GLTF from "./Schema/GLTF";
 export default class MaterialParser {
-    public static async parse(tf: GLTF, matKey: string, ResourceResolver: ResourceResolver, textures: { [key: string]: Texture2D }): Promise<{ [key: string]: any }> {
+    public static async parse(tf: GLTF, matKey: string, rr: ResourceResolver, textures: { [key: string]: Texture2D }): Promise<{ [key: string]: any }> {
         const material = tf.materials[matKey];
-        if (material.extensions.KHR_materials_common) {
+        if (material.extensions && material.extensions.KHR_materials_common) {
             return this._parseMaterialCommon(material, matKey, textures);
-        }else{
-          MaterialFactory.addMaterialType(matKey,(factory)=>{
-            return new Material(factory.gl,this._convertIntoTechniqueRecipe(tf,matKey));
-          });
+        } else {
+            if (MaterialFactory.materialGenerators[material.technique] === void 0) {
+                const techniqueRecipe = await this._convertIntoTechniqueRecipe(tf, matKey, rr);
+                MaterialFactory.addMaterialType(material.technique, (factory) => {
+                    return new Material(factory.gl, techniqueRecipe);
+                });
+            }
+            const result = {
+                type: material.technique,
+                class: "gltf-" + matKey
+            };
+            for (let key in material.values) {
+                const v = material.values[key];
+                const teq = tf.techniques[material.technique];
+                const tv = teq.parameters[key];
+                let valName = "";
+                for(let uKey in teq.uniforms){
+                  if(teq.uniforms[uKey] === key){
+                    valName = uKey;
+                  }
+                }
+                if (tv.type !== WebGLRenderingContext.SAMPLER_2D) {
+                    result[valName] = material.values[key];
+                }else{
+                  result[valName] = textures[material.values[key]];
+                }
+            }
+            return result;
         }
     }
 
-    private static _convertIntoTechniqueRecipe(tf:GLTF,matKey:string):{[key:string]:TechniqueRecipe}{
-      let techniqueRecipe:TechniqueRecipe = {} as TechniqueRecipe;
-      const mat = tf.materials[matKey];
-      const technique = tf.techniques[mat.technique];
-      return {
-        default:techniqueRecipe
-      };
+    private static async _convertIntoTechniqueRecipe(tf: GLTF, matKey: string, resourceResolver: ResourceResolver): Promise<{ [key: string]: TechniqueRecipe }> {
+        const mat = tf.materials[matKey];
+        const technique = tf.techniques[mat.technique];
+        const program = tf.programs[technique.program];
+        let techniqueRecipe: TechniqueRecipe = {
+            passes: [
+                {
+                    vertex: await resourceResolver.loadString(tf.shaders[program.vertexShader].uri),
+                    fragment: await resourceResolver.loadString(tf.shaders[program.fragmentShader].uri),
+                    attributes: this._asAttributeInfo(technique),
+                    uniforms: this._asUniformInfo(technique),
+                    macros: {},
+                    states: this._getState(technique)
+                }
+            ],
+            drawOrder: "UseAlpha"
+        } as TechniqueRecipe;
+        return {
+            default: techniqueRecipe
+        };
+    }
+
+    private static _asAttributeInfo(technique: GLTFTechnique): { [key: string]: IVariableInfo } {
+        const result = {} as { [key: string]: IVariableInfo };
+        for (let key in technique.attributes) {
+            const attrGlue = technique.attributes[key];
+            const paramInfo = technique.parameters[attrGlue];
+            result[key] = {
+                name: key,
+                semantic: paramInfo.semantic,
+                type: paramInfo.type
+            } as IVariableInfo;
+        }
+        return result;
+    }
+
+    private static _asUniformInfo(technique: GLTFTechnique): { [key: string]: IVariableInfo } {
+        const result = {} as { [key: string]: IVariableInfo };
+        for (let key in technique.uniforms) {
+            const uniGlue = technique.uniforms[key];
+            const paramInfo = technique.parameters[uniGlue];
+            const annotations = {};
+            if (paramInfo.value) {
+                annotations["default"] = paramInfo.value;
+            }
+            result[key] = {
+                name: key,
+                semantic: paramInfo.semantic || "USER_VALUE",
+                type: paramInfo.type,
+                attributes: annotations
+            } as IVariableInfo;
+        }
+        return result;
+    }
+
+    private static _getState(technique: GLTFTechnique): IState {
+        const result: IState = {
+            enable: [],
+            functions: {
+                blendColor: [0, 0, 0, 0],
+                cullFace: [WebGLRenderingContext.BACK],
+                blendFuncSeparate: [WebGLRenderingContext.ONE, WebGLRenderingContext.ZERO, WebGLRenderingContext.ONE, WebGLRenderingContext.ZERO],
+                blendEquationSeparate: [WebGLRenderingContext.FUNC_ADD, WebGLRenderingContext.FUNC_ADD],
+                lineWidth: [1],
+                frontFace: [WebGLRenderingContext.CCW],
+                depthRange: [0, 1],
+                depthFunc: [WebGLRenderingContext.LESS]
+            }
+        };
+        const st = technique.states;
+        if (st.enable) {
+            for (let item of st.enable) {
+                result.enable.push(item);
+            }
+        }
+        return result;
     }
 
     private static _parseMaterialCommon(material: GLTFMaterial, matKey: string, textures: { [key: string]: Texture2D }): { [key: string]: any } {

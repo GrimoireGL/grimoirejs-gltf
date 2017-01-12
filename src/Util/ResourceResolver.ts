@@ -1,3 +1,4 @@
+import TextFileResolver from "grimoirejs-fundamental/ref/Asset/TextFileResolver";
 import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
 /**
  * Provides resolving resource dependency while parsing gltf file.
@@ -48,6 +49,19 @@ export default class ResourceResolver{
       };
       xhr.send();
     });
+  }
+
+  /**
+   * Load string from specified url or dataURL
+   * @param  {string}          url [description]
+   * @return {Promise<string>}     [description]
+   */
+  public loadString(url:string):Promise<string>{
+    if(this._isDataUrl(url)){
+      throw new Error("Not implemented yet");
+    }else{
+      return TextFileResolver.resolve(this.baseDirectory + url);
+    }
   }
 
   /**

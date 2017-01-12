@@ -5,14 +5,9 @@
   import ComponentsGLTFJointComponent from "./Components/GLTFJointComponent";
   import ComponentsGLTFModelComponent from "./Components/GLTFModelComponent";
   import ParserConstantConverter from "./Parser/ConstantConverter";
-<<<<<<< HEAD
-  import ParserMaterialParser from "./Parser/MaterialParser";
-=======
   import ParserGLTFMaterialFactory from "./Parser/GLTFMaterialFactory";
->>>>>>> 131f15060617e43d5780407ef8492899d0c1ce60
-  import ParserMaterialsCommonParser from "./Parser/MaterialsCommonParser";
+  import ParserMaterialParser from "./Parser/MaterialParser";
   import ParserParser from "./Parser/Parser";
-  import ParserResourceResolver from "./Parser/ResourceResolver";
   import UtilResourceResolver from "./Util/ResourceResolver";
   import __INTERFACE__1 from "./Animation/Interpolator";
   import __INTERFACE__2 from "./Parser/ParsedGLTF";
@@ -52,14 +47,9 @@ var __EXPOSE__ = {
   },
   "Parser": {
     "ConstantConverter": ParserConstantConverter,
-<<<<<<< HEAD
-    "MaterialParser": ParserMaterialParser,
-=======
     "GLTFMaterialFactory": ParserGLTFMaterialFactory,
->>>>>>> 131f15060617e43d5780407ef8492899d0c1ce60
-    "MaterialsCommonParser": ParserMaterialsCommonParser,
-    "Parser": ParserParser,
-    "ResourceResolver": ParserResourceResolver
+    "MaterialParser": ParserMaterialParser,
+    "Parser": ParserParser
   },
   "Util": {
     "ResourceResolver": UtilResourceResolver

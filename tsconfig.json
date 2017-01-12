@@ -21,15 +21,10 @@
     "./src/index.ts",
     "./src/main.ts",
     "./src/Parser/ConstantConverter.ts",
-<<<<<<< HEAD
-    "./src/Parser/MaterialParser.ts",
-=======
     "./src/Parser/GLTFMaterialFactory.ts",
->>>>>>> 131f15060617e43d5780407ef8492899d0c1ce60
-    "./src/Parser/MaterialsCommonParser.ts",
+    "./src/Parser/MaterialParser.ts",
     "./src/Parser/ParsedGLTF.ts",
     "./src/Parser/Parser.ts",
-    "./src/Parser/ResourceResolver.ts",
     "./src/Parser/Schema/GLTF.ts",
     "./src/Parser/Schema/GLTFAccessor.ts",
     "./src/Parser/Schema/GLTFAnimation.ts",

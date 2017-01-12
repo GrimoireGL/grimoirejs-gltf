@@ -1827,7 +1827,7 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.4, graceful-fs@^4.1.6, graceful-fs@^4.1.9:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
 
-grimoirejs-cauldron@^2.1.3:
+grimoirejs-cauldron@^2.1.3, grimoirejs-cauldron@^2.2.5:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/grimoirejs-cauldron/-/grimoirejs-cauldron-2.2.6.tgz#d85e828bc3fcace71eaf050e8e45f2b0cf9ce353"
   dependencies:
@@ -1842,20 +1842,19 @@ grimoirejs-cauldron@^2.1.3:
     yargs "^6.3.0"
 
 grimoirejs-fundamental@beta:
-  version "0.11.0-beta0"
-  resolved "https://registry.yarnpkg.com/grimoirejs-fundamental/-/grimoirejs-fundamental-0.11.0-beta0.tgz#4c18ca7e1d7051612afd304cce6049b966543a5e"
+  version "0.11.0-beta14"
+  resolved "https://registry.yarnpkg.com/grimoirejs-fundamental/-/grimoirejs-fundamental-0.11.0-beta14.tgz#0ebe787bea4eced41031782fc78d48cd7f2ffa46"
   dependencies:
     "@types/json5" "0.0.29"
-    grimoirejs "^0.13.0"
+    grimoirejs beta
     grimoirejs-math "^1.8.0"
     json5 "^0.5.1"
 
-grimoirejs-math@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/grimoirejs-math/-/grimoirejs-math-1.8.0.tgz#5f8c507d6b65e6cba14c2c6ecc6feed96213d8e2"
+grimoirejs-math@^1.8.0, grimoirejs-math@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/grimoirejs-math/-/grimoirejs-math-1.8.1.tgz#b13983f62b2b2fd4c5f1e8bdd0bb4f616640e468"
   dependencies:
     gl-matrix "^2.3.2"
-    grimoirejs "^0.13.0"
 
 grimoirejs@^0.13.0:
   version "0.13.0"
@@ -1864,6 +1863,14 @@ grimoirejs@^0.13.0:
     "@types/node" "^6.0.47"
     events "^1.1.1"
     grimoirejs-cauldron "^2.1.3"
+
+grimoirejs@beta:
+  version "0.13.5-beta4"
+  resolved "https://registry.yarnpkg.com/grimoirejs/-/grimoirejs-0.13.5-beta4.tgz#49bd03f189b9c6accb61d9e8ae34967a7db44829"
+  dependencies:
+    "@types/node" "^6.0.47"
+    events "^1.1.1"
+    grimoirejs-cauldron "^2.2.5"
 
 handlebars@^4.0.6:
   version "4.0.6"
@@ -3601,9 +3608,9 @@ type-name@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/type-name/-/type-name-2.0.2.tgz#efe7d4123d8ac52afff7f40c7e4dec5266008fb4"
 
-typescript@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.1.4.tgz#b53b69fb841126acb1dd4b397d21daba87572251"
+typescript@^2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.1.5.tgz#6fe9479e00e01855247cea216e7561bafcdbcd4a"
 
 uglify-js@^2.6, uglify-js@^2.7.3, uglify-js@~2.7.3:
   version "2.7.5"
