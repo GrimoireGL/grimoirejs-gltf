@@ -11,6 +11,10 @@ export default class GLTFAnimationComponent extends Component {
     animation: {
       converter: "Object",
       default: null
+    },
+    frame:{
+      converter:"Number",
+      default:0
     }
   };
 
@@ -51,6 +55,7 @@ export default class GLTFAnimationComponent extends Component {
           break;
         case "scale":
           transform.localScale.rawElements = v;
+          break;
       }
     });
     for (let tr in this._targetTransforms) {
