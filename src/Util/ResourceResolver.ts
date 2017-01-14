@@ -58,7 +58,7 @@ export default class ResourceResolver{
    */
   public loadString(url:string):Promise<string>{
     if(this._isDataUrl(url)){
-      throw new Error("Not implemented yet");
+      return Promise.resolve(this._dataUriToText(url));
     }else{
       return TextFileResolver.resolve(this.baseDirectory + url);
     }
@@ -104,6 +104,12 @@ export default class ResourceResolver{
         resolve(canvas);
       };
     });
+  }
+
+  private _dataUriToText(dataUrl:string):string{
+    const splittedUri = dataUrl.split(",");
+    const byteString = atob(splittedUri[1]);
+    return byteString;
   }
 
   /**
