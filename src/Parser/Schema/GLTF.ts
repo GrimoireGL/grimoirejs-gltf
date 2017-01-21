@@ -1,3 +1,4 @@
+import GLTFShader from "./GLTFShader";
 import GLTFTechnique from "./GLTFTechnique";
 import GLTFSkin from "./GLTFSkin";
 import GLTFSampler from "./GLTFSampler";
@@ -37,10 +38,7 @@ type GLTF = {
         }
     },
     shaders: {
-        [shaderKey: string]: {
-            type: number,
-            uri: string
-        }
+        [shaderKey: string]: GLTFShader;
     },
     programs: {
         [programKey: string]: {

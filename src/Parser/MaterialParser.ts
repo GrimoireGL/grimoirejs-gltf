@@ -16,7 +16,7 @@ export default class MaterialParser {
         if (material.extensions && material.extensions.KHR_materials_common) {
             return this._parseMaterialCommon(material, matKey, textures);
         } else {
-            if (MaterialFactory.materialGenerators[material.technique] === void 0) {
+            if (MaterialFactory.registerdHandlers[material.technique] === void 0) {
                 const techniqueRecipe = await this._convertIntoTechniqueRecipe(tf, matKey, rr);
                 MaterialFactory.addMaterialType(material.technique, (factory) => {
                     return new Material(factory.gl, techniqueRecipe);
@@ -53,8 +53,8 @@ export default class MaterialParser {
         let techniqueRecipe: TechniqueRecipe = {
             passes: [
                 {
-                    vertex: await resourceResolver.loadString(tf.shaders[program.vertexShader].uri),
-                    fragment: await resourceResolver.loadString(tf.shaders[program.fragmentShader].uri),
+                    vertex: await resourceResolver.loadShader(tf.shaders[program.vertexShader]),
+                    fragment: await resourceResolver.loadShader(tf.shaders[program.fragmentShader]),
                     attributes: this._asAttributeInfo(technique),
                     uniforms: this._asUniformInfo(technique),
                     macros: {},

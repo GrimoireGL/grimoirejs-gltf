@@ -23,14 +23,15 @@
   import __INTERFACE__12 from "./Parser/Schema/GLTFMesh";
   import __INTERFACE__13 from "./Parser/Schema/GLTFNode";
   import __INTERFACE__14 from "./Parser/Schema/GLTFSampler";
-  import __INTERFACE__15 from "./Parser/Schema/GLTFSkin";
-  import __INTERFACE__16 from "./Parser/Schema/GLTFTechnique";
-  import __INTERFACE__17 from "./Parser/Schema/GLTFTexture";
+  import __INTERFACE__15 from "./Parser/Schema/GLTFShader";
+  import __INTERFACE__16 from "./Parser/Schema/GLTFSkin";
+  import __INTERFACE__17 from "./Parser/Schema/GLTFTechnique";
+  import __INTERFACE__18 from "./Parser/Schema/GLTFTexture";
 
 var __VERSION__ = "1.8.0-beta1";
 var __NAME__ = "grimoirejs-gltf";
 
-import __MAIN__ from "./main"
+import __MAIN__ from "./main";
 
 var __EXPOSE__ = {
   "Accessor": {

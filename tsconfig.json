@@ -37,6 +37,7 @@
     "./src/Parser/Schema/GLTFMesh.ts",
     "./src/Parser/Schema/GLTFNode.ts",
     "./src/Parser/Schema/GLTFSampler.ts",
+    "./src/Parser/Schema/GLTFShader.ts",
     "./src/Parser/Schema/GLTFSkin.ts",
     "./src/Parser/Schema/GLTFTechnique.ts",
     "./src/Parser/Schema/GLTFTexture.ts",
