@@ -1,6 +1,6 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "1.8.0-beta1",
+  "version": "1.8.0-beta2",
   "description": "glTF model loader for grimoire.js",
   "main": "./ref/index.js",
   "scripts": {
