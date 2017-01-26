@@ -1,13 +1,15 @@
 @Pass{
-@Disable(CULL_FACE)
+@BlendFunc(SRC_ALPHA,ONE_MINUS_SRC_ALPHA)
 @ExposeMacro(int,boneCount,BONE_COUNT,0)
 FS_PREC(mediump,float)
 
+varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec2 vUV;
 
 #ifdef VS
 #if BONE_COUNT > 0
+  @JOINTMATRIX
   uniform mat4 boneMatrices[BONE_COUNT];
 #endif
   @NORMAL
@@ -25,15 +27,17 @@ varying vec2 vUV;
   uniform mat4 _matPVM;
   uniform mat4 _matM;
   void main(){
+    mat4 transform = _matM;
+    mat4 projectionTransform = _matPVM;
     #if BONE_COUNT > 0
       mat4 skinMat = weight.x * boneMatrices[int(joint.x)] + weight.y * boneMatrices[int(joint.y)] + weight.z * boneMatrices[int(joint.z)] + weight.w * boneMatrices[int(joint.w)];
-      gl_Position = _matPVM * skinMat * vec4(position,1);
-      vNormal = normalize((_matM * skinMat  * vec4(normal,0)).xyz);
-    #else
-      gl_Position = _matPVM  * vec4(position,1);
-      vNormal = normalize((_matM  * vec4(normal,0)).xyz);
+      transform *= skinMat;
+      projectionTransform *= skinMat;
     #endif
     vUV = texCoord;
+    vNormal = normalize((transform * vec4(normal,0.0)).xyz);
+    vPosition = (transform * vec4(position,1.0)).xyz;
+    gl_Position = projectionTransform * vec4(position,1.0);
   }
 
 
@@ -41,26 +45,80 @@ varying vec2 vUV;
 
 
 #ifdef FS
-  uniform sampler2D texture;
 
-  @HAS_TEXTURE{sampler:"texture"}
-  uniform bool _textureUsed;
+  @{type:"color"}
+  uniform vec3 ambient;
+
+  uniform sampler2D ambientTexture;
+
+  @HAS_TEXTURE{sampler:"ambientTexture"}
+  uniform bool ambientTextureUsed;
 
   @{type:"color"}
   uniform vec4 diffuse;
+
+  uniform sampler2D diffuseTexture;
+
+  @HAS_TEXTURE{sampler:"diffuseTexture"}
+  uniform bool diffuseTextureUsed;
+
+  @{type:"color"}
+  uniform vec3 specular;
+
+  uniform sampler2D specularTexture;
+
+  @HAS_TEXTURE{sampler:"specularTexture"}
+  uniform bool specularTextureUsed;
+
+  @{type:"color"}
+  uniform vec3 emission;
+
+  uniform sampler2D emissionTexture;
+
+  @HAS_TEXTURE{sampler:"emissionTexture"}
+  uniform bool emissionTextureUsed;
+
+  @{default:"1.0"}
+  uniform float shininess;
+
+  @{default:"1.0"}
+  uniform float transparency;
+
+  uniform vec3 _cameraPosition;
 
   @{default:"n(1,1,-1)"}
   uniform vec3 sunDir;
 
   void main(){
-    vec4 dColor;
-    if(_textureUsed){
-      dColor = texture2D(texture,vUV);
+    vec4 dColor = vec4(0);
+    vec3 sColor = vec3(0);
+    vec3 eColor = vec3(0);
+    vec3 aColor = vec3(0);
+    vec3 hVec = normalize(normalize(_cameraPosition - vPosition) + sunDir);
+    if(ambientTextureUsed){
+      aColor = texture2D(ambientTexture,vUV).rgb;
+    }else{
+      aColor = ambient;
+    }
+    if(diffuseTextureUsed){
+      dColor = texture2D(diffuseTexture,vUV);
     }else{
       dColor = diffuse;
     }
-    gl_FragColor.xyz = dot(sunDir,vNormal) * dColor.xyz;
-    gl_FragColor.w = dColor.w;
+    dColor.rgb = dot(sunDir,vNormal) * dColor.rgb;
+    if(specularTextureUsed){
+      sColor = texture2D(specularTexture,vUV).rgb;
+    }else{
+      sColor = specular;
+    }
+    if(emissionTextureUsed){
+      eColor = texture2D(emissionTexture,vUV).rgb;
+    }else{
+      eColor = emission;
+    }
+    sColor = sColor * pow(max(0.,dot(hVec,vNormal)),shininess);
+    gl_FragColor.rgb = dColor.rgb + sColor + eColor + aColor;
+    gl_FragColor.a = dColor.a * transparency;
   }
 #endif
 }

@@ -3,6 +3,7 @@ import GLTFAnimationComponent from "./Components/GLTFAnimationComponent";
 import GLTFModelComponent from "./Components/GLTFModelComponent";
 import GrimoireInterface from "grimoirejs";
 import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
+import UniformResolverRegistry from "grimoirejs-fundamental/ref/Material/UniformResolverRegistry";
 import gltfUnlit from "raw!./Shaders/gltf-unlit.sort";
 export default () => {
   GrimoireInterface.register(
@@ -18,6 +19,18 @@ export default () => {
       GrimoireInterface.registerNode("gltf-assets", [], {});
       GrimoireInterface.registerNode("gltf-animation", ["GLTFAnimation"], {});
       MaterialFactory.addSORTMaterial("gltf-unlit", gltfUnlit);
+      UniformResolverRegistry.add("JOINTMATRIX",(valInfo,material)=>{
+        material.addArgument("boneMatrices",{
+          converter:"Object",
+          default:null
+        });
+        return (proxy,info)=>{
+          if(!material.arguments["boneMatrices"]){
+            return;
+          }
+          proxy.uniformMatrixArray(valInfo.name, material.arguments["boneMatrices"]);
+        }
+      })
     }
   );
 }

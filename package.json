@@ -1,7 +1,7 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "1.7.1",
-  "description": "",
+  "version": "1.8.1",
+  "description": "glTF model loader for grimoire.js",
   "main": "./ref/index.js",
   "scripts": {
     "start": "webpack --watch --progress",
@@ -53,24 +53,24 @@
   },
   "devDependencies": {
     "ava": "^0.17.0",
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.21.0",
+    "babel-cli": "^6.22.2",
+    "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
-    "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-stage-2": "^6.18.0",
-    "grimoirejs-cauldron": "^2.1.3",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "grimoirejs-cauldron": "^2.3.1-beta7",
     "raw-loader": "^0.5.1",
-    "ts-loader": "^1.3.3",
-    "typescript": "^2.1.4",
+    "ts-loader": "^2.0.0",
+    "typescript": "^2.1.5",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2",
     "webpack-shell-plugin": "^0.5.0",
     "yargs": "^6.5.0"
   },
   "dependencies": {
-    "grimoirejs": "^0.13.0",
-    "grimoirejs-fundamental": "^0.10.3",
-    "grimoirejs-math": "^1.8.0"
+    "grimoirejs": "^0.14.0",
+    "grimoirejs-fundamental": "^0.12.1",
+    "grimoirejs-math": "^1.10.0"
   }
 }
