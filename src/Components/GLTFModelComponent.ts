@@ -91,7 +91,7 @@ export default class GLTFModelComponent extends Component {
                 for (let j = 0; j < mesh.length; j++) {
                     const materialName = data.tf.meshes[node.meshes[i]].primitives[j].material;
                     const exts = data.tf.materials[materialName].extensions;
-                    const noUseAlpha = exts&&exts.KHR_materials_common && !exts.KHR_materials_common.transparent;
+                    const noUseAlpha = exts && exts.KHR_materials_common && !exts.KHR_materials_common.transparent;
                     const matquery = this._populateMaterial(data, materialName, node.skin);
                     gomlNode.addChildByName("gltf-mesh", {
                         geometry: mesh[j],

@@ -85,7 +85,7 @@ varying vec2 vUV;
     vec4 dColor = vec4(0);
     vec3 sColor = vec3(0);
     vec3 eColor = vec3(0);
-    vec3 hVec = (normalize(_cameraPosition - vPosition) + sunDir)/SQRT2;
+    vec3 hVec = normalize(normalize(_cameraPosition - vPosition) + sunDir);
     if(diffuseTextureUsed){
       dColor = texture2D(diffuseTexture,vUV);
     }else{

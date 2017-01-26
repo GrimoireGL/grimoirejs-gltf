@@ -139,6 +139,7 @@ export default class MaterialParser {
                 this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");                this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");
                 this._setAsColorOrTexture(result,textures,matValues.emission,"emission","emissionTexture");
                 result["transparency"] = matValues["transparency"];
+                result["shininess"] = matValues["shininess"];
                 return result;
             default:
                 throw new Error(`Unsupported common material technique ${cmatData.technique}`);
