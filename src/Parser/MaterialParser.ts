@@ -135,6 +135,7 @@ export default class MaterialParser {
                     type: "gltf-unlit",
                     class: "gltf-" +tf.id + "-"+ matKey
                 };
+                this._setAsColorOrTexture(result,textures,matValues.ambient,"ambient","ambientTexture");
                 this._setAsColorOrTexture(result,textures,matValues.diffuse,"diffuse","diffuseTexture");
                 this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");                this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");
                 this._setAsColorOrTexture(result,textures,matValues.emission,"emission","emissionTexture");
