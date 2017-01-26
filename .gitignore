@@ -118,3 +118,4 @@ register
 src/**/*.js
 
 yarn.lock
+index.ts
