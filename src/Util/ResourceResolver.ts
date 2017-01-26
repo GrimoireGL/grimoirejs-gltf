@@ -3,6 +3,7 @@ import GLTFImage from "../Parser/Schema/GLTFImage";
 import GLTF from "../Parser/Schema/GLTF";
 import TextFileResolver from "grimoirejs-fundamental/ref/Asset/TextFileResolver";
 import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
+import HashCalculator from "grimoirejs-fundamental/ref/Util/HashCalculator";
 /**
  * Provides resolving resource dependency while parsing gltf file.
  */
@@ -42,6 +43,7 @@ export default class ResourceResolver {
                     resultJson = this._bufferToString(xhr.response);
                 }
                 this.tf = JSON.parse(resultJson) as GLTF;
+                this.tf.id = HashCalculator.calcHash(resultJson);
                 resolve(this.tf);
             };
             xhr.onerror = (e) => {

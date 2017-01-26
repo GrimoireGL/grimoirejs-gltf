@@ -28,7 +28,7 @@
   import __INTERFACE__17 from "./Parser/Schema/GLTFTechnique";
   import __INTERFACE__18 from "./Parser/Schema/GLTFTexture";
 
-var __VERSION__ = "1.8.0-beta1";
+var __VERSION__ = "1.8.0-beta3";
 var __NAME__ = "grimoirejs-gltf";
 
 import __MAIN__ from "./main";

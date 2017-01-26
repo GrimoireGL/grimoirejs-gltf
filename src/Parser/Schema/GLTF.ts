@@ -12,6 +12,7 @@ import GLTFBuffer from "./GLTFBuffer";
 import GLTFBufferView from "./GLTFBufferView";
 import GLTFAccessor from "./GLTFAccessor";
 type GLTF = {
+    id:number,// custom field for grimorie
     accessors: {
         [acName: string]: GLTFAccessor;
     },

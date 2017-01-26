@@ -61,7 +61,7 @@ export default class GLTFModelComponent extends Component {
     }
 
     private _populateMaterial(data: ParsedGLTF, materialName: string, skinName?: string): string {
-        const query = skinName ? `gltf-${materialName}-${skinName}` : `gltf-${materialName}`;
+        const query = skinName ? `gltf-${data.tf.id}-${materialName}-${skinName}` : `gltf-${data.tf.id}-${materialName}`;
         const matNodes = this.node.getChildrenByClass(query);
         if (matNodes.length === 0) {
             const mat = this._assetRoot.addChildByName("material", Object.assign({

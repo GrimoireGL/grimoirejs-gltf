@@ -14,7 +14,7 @@ export default class MaterialParser {
     public static async parse(tf: GLTF, matKey: string, rr: ResourceResolver, textures: { [key: string]: Texture2D }): Promise<{ [key: string]: any }> {
         const material = tf.materials[matKey];
         if (material.extensions && material.extensions.KHR_materials_common) {
-            return this._parseMaterialCommon(material, matKey, textures);
+            return this._parseMaterialCommon(tf, matKey, textures);
         } else {
             if (MaterialFactory.registerdHandlers[material.technique] === void 0) {
                 const techniqueRecipe = await this._convertIntoTechniqueRecipe(tf, matKey, rr);
@@ -24,7 +24,7 @@ export default class MaterialParser {
             }
             const result = {
                 type: material.technique,
-                class: "gltf-" + matKey
+                class: "gltf-"+tf.id +"-"+ matKey
             };
             for (let key in material.values) {
                 const v = material.values[key];
@@ -124,7 +124,8 @@ export default class MaterialParser {
         return result;
     }
 
-    private static _parseMaterialCommon(material: GLTFMaterial, matKey: string, textures: { [key: string]: Texture2D }): { [key: string]: any } {
+    private static _parseMaterialCommon(tf:GLTF, matKey: string, textures: { [key: string]: Texture2D }): { [key: string]: any } {
+        const material = tf.materials[matKey];
         const cmatData = material.extensions.KHR_materials_common;
         const matValues = cmatData.values;
         switch (cmatData.technique) {
@@ -132,7 +133,7 @@ export default class MaterialParser {
             case "BLINN":
                 const result = {
                     type: "gltf-unlit",
-                    class: "gltf-" + matKey
+                    class: "gltf-" +tf.id + "-"+ matKey
                 };
                 if (typeof matValues.diffuse === "string") {
                     result["texture"] = textures[matValues.diffuse];
