@@ -66,7 +66,7 @@ export default class GLTFModelComponent extends Component {
         if (matNodes.length === 0) {
             const mat = this._assetRoot.addChildByName("material", Object.assign({
                 boneMatrices: skinName ? data.skins[skinName].jointMatrices : undefined,
-                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined,
+                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined
             }, data.materials[materialName]));
             let className = data.materials[materialName]["class"];
             if (!!skinName) {
@@ -89,10 +89,14 @@ export default class GLTFModelComponent extends Component {
             for (let i = 0; i < node.meshes.length; i++) {
                 const mesh = data.meshes[node.meshes[i]];
                 for (let j = 0; j < mesh.length; j++) {
-                    const matquery = this._populateMaterial(data, data.tf.meshes[node.meshes[i]].primitives[j].material, node.skin);
+                    const materialName = data.tf.meshes[node.meshes[i]].primitives[j].material;
+                    const exts = data.tf.materials[materialName].extensions;
+                    const noUseAlpha = exts&&exts.KHR_materials_common && !exts.KHR_materials_common.transparent;
+                    const matquery = this._populateMaterial(data, materialName, node.skin);
                     gomlNode.addChildByName("gltf-mesh", {
                         geometry: mesh[j],
-                        material: matquery
+                        material: matquery,
+                        drawOrder: noUseAlpha ? "NoAlpha" : "UseAlpha"
                     });
                 }
             }

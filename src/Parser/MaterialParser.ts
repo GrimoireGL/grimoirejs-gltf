@@ -135,14 +135,25 @@ export default class MaterialParser {
                     type: "gltf-unlit",
                     class: "gltf-" +tf.id + "-"+ matKey
                 };
-                if (typeof matValues.diffuse === "string") {
-                    result["texture"] = textures[matValues.diffuse];
-                } else if (Array.isArray(matValues.diffuse)) {
-                    result["diffuse"] = GLTFConstantConvert.asColorValue(matValues.diffuse);
-                }
+                this._setAsColorOrTexture(result,textures,matValues.diffuse,"diffuse","diffuseTexture");
+                this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");                this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");
+                this._setAsColorOrTexture(result,textures,matValues.emission,"emission","emissionTexture");
+                result["transparency"] = matValues["transparency"];
                 return result;
             default:
                 throw new Error(`Unsupported common material technique ${cmatData.technique}`);
         }
+    }
+
+    private static _setAsColorOrTexture(result:any,textures:{[key:string]:Texture2D},value:string|number[],nameOnColor:string,nameOnTexture:string):void{
+      if(Array.isArray(value)){
+        result[nameOnColor] = GLTFConstantConvert.asColorValue(value);
+      }else if(typeof value === "string"){
+        result[nameOnTexture] = textures[value];
+      }else if(value === void 0){
+        return;
+      }else{
+        throw new Error("Unknown type for color registration");
+      }
     }
 }
