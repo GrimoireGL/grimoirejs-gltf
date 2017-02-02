@@ -48,18 +48,18 @@ export default class GLTFAnimationComponent extends Component {
       }
       switch (path) {
         case "translation":
-          transform.localPosition.rawElements = v;
+          transform.position.rawElements = v;
           break;
         case "rotation":
-          transform.localRotation.rawElements = v;
+          transform.rotation.rawElements = v;
           break;
         case "scale":
-          transform.localScale.rawElements = v;
+          transform.scale.rawElements = v;
           break;
       }
     });
     for (let tr in this._targetTransforms) {
-      this._targetTransforms[tr].updateTransform();
+      this._targetTransforms[tr].notifyUpdateTransform();
     }
   }
 
