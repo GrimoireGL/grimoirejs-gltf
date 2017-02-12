@@ -1,14 +1,14 @@
 const path = require("path");
 const webpack = require("webpack");
-const shell = require("webpack-shell-plugin");
 const argv = require("yargs").argv;
 const fs = require("fs");
-const fnPrefix = JSON.parse(fs.readFileSync(path.resolve(__dirname, "package.json"), "utf-8")).name.replace("grimoirejs","grimoire");
+const fnPrefix = JSON.parse(fs.readFileSync(path.resolve(__dirname, "package.json"), "utf-8")).name.replace("grimoirejs", "grimoire");
 
-const getBuildTask = (fileName, plugins) => {
+const getBuildTask = (fileName, plugins, needPolyfill) => {
+
   return {
     cache: true,
-    entry: path.resolve(__dirname, "src/index.ts"),
+    entry: needPolyfill ? ['babel-polyfill', path.resolve(__dirname, "src/index.ts")] : path.resolve(__dirname, "src/index.ts"),
     output: {
       path: __dirname,
       filename: "/register/" + fileName,
@@ -22,29 +22,28 @@ const getBuildTask = (fileName, plugins) => {
       }]
     },
     resolve: {
-      extensions: ['', '.ts', '.js']
+      extensions: ['.ts', '.js']
     },
-    plugins: [new shell({
-      onBuildStart: "npm run generate-expose",
-      onBuildEnd: "npm run generate-reference"
-    })].concat(plugins),
+    plugins: plugins,
     devtool: 'source-map'
   }
 };
-const buildTasks = [getBuildTask(fnPrefix + ".js", [])]
 
-if (argv.prod) {
-  buildTasks.push(getBuildTask("index.js", [])); // for npm registeirng
-  buildTasks.push(getBuildTask(fnPrefix + ".min.js", [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    }),
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.optimize.AggressiveMergingPlugin()
-  ]));
-}
+module.exports = (env)=>{
+  env = env || {};
+  const buildTasks = [getBuildTask(fnPrefix + ".js", [])]
 
-module.exports = buildTasks;
+  if (env.prod) {
+    buildTasks.push(getBuildTask("index.js", [])); // for npm registeirng
+    buildTasks.push(getBuildTask(fnPrefix + ".min.js", [
+      new webpack.optimize.UglifyJsPlugin({
+        compress: {
+          warnings: false
+        }
+      }),
+      new webpack.optimize.OccurrenceOrderPlugin(),
+      new webpack.optimize.AggressiveMergingPlugin()
+    ]));
+  }
+  return buildTasks;
+};

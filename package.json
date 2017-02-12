@@ -1,16 +1,18 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "1.8.3",
+  "version": "0.0.0-development",
   "description": "glTF model loader for grimoire.js",
   "main": "./ref/index.js",
   "scripts": {
     "start": "webpack --watch --progress",
+    "prestart": "npm run prebuild",
     "test": "tsc --outDir ./lib && babel ./lib --presets es2015  --plugin transform-runtime --out-dir ./lib-es5 && babel ./test --presets es2015  --plugin transform-runtime --out-dir ./test-es5 && ava ./test-es5/**/*Test.js --verbose ",
     "bundle": "webpack --progress --watch",
-    "prepublish": "npm run build -- --prod&&npm test&&cauldron doc",
+    "prepublish": "npm run build -- --env.prod&&npm test&&cauldron doc",
     "build": "webpack --progress",
-    "generate-expose": "cauldron generate-exposure --src ./src --dest ./src/index.ts --ts --main ./src/main.ts --dts ./ref",
-    "generate-reference": "cauldron generate-reference --src ./src --dest ./src/index.ts --ts --main ./src/main.ts --dts ./ref"
+    "prebuild": "cauldron generate-exposure --src ./src --dest ./src/index.ts --ts --main ./src/main.ts --dts ./ref",
+    "postbuild": "cauldron generate-reference --src ./src --dest ./src/index.ts --ts --main ./src/main.ts --dts ./ref",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "",
   "license": "MIT",
@@ -20,57 +22,35 @@
     "ref",
     "register"
   ],
-  "grimoire": {
-    "isPlugin": true,
-    "ts": {
-      "lib": "./lib",
-      "temp": "./lib-ts",
-      "src": "./src",
-      "es5": "./lib-es5"
-    },
-    "main": "index.ts",
-    "test": {
-      "defaultGlob": "**/*Test.js",
-      "src": "./test",
-      "temp": "./lib-test"
-    },
-    "out": {
-      "es6": "./product/grimoire.es2016.js",
-      "es5": "./product/grimoire.js"
-    },
-    "txt-exts": [
-      ".txt",
-      ".html",
-      ".goml",
-      ".sort"
-    ],
-    "doc": {
-      "src": "./doc",
-      "header": "./doc/header.md",
-      "footer": "./doc/footer.md",
-      "dest": "./README.md"
-    }
-  },
   "devDependencies": {
-    "ava": "^0.17.0",
+    "ava": "^0.18.1",
     "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-runtime": "^6.22.0",
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-stage-2": "^6.22.0",
+    "condition-circle": "^1.5.0",
     "grimoirejs-cauldron": "^2.3.3",
     "raw-loader": "^0.5.1",
+    "semantic-release": "^6.3.2",
     "ts-loader": "^2.0.0",
-    "typescript": "^2.1.5",
-    "webpack": "^1.14.0",
-    "webpack-dev-server": "^1.16.2",
+    "typescript": "^2.1.6",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.3.0",
     "webpack-shell-plugin": "^0.5.0",
     "yargs": "^6.5.0"
   },
   "dependencies": {
-    "grimoirejs": "^0.14.3",
-    "grimoirejs-fundamental": "^0.12.6",
-    "grimoirejs-math": "^1.10.1"
+    "grimoirejs": "^0.14.7",
+    "grimoirejs-fundamental": "^0.12.8",
+    "grimoirejs-math": "^1.12.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GrimoireGL/grimoirejs-glTF.git"
+  },
+  "release": {
+    "verifyConditions": "condition-circle"
   }
 }
