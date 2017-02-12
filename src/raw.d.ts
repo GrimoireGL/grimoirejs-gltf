@@ -1,4 +1,4 @@
-declare module "raw!*" {
+declare module "raw-loader!*" {
   var s: string;
   export default s;
 }

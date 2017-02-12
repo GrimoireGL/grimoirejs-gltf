@@ -4,7 +4,7 @@ import GLTFModelComponent from "./Components/GLTFModelComponent";
 import GrimoireInterface from "grimoirejs";
 import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
 import UniformResolverRegistry from "grimoirejs-fundamental/ref/Material/UniformResolverRegistry";
-import gltfUnlit from "raw!./Shaders/gltf-unlit.sort";
+import gltfUnlit from "raw-loader!./Shaders/gltf-unlit.sort";
 export default () => {
   GrimoireInterface.register(
     async () => {
