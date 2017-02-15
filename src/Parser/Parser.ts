@@ -94,7 +94,7 @@ export default class GLTFParser {
                     bindShapeMatrix: new Matrix(skin.bindShapeMatrix),
                     jointNames: skin.jointNames,
                     inverseBindMatrices: new Accessor(rawbufferView[accessor.bufferView], accessor.count, accessor.componentType, GLTFConstantConverter.asVectorSize(accessor.type), accessor.byteOffset || 0, accessor.byteStride || 0),
-                    jointMatrices: new Float32Array(16 * skin.jointNames.length)
+                    jointCount: skin.jointNames.length
                 };
             }
         }
@@ -124,7 +124,7 @@ export default class GLTFParser {
                 const bufferInfo = GLTFConstantConverter.indexCountToBufferInfo(vertCount);
                 const ibuf = new Buffer(gl, WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, WebGLRenderingContext.STATIC_DRAW);
                 const array = new bufferInfo.ctor(vertCount);
-                for (var i = 0; i < vertCount; i++) {
+                for (let i = 0; i < vertCount; i++) {
                     array[i] = i;
                 }
                 ibuf.update(array);
@@ -174,7 +174,7 @@ export default class GLTFParser {
     private static _genAABB(view: ArrayBufferView, stride: number, offset: number, count: number): AABB {
         const aabb = new AABB();
         const dView = new Float32Array(view.buffer, view.byteOffset);
-        for (var i = offset; i < offset + (count - 1) * stride; i += stride) {
+        for (let i = offset; i < offset + (count - 1) * stride; i += stride) {
             aabb.expand(new Vector3(dView[i], dView[i + 1], dView[i + 2]));
         }
         return aabb;

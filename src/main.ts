@@ -19,18 +19,18 @@ export default () => {
       GrimoireInterface.registerNode("gltf-assets", [], {});
       GrimoireInterface.registerNode("gltf-animation", ["GLTFAnimation"], {});
       MaterialFactory.addSORTMaterial("gltf-unlit", gltfUnlit);
-      UniformResolverRegistry.add("JOINTMATRIX",(valInfo,material)=>{
-        material.addArgument("boneMatrices",{
-          converter:"Object",
-          default:null
+      UniformResolverRegistry.add("JOINTMATRIX", (valInfo , material) => {
+        material.addArgument("boneMatrices", {
+          converter: "Object",
+          default: null
         });
-        return (proxy,info)=>{
-          if(!material.arguments["boneMatrices"]){
+        return (proxy, info) => {
+          if (!material.arguments["boneMatrices"]) {
             return;
           }
           proxy.uniformMatrixArray(valInfo.name, material.arguments["boneMatrices"]);
-        }
-      })
+        };
+      });
     }
   );
-}
+};

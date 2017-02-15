@@ -31,7 +31,7 @@ const getBuildTask = (fileName, plugins, needPolyfill) => {
 
 module.exports = (env)=>{
   env = env || {};
-  const buildTasks = [getBuildTask(fnPrefix + ".js", [])]
+  const buildTasks = [getBuildTask("index.js", [])]
 
   if (env.prod) {
     buildTasks.push(getBuildTask("index.js", [])); // for npm registeirng

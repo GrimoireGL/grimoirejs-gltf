@@ -10,7 +10,6 @@ import GLTFParser from "../Parser/Parser";
 
 
 export default class GLTFModelComponent extends Component {
-
     public static componentName: string = "GLTFModelComponent";
 
     public static attributes: { [key: string]: IAttributeDeclaration } = {
@@ -27,6 +26,8 @@ export default class GLTFModelComponent extends Component {
     private _assetRoot: GomlNode;
 
     private _parsedData: ParsedGLTF;
+
+    private _jointMatrices: { [skinName: string]: Float32Array } = {};
 
     public $mount(): void {
         const src = this.getAttribute("src");
@@ -61,11 +62,14 @@ export default class GLTFModelComponent extends Component {
     }
 
     private _populateMaterial(data: ParsedGLTF, materialName: string, skinName?: string): string {
-        const query = skinName ? `gltf-${data.tf.id}-${materialName}-${skinName}` : `gltf-${data.tf.id}-${materialName}`;
+        const query = skinName ? `gltf-${this.id}-${data.tf.id}-${materialName}-${skinName}` : `gltf-${this.id}-${data.tf.id}-${materialName}`;
         const matNodes = this.node.getChildrenByClass(query);
         if (matNodes.length === 0) {
+            if (skinName && this._jointMatrices[skinName] === void 0) {
+              this._jointMatrices[skinName] = new Float32Array(16 * data.skins[skinName].jointCount)
+            }
             const mat = this._assetRoot.addChildByName("material", Object.assign({
-                boneMatrices: skinName ? data.skins[skinName].jointMatrices : undefined,
+                boneMatrices: skinName ? this._jointMatrices[skinName] : undefined,
                 boneCount: skinName ? data.skins[skinName].jointNames.length : undefined
             }, data.materials[materialName]));
             let className = data.materials[materialName]["class"];
@@ -120,7 +124,7 @@ export default class GLTFModelComponent extends Component {
             skinInfo: data.skins[skinName],
             jointName: data.tf.nodes[nodeName].jointName,
             skeletonTransform: skeletonTransform,
-            jointMatrices: data.skins[skinName].jointMatrices
+            jointMatrices: this._jointMatrices[skinName]
         });
         if (data.tf.nodes[nodeName].children) {
             const node = data.tf.nodes[nodeName];

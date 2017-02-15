@@ -24,22 +24,22 @@ export default class MaterialParser {
             }
             const result = {
                 type: material.technique,
-                class: "gltf-"+tf.id +"-"+ matKey
+                class: "gltf-" + tf.id + "-" + matKey
             };
             for (let key in material.values) {
                 const v = material.values[key];
                 const teq = tf.techniques[material.technique];
                 const tv = teq.parameters[key];
                 let valName = "";
-                for(let uKey in teq.uniforms){　// to find variable name from info
-                  if(teq.uniforms[uKey] === key){
-                    valName = uKey;
-                  }
+                for (let uKey in teq.uniforms) {　// to find variable name from info
+                    if (teq.uniforms[uKey] === key) {
+                        valName = uKey;
+                    }
                 }
                 if (tv.type !== WebGLRenderingContext.SAMPLER_2D) {
                     result[valName] = material.values[key];
-                }else{
-                  result[valName] = textures[material.values[key]];
+                } else {
+                    result[valName] = textures[material.values[key]];
                 }
             }
             return result;
@@ -124,7 +124,7 @@ export default class MaterialParser {
         return result;
     }
 
-    private static _parseMaterialCommon(tf:GLTF, matKey: string, textures: { [key: string]: Texture2D }): { [key: string]: any } {
+    private static _parseMaterialCommon(tf: GLTF, matKey: string, textures: { [key: string]: Texture2D }): { [key: string]: any } {
         const material = tf.materials[matKey];
         const cmatData = material.extensions.KHR_materials_common;
         const matValues = cmatData.values;
@@ -133,12 +133,12 @@ export default class MaterialParser {
             case "BLINN":
                 const result = {
                     type: "gltf-unlit",
-                    class: "gltf-" +tf.id + "-"+ matKey
+                    class: "gltf-" + tf.id + "-" + matKey
                 };
-                this._setAsColorOrTexture(result,textures,matValues.ambient,"ambient","ambientTexture");
-                this._setAsColorOrTexture(result,textures,matValues.diffuse,"diffuse","diffuseTexture");
-                this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");                this._setAsColorOrTexture(result,textures,matValues.specular,"specular","specularTexture");
-                this._setAsColorOrTexture(result,textures,matValues.emission,"emission","emissionTexture");
+                this._setAsColorOrTexture(result, textures, matValues.ambient, "ambient", "ambientTexture");
+                this._setAsColorOrTexture(result, textures, matValues.diffuse, "diffuse", "diffuseTexture");
+                this._setAsColorOrTexture(result, textures, matValues.specular, "specular", "specularTexture"); this._setAsColorOrTexture(result, textures, matValues.specular, "specular", "specularTexture");
+                this._setAsColorOrTexture(result, textures, matValues.emission, "emission", "emissionTexture");
                 result["transparency"] = matValues["transparency"];
                 result["shininess"] = matValues["shininess"];
                 return result;
@@ -147,15 +147,15 @@ export default class MaterialParser {
         }
     }
 
-    private static _setAsColorOrTexture(result:any,textures:{[key:string]:Texture2D},value:string|number[],nameOnColor:string,nameOnTexture:string):void{
-      if(Array.isArray(value)){
-        result[nameOnColor] = GLTFConstantConvert.asColorValue(value);
-      }else if(typeof value === "string"){
-        result[nameOnTexture] = textures[value];
-      }else if(value === void 0){
-        return;
-      }else{
-        throw new Error("Unknown type for color registration");
-      }
+    private static _setAsColorOrTexture(result: any, textures: { [key: string]: Texture2D }, value: string | number[], nameOnColor: string, nameOnTexture: string): void {
+        if (Array.isArray(value)) {
+            result[nameOnColor] = GLTFConstantConvert.asColorValue(value);
+        } else if (typeof value === "string") {
+            result[nameOnTexture] = textures[value];
+        } else if (value === void 0) {
+            return;
+        } else {
+            throw new Error("Unknown type for color registration");
+        }
     }
 }
