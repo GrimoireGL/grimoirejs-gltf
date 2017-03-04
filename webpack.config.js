@@ -34,7 +34,7 @@ module.exports = (env)=>{
   const buildTasks = [getBuildTask("index.js", [])]
 
   if (env.prod) {
-    buildTasks.push(getBuildTask("index.js", [])); // for npm registeirng
+    buildTasks.push(getBuildTask(fnPrefix + ".js", [])); // for npm registeirng
     buildTasks.push(getBuildTask(fnPrefix + ".min.js", [
       new webpack.optimize.UglifyJsPlugin({
         compress: {
