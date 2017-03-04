@@ -66,19 +66,20 @@ export default class GLTFModelComponent extends Component {
         const matNodes = this.node.getChildrenByClass(query);
         if (matNodes.length === 0) {
             if (skinName && this._jointMatrices[skinName] === void 0) {
-              this._jointMatrices[skinName] = new Float32Array(16 * data.skins[skinName].jointCount)
+                this._jointMatrices[skinName] = new Float32Array(16 * data.skins[skinName].jointCount);
             }
             const mat = this._assetRoot.addChildByName("material", Object.assign({
                 boneMatrices: skinName ? this._jointMatrices[skinName] : undefined,
-                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined
+                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined,
+                class: query
             }, data.materials[materialName]));
             let className = data.materials[materialName]["class"];
             if (!!skinName) {
                 className += " " + query;
             }
-            mat.element.className = className;
+            return "." + className;
         }
-        return "." + query;
+        return "";
     }
 
     private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {

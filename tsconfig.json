@@ -21,7 +21,6 @@
     "./src/index.ts",
     "./src/main.ts",
     "./src/Parser/ConstantConverter.ts",
-    "./src/Parser/GLTFMaterialFactory.ts",
     "./src/Parser/MaterialParser.ts",
     "./src/Parser/ParsedGLTF.ts",
     "./src/Parser/Parser.ts",

@@ -28,7 +28,6 @@ const getBuildTask = (fileName, plugins, needPolyfill) => {
     devtool: 'source-map'
   }
 };
-
 module.exports = (env)=>{
   env = env || {};
   const buildTasks = [getBuildTask("index.js", [])]
