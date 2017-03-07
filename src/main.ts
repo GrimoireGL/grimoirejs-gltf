@@ -25,6 +25,7 @@ export default () => {
           default: null
         });
         return (proxy, info) => {
+          debugger;
           if (!material.arguments["boneMatrices"]) {
             return;
           }

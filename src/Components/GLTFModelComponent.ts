@@ -53,7 +53,9 @@ export default class GLTFModelComponent extends Component {
     }
 
     private _populateAssets(data: ParsedGLTF): void {
-        this._assetRoot = this.node.addChildByName("gltf-assets", {});
+        this._assetRoot = this.node.addChildByName("gltf-assets", {
+            class: `gltf-assets-root-${this.id}`
+        });
         for (let key in data.animations) {
             this._assetRoot.addChildByName("gltf-animation", {
                 animation: data.animations[key],
@@ -62,22 +64,23 @@ export default class GLTFModelComponent extends Component {
     }
 
     private _populateMaterial(data: ParsedGLTF, materialName: string, skinName?: string): string {
-        const query = skinName ? `gltf-${this.id}-${data.tf.id}-${materialName}-${skinName}` : `gltf-${this.id}-${data.tf.id}-${materialName}`;
+        const query = skinName ? `gltf-${data.tf.id}-${materialName}-${skinName}` : `gltf-${data.tf.id}-${materialName}`;
         const matNodes = this.node.getChildrenByClass(query);
         if (matNodes.length === 0) {
             if (skinName && this._jointMatrices[skinName] === void 0) {
                 this._jointMatrices[skinName] = new Float32Array(16 * data.skins[skinName].jointCount);
             }
-            const mat = this._assetRoot.addChildByName("material", Object.assign({
-                boneMatrices: skinName ? this._jointMatrices[skinName] : undefined,
-                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined,
-                class: query
-            }, data.materials[materialName]));
             let className = data.materials[materialName]["class"];
             if (!!skinName) {
                 className += " " + query;
             }
-            return "." + className;
+            const args = Object.assign({
+                boneMatrices: skinName ? this._jointMatrices[skinName] : undefined,
+                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined
+            }, data.materials[materialName]);
+            args["class"] = className;
+            const mat = this._assetRoot.addChildByName("material", args);
+            return "." + query;
         }
         return "";
     }

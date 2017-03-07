@@ -75,7 +75,7 @@ export default class ResourceResolver {
             isBlob = true;
         }
         if (this._isDataUrl(url)) {
-            return this._dataUriToImage(url)
+            return this._dataUriToImage(url);
         } else {
             return ImageResolver.resolve(isBlob ? url : this.baseDirectory + url);
         }
@@ -156,9 +156,9 @@ export default class ResourceResolver {
      */
     private _dataUriToImage(dataUrl: string): Promise<HTMLCanvasElement | HTMLImageElement> {
         return new Promise((resolve, reject) => {
-            var canvas = document.createElement('canvas');
-            var context = canvas.getContext('2d');
-            var image = new Image();
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            const image = new Image();
             image.src = dataUrl;
             image.onload = () => {
                 resolve(this._ensureCorrectSize(image));
@@ -173,11 +173,11 @@ export default class ResourceResolver {
     }
 
     private _ensureCorrectSize(image: HTMLImageElement): HTMLCanvasElement | HTMLImageElement {
-        var canvas = document.createElement('canvas');
-        var context = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
         const cWidth = Math.pow(2, Math.ceil(Math.log(image.width) / Math.LN2));
         const cHeight = Math.pow(2, Math.ceil(Math.log(image.height) / Math.LN2));
-        if (cWidth === image.width && cHeight == image.height) {
+        if (cWidth === image.width && cHeight === image.height) {
             return image;
         }
         canvas.width = cWidth;
@@ -189,7 +189,7 @@ export default class ResourceResolver {
     private _bufferToString(arr: ArrayBuffer): string {
         let tmp = "";
         let len = 1024;
-        for (var p = 0; p < arr.byteLength; p += len) {
+        for (let p = 0; p < arr.byteLength; p += len) {
             tmp += this._smallBufferToString(new Uint8Array(arr.slice(p, p + len)));
         }
         return tmp;
