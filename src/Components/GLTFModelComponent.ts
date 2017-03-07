@@ -1,3 +1,4 @@
+import MeshRenderer from "grimoirejs-fundamental/ref/Components/MeshRendererComponent";
 import TransformComponent from "grimoirejs-fundamental/ref/Components/TransformComponent";
 import GLTFNode from "../Parser/Schema/GLTFNode";
 import Animation from "../Animation/Animation";
@@ -53,9 +54,7 @@ export default class GLTFModelComponent extends Component {
     }
 
     private _populateAssets(data: ParsedGLTF): void {
-        this._assetRoot = this.node.addChildByName("gltf-assets", {
-            class: `gltf-assets-root-${this.id}`
-        });
+        this._assetRoot = this.node.addChildByName("gltf-assets", {});
         for (let key in data.animations) {
             this._assetRoot.addChildByName("gltf-animation", {
                 animation: data.animations[key],
@@ -63,26 +62,16 @@ export default class GLTFModelComponent extends Component {
         }
     }
 
-    private _populateMaterial(data: ParsedGLTF, materialName: string, skinName?: string): string {
-        const query = skinName ? `gltf-${data.tf.id}-${materialName}-${skinName}` : `gltf-${data.tf.id}-${materialName}`;
+    private _populateMaterial(data: ParsedGLTF, materialName: string, jointCount: number): string {
+        const query = `gltf-${data.tf.id}-${materialName}`;
         const matNodes = this.node.getChildrenByClass(query);
         if (matNodes.length === 0) {
-            if (skinName && this._jointMatrices[skinName] === void 0) {
-                this._jointMatrices[skinName] = new Float32Array(16 * data.skins[skinName].jointCount);
-            }
-            let className = data.materials[materialName]["class"];
-            if (!!skinName) {
-                className += " " + query;
-            }
-            const args = Object.assign({
-                boneMatrices: skinName ? this._jointMatrices[skinName] : undefined,
-                boneCount: skinName ? data.skins[skinName].jointNames.length : undefined
-            }, data.materials[materialName]);
-            args["class"] = className;
+            const args = data.materials[materialName];
+            args["class"] = query;
+            args["jointCount"] = jointCount;
             const mat = this._assetRoot.addChildByName("material", args);
-            return "." + query;
         }
-        return "";
+        return "." + query;
     }
 
     private _populateNode(data: ParsedGLTF, nodeName: string, parentNode: GomlNode): void {
@@ -100,12 +89,20 @@ export default class GLTFModelComponent extends Component {
                     const materialName = data.tf.meshes[node.meshes[i]].primitives[j].material;
                     const exts = data.tf.materials[materialName].extensions;
                     const noUseAlpha = exts && exts.KHR_materials_common && !exts.KHR_materials_common.transparent;
-                    const matquery = this._populateMaterial(data, materialName, node.skin);
-                    gomlNode.addChildByName("gltf-mesh", {
+                    const matquery = this._populateMaterial(data, materialName, node.skin ?  data.skins[node.skin].jointCount : 0);
+                    const meshNode = gomlNode.addChildByName("gltf-mesh", {
                         geometry: mesh[j],
                         material: matquery,
                         drawOrder: noUseAlpha ? "NoAlpha" : "UseAlpha"
                     });
+                    if (node.skin) {
+                        const skinName = node.skin;
+                        const meshRenderer = meshNode.getComponent(MeshRenderer);
+                        if (skinName && this._jointMatrices[skinName] === void 0) {
+                            this._jointMatrices[skinName] = new Float32Array(16 * data.skins[skinName].jointCount);
+                        }
+                        meshRenderer.renderArgs["gltf-boneMatrices"] = this._jointMatrices[skinName];
+                    }
                 }
             }
         }

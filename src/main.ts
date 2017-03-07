@@ -25,11 +25,7 @@ export default () => {
           default: null
         });
         return (proxy, info) => {
-          debugger;
-          if (!material.arguments["boneMatrices"]) {
-            return;
-          }
-          proxy.uniformMatrixArray(valInfo.name, material.arguments["boneMatrices"]);
+          proxy.uniformMatrixArray(valInfo.name, info.renderable.renderArgs["gltf-boneMatrices"]);
         };
       });
     }
