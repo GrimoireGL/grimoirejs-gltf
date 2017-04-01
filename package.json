@@ -42,7 +42,7 @@
     "yargs": "^7.0.1"
   },
   "dependencies": {
-    "grimoirejs": "^0.14.7",
+    "grimoirejs": "^0.15.0",
     "grimoirejs-fundamental": "^0.14.0",
     "grimoirejs-math": "^1.12.1"
   },
