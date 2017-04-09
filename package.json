@@ -36,15 +36,15 @@
     "semantic-release": "^6.3.2",
     "ts-loader": "^2.0.3",
     "typescript": "^2.2.2",
-    "webpack": "^2.3.2",
+    "webpack": "^2.3.3",
     "webpack-dev-server": "^2.4.2",
     "webpack-shell-plugin": "^0.5.0",
     "yargs": "^7.0.2"
   },
   "dependencies": {
-    "grimoirejs": "^0.15.0",
-    "grimoirejs-fundamental": "^0.14.3",
-    "grimoirejs-math": "^1.12.1"
+    "grimoirejs": "^0.15.4",
+    "grimoirejs-fundamental": "^0.16.0",
+    "grimoirejs-math": "^1.12.7"
   },
   "repository": {
     "type": "git",
