@@ -19,4 +19,4 @@ test:
   post:
     - npm run semantic-release || true
   override:
-    - npm run build && npm test
+    - npm run build -- --env.browser && npm test

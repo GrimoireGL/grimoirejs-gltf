@@ -1,6 +1,6 @@
 @Pass{
 @BlendFunc(SRC_ALPHA,ONE_MINUS_SRC_ALPHA)
-@ExposeMacro(int,boneCount,BONE_COUNT,0)
+@ExposeMacro(int,jointCount,JOINT_COUNT,0)
 FS_PREC(mediump,float)
 
 varying vec3 vPosition;
@@ -8,9 +8,9 @@ varying vec3 vNormal;
 varying vec2 vUV;
 
 #ifdef VS
-#if BONE_COUNT > 0
+#if JOINT_COUNT > 0
   @JOINTMATRIX
-  uniform mat4 boneMatrices[BONE_COUNT];
+  uniform mat4 boneMatrices[JOINT_COUNT];
 #endif
   @NORMAL
   attribute vec3 normal;
@@ -18,7 +18,7 @@ varying vec2 vUV;
   attribute vec3 position;
   @TEXCOORD_0
   attribute vec2 texCoord;
-#if BONE_COUNT > 0
+#if JOINT_COUNT > 0
   @JOINT
   attribute vec4 joint;
   @WEIGHT
@@ -29,7 +29,7 @@ varying vec2 vUV;
   void main(){
     mat4 transform = _matM;
     mat4 projectionTransform = _matPVM;
-    #if BONE_COUNT > 0
+    #if JOINT_COUNT > 0
       mat4 skinMat = weight.x * boneMatrices[int(joint.x)] + weight.y * boneMatrices[int(joint.y)] + weight.z * boneMatrices[int(joint.z)] + weight.w * boneMatrices[int(joint.w)];
       transform *= skinMat;
       projectionTransform *= skinMat;
@@ -48,6 +48,9 @@ varying vec2 vUV;
 
   @{type:"color"}
   uniform vec3 ambient;
+
+  @AMBIENT_COEFFICIENT
+  uniform float ambientCoefficient;
 
   uniform sampler2D ambientTexture;
 
@@ -105,7 +108,7 @@ varying vec2 vUV;
     }else{
       dColor = diffuse;
     }
-    dColor.rgb = dot(sunDir,vNormal) * dColor.rgb;
+    dColor.rgb = max(0.,dot(sunDir,vNormal)) * dColor.rgb;
     if(specularTextureUsed){
       sColor = texture2D(specularTexture,vUV).rgb;
     }else{
@@ -117,7 +120,7 @@ varying vec2 vUV;
       eColor = emission;
     }
     sColor = sColor * pow(max(0.,dot(hVec,vNormal)),shininess);
-    gl_FragColor.rgb = dColor.rgb + sColor + eColor + aColor;
+    gl_FragColor.rgb = dColor.rgb + sColor + aColor * ambientCoefficient;// + eColor;// + aColor;
     gl_FragColor.a = dColor.a * transparency;
   }
 #endif
