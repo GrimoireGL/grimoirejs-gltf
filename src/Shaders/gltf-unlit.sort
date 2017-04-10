@@ -49,6 +49,9 @@ varying vec2 vUV;
   @{type:"color"}
   uniform vec3 ambient;
 
+  @AMBIENT_COEFFICIENT
+  uniform float ambientCoefficient;
+
   uniform sampler2D ambientTexture;
 
   @HAS_TEXTURE{sampler:"ambientTexture"}
@@ -105,7 +108,7 @@ varying vec2 vUV;
     }else{
       dColor = diffuse;
     }
-    dColor.rgb = dot(sunDir,vNormal) * dColor.rgb;
+    dColor.rgb = max(0.,dot(sunDir,vNormal)) * dColor.rgb;
     if(specularTextureUsed){
       sColor = texture2D(specularTexture,vUV).rgb;
     }else{
@@ -117,7 +120,7 @@ varying vec2 vUV;
       eColor = emission;
     }
     sColor = sColor * pow(max(0.,dot(hVec,vNormal)),shininess);
-    gl_FragColor.rgb = dColor.rgb + sColor + eColor + aColor;
+    gl_FragColor.rgb = dColor.rgb + sColor + aColor * ambientCoefficient;// + eColor;// + aColor;
     gl_FragColor.a = dColor.a * transparency;
   }
 #endif
