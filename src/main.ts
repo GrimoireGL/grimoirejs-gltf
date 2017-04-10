@@ -25,7 +25,9 @@ export default () => {
           default: null
         });
         return (proxy, info) => {
-          proxy.uniformMatrixArray(valInfo.name, info.renderable.renderArgs["gltf-boneMatrices"]);
+          if(info.renderable.renderArgs["gltf-boneMatrices"]){
+            proxy.uniformMatrixArray(valInfo.name, info.renderable.renderArgs["gltf-boneMatrices"]);
+          }
         };
       });
     }

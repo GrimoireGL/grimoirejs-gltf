@@ -10,13 +10,15 @@ import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import GLTFConstantConvert from "./ConstantConverter";
 import ResourceResolver from "../Util/ResourceResolver";
 import GLTF from "./Schema/GLTF";
+import NameResolver from "grimoirejs-fundamental/ref/Asset/NameResolver";
+
 export default class MaterialParser {
     public static async parse(tf: GLTF, matKey: string, rr: ResourceResolver, textures: { [key: string]: Texture2D }): Promise<{ [key: string]: any }> {
         const material = tf.materials[matKey];
         if (material.extensions && material.extensions.KHR_materials_common) {
             return this._parseMaterialCommon(tf, matKey, textures);
         } else {
-            if (MaterialFactory.registerdHandlers[material.technique] === void 0) {
+            if (MaterialFactory.materialGeneratorResolver.getStatus(material.technique) === NameResolver.UNLOADED) {
                 const techniqueRecipe = await this._convertIntoTechniqueRecipe(tf, matKey, rr);
                 MaterialFactory.addMaterialType(material.technique, (factory) => {
                     return new Material(factory.gl, techniqueRecipe);
