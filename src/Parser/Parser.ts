@@ -15,8 +15,58 @@ import VertexBufferAccessor from "grimoirejs-fundamental/ref/Geometry/VertexBuff
 import IndexBufferInfo from "grimoirejs-fundamental/ref/Geometry/IndexBufferInfo";
 import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
+import ParserModule from "./ParserModule";
+import DefaultParserModule from "./DefaultParserModule";
 export default class GLTFParser {
+    public static parserModules: (typeof ParserModule)[] = [
+        DefaultParserModule
+    ];
+
+    private parserModuleInstances: ParserModule[];
+
+    public callParserModule<T, G>(target: (p: ParserModule) => ((arg: G) => T), arg?: G): T {
+        for (let i = 0; i < this.parserModuleInstances.length; i++) {
+            const module = this.parserModuleInstances[i];
+            const moduleMethod = target(module);
+            if (moduleMethod === void 0) {
+                continue;
+            }
+            const result = moduleMethod.call(module, arg) as T;
+            if (result !== void 0) {
+                return result;
+            }
+        }
+        throw new Error(`Parsing gltf failed. At the module "${target.toString()}"`);
+    }
+
+    constructor(public gl: WebGLRenderingContext, public url: string) {
+        this.parserModuleInstances = [];
+        for (let i = 0; i < GLTFParser.parserModules.length; i++) {
+            const moduleCtor = GLTFParser.parserModules[i];
+            this.parserModuleInstances.push(new moduleCtor(this, url.substr(0, url.lastIndexOf("/") + 1)));
+        }
+    }
+
+    public async parseFromURL(): Promise<ParsedGLTF> {
+        const gltfRaw = await this.callParserModule(t => t.fetchGLTF, this.url);
+        const gltf = this.callParserModule(t => t.loadAsGLTF, gltfRaw);
+        const textureResourcePromise = await this.callParserModule(t => t.loadTextureResources, gltf);
+        const bufferResources =
+        await this.callParserModule(t => t.loadBufferResources, gltf)
+        .then(buffers =>{
+            const bufferViews = this.callParserModule(t => t.loadBufferViews, { tf: gltf, buffers: buffers });
+            const primitives = this.callParserModule(t=>t.loadPrimitivesOfMesh,{tf:gltf,bufferViews:bufferViews})
+          }
+        );
+        debugger;
+        //const bufferResourcePromise = this.callParserModule(t=>t.loadBufferResources,gltf);
+        return undefined;
+    }
+
     public static async parseFromURL(gl: WebGLRenderingContext, url: string): Promise<ParsedGLTF> {
+        const parser = new GLTFParser(gl, url);
+        parser.parseFromURL();
+        // old
         const resourceResolver = new ResourceResolver(url);
         const tf = await resourceResolver.loadGLTFFile();
         const rawBuffer: { [key: string]: ArrayBuffer } = {};
@@ -32,7 +82,7 @@ export default class GLTFParser {
         // constructing buffers
         for (let key in tf.buffers) {
             if (key === "binary_glTF") {
-              rawBuffer[key] = resourceResolver.binaryGLTFBuffer;
+                rawBuffer[key] = resourceResolver.binaryGLTFBuffer;
             } else {
                 rawBuffer[key] = await resourceResolver.loadBuffer(tf.buffers[key].uri);
             }

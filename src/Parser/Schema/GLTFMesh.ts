@@ -1,11 +1,7 @@
+import GLTFPrimitive from "./GLTFPrimitive";
 interface GLTFMesh {
   name: string;
-  primitives: {
-    attributes: { [semantic: string]: string };
-    indices: string;
-    material: string;
-    mode: number;
-  }[];
+  primitives: GLTFPrimitive[];
 }
 
 export default GLTFMesh;

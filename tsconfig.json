@@ -5,7 +5,11 @@
     "outDir": "./lib",
     "declaration": true,
     "moduleResolution": "node",
-    "declarationDir": "./ref"
+    "declarationDir": "./ref",
+    "lib":[
+      "dom",
+      "es2017"
+    ]
   },
   "filesGlob": [
     "./src/**/*.ts"
