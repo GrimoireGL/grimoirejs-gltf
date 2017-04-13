@@ -2,10 +2,16 @@ import ParserModule from "./ParserModule";
 import GLTF from "./Schema/GLTF";
 import GLTFImage from "./Schema/GLTFImage";
 import GLTFBuffer from "./Schema/GLTFBuffer";
+import GLTFMaterial from "./Schema/GLTFMaterial";
+
+import Animation from "../Animation/Animation";
+
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
+import Material from "grimoirejs-fundamental/ref/Material/Material";
+import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
 import GLTFConstantConverter from "./ConstantConverter";
-import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument ,AddVertexAttributesArgument} from "./Arguments";
+import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
 
 export default class DefaultParserModule extends ParserModule {
 
@@ -109,12 +115,12 @@ export default class DefaultParserModule extends ParserModule {
     public loadPrimitive(args: LoadPrimitiveArgument): Geometry {
         const geo = new Geometry(this.__gl);
         this.parser.callParserModule(t => t.appendIndices, { tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
-        this.parser.callParserModule(t=>t.addVertexAttributes,{ tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
+        this.parser.callParserModule(t => t.addVertexAttributes, { tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
         return geo;
     }
 
     public appendIndices(args: AppendIndicesArgument): boolean {
-        if (args.primitive.indices) {
+        if (args.primitive.indices !== void 0) {
             const topology = args.primitive.mode || WebGLRenderingContext.TRIANGLES;
             const indexAccessor = args.tf.accessors[args.primitive.indices];
             args.geometry.addIndex("default", args.bufferViews[indexAccessor.bufferView], topology, indexAccessor.byteOffset, indexAccessor.count, indexAccessor.componentType);
@@ -123,17 +129,69 @@ export default class DefaultParserModule extends ParserModule {
     }
 
     public addVertexAttributes(args: AddVertexAttributesArgument): boolean {
-      for (let attrib in args.primitive.attributes) {
-          const accessor = args.tf.accessors[args.primitive.attributes[attrib]];
-          const bufAccessor = {};
-          bufAccessor[attrib] = {
-              size: GLTFConstantConverter.asVectorSize(accessor.type),
-              type: accessor.componentType,
-              stride: accessor.byteStride,
-              offset: accessor.byteOffset
-          };
-          args.geometry.addAttributes(args.bufferViews[accessor.bufferView], bufAccessor);
-          return true;
+        for (let attrib in args.primitive.attributes) {
+            const accessor = args.tf.accessors[args.primitive.attributes[attrib]];
+            const bufAccessor = {};
+            bufAccessor[attrib] = {
+                size: GLTFConstantConverter.asVectorSize(accessor.type),
+                type: accessor.componentType,
+                stride: accessor.byteStride,
+                offset: accessor.byteOffset
+            };
+            args.geometry.addAttributes(args.bufferViews[accessor.bufferView], bufAccessor);
+        }
+        return true;
+    }
+
+    public async loadMaterials(args: { tf: GLTF, textures: { [key: string]: Texture2D } }): Promise<{ [key: string]: Material }> {
+        const result: { [key: string]: Material } = {};
+        for (let key in args.tf.materials) {
+            result[key] = await this.parser.callParserModule(t => t.loadMaterial, { material: args.tf.materials[key], textures: args.textures });
+        }
+        return result;
+    }
+
+    public async loadMaterial(args: { material: GLTFMaterial, textures: { [key: string]: Texture2D } }): Promise<Material> {
+        if (args.material["pbrMetallicRoughness"]) {
+            const material = await MaterialFactory.get(this.__gl).instanciate("gltf-pbr-metalic-roughness");
+            const pmr = args.material["pbrMetallicRoughness"];
+            const matArgs = material.arguments;
+            if (pmr.baseColorFactor) {
+                matArgs.baseColorFactor = pmr.baseColorFactor;
+            }
+            if (pmr.baseColorTexture) {
+                matArgs.baseColorTexture = args.textures[pmr.baseColorTexture.index];
+            }
+            if (pmr.metalicFactor) {
+                matArgs.metalicFactor = pmr.metalicFactor;
+            }
+            if (pmr.metalicTexture) {
+                matArgs.metalicTexture = args.textures[pmr.metalicTexture.index];
+            }
+            if (pmr.roughnessFactor) {
+                matArgs.roughnessFactor = pmr.roughnessFactor;
+            }
+            if (pmr.roughnessTexture) {
+                matArgs.roughnessTexture = args.textures[pmr.roughnessTexture.index];
+            }
+            if (args.material["emissiveFactor"]) {
+                matArgs.emissiveFactor = args.material["emissiveFactor"];
+            }
+            if (args.material["emissiveTexture"]) {
+                matArgs.emissiveTexture = args.textures[args.material["emissiveTexture"].index];
+            }
+            return material;
+        }
+    }
+
+    // Animation would be replaced in future
+    // Because main part of animation should be implemented commonly, not limited in glTF.
+    public loadAnimations(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView } }): { [key: string]: Animation } {
+      const result:{ [key: string]: Animation } = {};
+      for(let key in args.tf.animations){
+        result[key] = new Animation(args.tf,key,args.bufferViews);
       }
+      debugger;
+      return result;
     }
 }

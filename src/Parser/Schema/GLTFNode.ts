@@ -4,7 +4,7 @@ interface GLTFNode {
   translation: number[];
   rotation: number[];
   scale: number[];
-  meshes: string[];
+  mesh?:string;
   name: string;
   skin: string;
   skeletons: string[];

@@ -37,3 +37,5 @@ export interface AddVertexAttributesArgument{
   primitive: GLTFPrimitive;
   geometry:Geometry;
 }
+
+export default {};

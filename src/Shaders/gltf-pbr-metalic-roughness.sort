@@ -1,0 +1,172 @@
+@Pass{
+@BlendFunc(SRC_ALPHA,ONE_MINUS_SRC_ALPHA)
+@ExposeMacro(int,jointCount,JOINT_COUNT,0)
+FS_PREC(mediump,float)
+
+varying vec3 vPosition;
+varying vec3 vNormal;
+varying vec2 vUV;
+
+#ifdef VS
+#if JOINT_COUNT > 0
+  @JOINTMATRIX
+  uniform mat4 boneMatrices[JOINT_COUNT];
+#endif
+  @NORMAL
+  attribute vec3 normal;
+  @POSITION
+  attribute vec3 position;
+  @TEXCOORD_0
+  attribute vec2 texCoord;
+#if JOINT_COUNT > 0
+  @JOINT
+  attribute vec4 joint;
+  @WEIGHT
+  attribute vec4 weight;
+#endif
+  uniform mat4 _matPVM;
+  uniform mat4 _matM;
+  void main(){
+    mat4 transform = _matM;
+    mat4 projectionTransform = _matPVM;
+    #if JOINT_COUNT > 0
+      mat4 skinMat = weight.x * boneMatrices[int(joint.x)] + weight.y * boneMatrices[int(joint.y)] + weight.z * boneMatrices[int(joint.z)] + weight.w * boneMatrices[int(joint.w)];
+      transform *= skinMat;
+      projectionTransform *= skinMat;
+    #endif
+    vUV = texCoord;
+    vNormal = normalize((transform * vec4(normal,0.0)).xyz);
+    vPosition = (transform * vec4(position,1.0)).xyz;
+    gl_Position = projectionTransform * vec4(position,1.0);
+  }
+
+
+#endif
+
+
+#ifdef FS
+
+  @{default:"1,1,1,1"}
+  uniform vec4 baseColorFactor;
+
+  uniform sampler2D baseColorTexture;
+
+  @HAS_TEXTURE{sampler:"baseColorTexture"}
+  uniform bool has_baseColorTexture;
+
+  @{default:"1"}
+  uniform float metalicFactor;
+
+  uniform sampler2D metalicTexture;
+
+  @HAS_TEXTURE{sampler:"metalicTexture"}
+  uniform bool has_metalicTexture;
+
+  @{default:"1"}
+  uniform float roughnessFactor;
+
+  uniform sampler2D roughnessTexture;
+
+  @HAS_TEXTURE{sampler:"roughnessTexture"}
+  uniform bool has_roughnessTexture;
+
+  @{default:"0,0,0"}
+  uniform vec3 emissiveFactor;
+
+  uniform sampler2D emissiveTexture;
+
+  @HAS_TEXTURE{sampler:"emissiveTexture"}
+  uniform bool has_emissiveTexture;
+
+  @CAMERA_POSITION
+  uniform vec3 _cameraPosition;
+
+
+  #ifndef GR_FORWARD_SHADING_ENABLED
+
+  struct simple_pbr_params{
+    vec3 diffuseColor;
+    vec3 f0;
+    float alpha;
+    float roughness;
+  };
+
+    @{default:"n(3,0.5,10)"}
+    uniform vec3 simpleLightDirection;
+
+    @{type:"color",default:"gray"}
+    uniform vec3 simpleLightColor;
+
+    @{default:0.3}
+    uniform float simpleLightIntencity;
+
+    float lambert(vec3 lightDirection,vec3 surfaceNormal) {
+      return max(0.0, dot(lightDirection, surfaceNormal));
+    }
+
+    float ctd_GGX_Distribution(simple_pbr_params param,vec3 l,vec3 v,vec3 n,vec3 h){
+      float alpha2 = pow(param.alpha,2.0);
+      float nh2 = pow(dot(n,h),2.0);
+      return alpha2/(PI*pow(nh2*(alpha2 - 1.0) + 1.0,2.0));
+    }
+
+    float ctg_GGX_SingleGeometryTerm(simple_pbr_params param,vec3 n,vec3 v){
+      float d = dot(n,v);
+      return 2.*d /(d + sqrt(d*d + param.alpha*param.alpha*(1. - d*d)));
+    }
+
+    vec3 ctf_Schlick(simple_pbr_params param,vec3 l,vec3 v,vec3 n,vec3 h){
+      vec3 f0 = param.f0;
+      float vh = dot(v,h);
+      return f0 + pow(1.0-vh,5.0) * (vec3(1.0) - f0);
+    }
+
+    vec3 cookTorranceBRDF(simple_pbr_params param,vec3 l,vec3 v,vec3 n){
+      vec3 h = normalize(l+v);
+      return  ctf_Schlick(param,l,v,n,h) * ctd_GGX_Distribution(param,l,v,n,h) * ctg_GGX_SingleGeometryTerm(param,n,l) * ctg_GGX_SingleGeometryTerm(param,n,v)/(PI * 4.0 * dot(l,n) * dot(v,n));
+    }
+
+    vec3 BRDF(simple_pbr_params params,vec3 li,vec3 lo,vec3 n){
+      return params.diffuseColor/PI + cookTorranceBRDF(params,li,lo,n);
+    }
+
+  #endif
+
+
+  void main(){
+    vec4 baseColor = baseColorFactor;
+    if(has_baseColorTexture){
+      baseColor *= texture2D(baseColorTexture,vUV);
+    }
+    vec3 emissive = emissiveFactor;
+    if(has_emissiveTexture){
+      emissive *= texture2D(emissiveTexture,vUV).rgb;
+    }
+    float metalic = metalicFactor;
+    if(has_metalicTexture){
+      metalic *= texture2D(metalicTexture,vUV).r;
+    }
+    float roughness = roughnessFactor;
+    if(has_roughnessTexture){
+      roughness *= texture2D(roughnessTexture,vUV).r;
+    }
+    vec3 dielectricSpecular = vec3(0.04);
+    vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metalic);
+    vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metalic);
+    float alpha = roughness * roughness;
+    #ifdef GR_FORWARD_SHADING_ENABLED
+
+    #endif
+    #ifndef GR_FORWARD_SHADING_ENABLED
+      simple_pbr_params params = simple_pbr_params(diffuse,f0,alpha,roughness);
+      vec3 n = normalize(vNormal);
+      float lam = lambert(simpleLightDirection,n);
+      vec3 brdfCoeff = BRDF(params,-simpleLightDirection,normalize(_cameraPosition - vPosition),n);
+      gl_FragColor.rgb = vec3(lam) * simpleLightIntencity * simpleLightColor * brdfCoeff;
+    #endif
+    gl_FragColor.rgb += emissive;
+    gl_FragColor.rgb = pow(gl_FragColor.rgb,1.0/vec3(2.2));
+    gl_FragColor.a = baseColor.a;
+  }
+#endif
+}

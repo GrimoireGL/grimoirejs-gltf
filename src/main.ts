@@ -5,6 +5,7 @@ import GrimoireInterface from "grimoirejs";
 import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
 import UniformResolverRegistry from "grimoirejs-fundamental/ref/Material/UniformResolverRegistry";
 import gltfUnlit from "raw-loader!./Shaders/gltf-unlit.sort";
+import gltfPBRMetalicRoughness from "raw-loader!./Shaders/gltf-pbr-metalic-roughness.sort";
 export default () => {
     GrimoireInterface.register(
         async () => {
@@ -19,6 +20,7 @@ export default () => {
             GrimoireInterface.registerNode("gltf-assets", [], {});
             GrimoireInterface.registerNode("gltf-animation", ["GLTFAnimation"], {});
             MaterialFactory.addSORTMaterial("gltf-unlit", gltfUnlit);
+            MaterialFactory.addSORTMaterial("gltf-pbr-metalic-roughness", gltfPBRMetalicRoughness);
             UniformResolverRegistry.add("JOINTMATRIX", (valInfo, material) => {
                 return (proxy, info) => {
                     if (info.renderable.renderArgs["gltf-boneMatrices"]) {
