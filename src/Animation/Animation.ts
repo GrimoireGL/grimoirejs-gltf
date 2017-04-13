@@ -16,19 +16,19 @@ export default class Animator {
   constructor(public tf: GLTF, public animationKey: string, private _buffers: { [bufferName: string]: ArrayBufferView }) {
     this._animationData = tf.animations[animationKey];
     const accessors = {} as { [key: string]: Accessor };
-    for (let key in this._animationData.parameters) {
-      const ac = tf.accessors[this._animationData.parameters[key]];
-      this.accessors[key] = new Accessor(_buffers[ac.bufferView], ac.count, ac.componentType, ConstantConverter.asVectorSize(ac.type), ac.byteOffset || 0, ac.byteStride || 0);
-    }
-    for (let channel of this._animationData.channels) {
-      const sampler = this._animationData.samplers[channel.sampler];
-      const input = this.accessors[sampler.input];
-      this.timeLength = Math.max(this.timeLength, input.getByIndex(input.count - 1)[0]);
-      this.targetNodes.push(channel.target.id);
-      if (channel.target.path === "rotation" && this._animationData.samplers[channel.sampler].interpolation === "LINEAR") {
-        this._animationData.samplers[channel.sampler].interpolation = "SPHERICAL";
-      }
-    }
+    // for (let key in this._animationData.parameters) {
+    //   const ac = tf.accessors[this._animationData.parameters[key]];
+    //   this.accessors[key] = new Accessor(_buffers[ac.bufferView], ac.count, ac.componentType, ConstantConverter.asVectorSize(ac.type), ac.byteOffset || 0, ac.byteStride || 0);
+    // }
+    // for (let channel of this._animationData.channels) {
+    //   const sampler = this._animationData.samplers[channel.sampler];
+    //   const input = this.accessors[sampler.input];
+    //   this.timeLength = Math.max(this.timeLength, input.getByIndex(input.count - 1)[0]);
+    //   this.targetNodes.push(channel.target.id);
+    //   if (channel.target.path === "rotation" && this._animationData.samplers[channel.sampler].interpolation === "LINEAR") {
+    //     this._animationData.samplers[channel.sampler].interpolation = "SPHERICAL";
+    //   }
+    // }
   }
 
   public processCurrentFrame(time: number, processor: (id: string, target: string, v: number[]) => void): void {

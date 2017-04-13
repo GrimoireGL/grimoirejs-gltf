@@ -180,6 +180,15 @@ export default class DefaultParserModule extends ParserModule {
             if (args.material["emissiveTexture"]) {
                 matArgs.emissiveTexture = args.textures[args.material["emissiveTexture"].index];
             }
+            if (args.material["normalTexture"]) {
+                matArgs.normalTexture = args.textures[args.material["normalTexture"].index];
+            }
+            if (args.material["metalicRoughnessTexture"]) {
+                matArgs.metalicRoughnessTexture = args.textures[args.material["metalicRoughnessTexture"].index];
+            }
+            if (args.material["occlusionTexture"]) {
+                matArgs.occlusionTexture = args.textures[args.material["occlusionTexture"].index];
+            }
             return material;
         }
     }
@@ -191,7 +200,6 @@ export default class DefaultParserModule extends ParserModule {
       for(let key in args.tf.animations){
         result[key] = new Animation(args.tf,key,args.bufferViews);
       }
-      debugger;
       return result;
     }
 }

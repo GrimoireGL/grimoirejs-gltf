@@ -6,7 +6,13 @@ import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory
 import UniformResolverRegistry from "grimoirejs-fundamental/ref/Material/UniformResolverRegistry";
 import gltfUnlit from "raw-loader!./Shaders/gltf-unlit.sort";
 import gltfPBRMetalicRoughness from "raw-loader!./Shaders/gltf-pbr-metalic-roughness.sort";
+import ImportResolver from "grimoirejs-fundamental/ref/Sort/ImportResolver";
+import GLExtRequestor from "grimoirejs-fundamental/ref/Resource/GLExtRequestor";
 export default () => {
+    if (typeof ImportResolver.staticImports["forward-shading"] !== "string") {
+        ImportResolver.staticImports["forward-shading"] = "";
+    }
+    GLExtRequestor.request("OES_standard_derivatives")
     GrimoireInterface.register(
         async () => {
             GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
