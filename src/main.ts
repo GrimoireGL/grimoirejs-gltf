@@ -13,6 +13,7 @@ export default () => {
         ImportResolver.staticImports["forward-shading"] = "";
     }
     GLExtRequestor.request("OES_standard_derivatives")
+    GLExtRequestor.request("OES_element_index_uint")
     GrimoireInterface.register(
         async () => {
             GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
