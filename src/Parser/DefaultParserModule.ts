@@ -3,6 +3,7 @@ import GLTF from "./Schema/GLTF";
 import GLTFImage from "./Schema/GLTFImage";
 import GLTFBuffer from "./Schema/GLTFBuffer";
 import GLTFMaterial from "./Schema/GLTFMaterial";
+import GLTFSampler from "./Schema/GLTFSampler";
 
 import Animation from "../Animation/Animation";
 
@@ -58,7 +59,10 @@ export default class DefaultParserModule extends ParserModule {
         const tex = new Texture2D(this.__gl);
         tex.update(arg.image);
         const texInfo = arg.tf.textures[arg.texIndex];
-        const samplerInfo = arg.tf.samplers[texInfo.sampler];
+        let samplerInfo = {} as GLTFSampler;
+        if(!texInfo){
+          samplerInfo = arg.tf.samplers[texInfo.sampler];
+        }
         tex.magFilter = samplerInfo.magFilter || WebGLRenderingContext.LINEAR;
         tex.minFilter = samplerInfo.minFilter || WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
         tex.wrapS = samplerInfo.wrapS || WebGLRenderingContext.REPEAT;
