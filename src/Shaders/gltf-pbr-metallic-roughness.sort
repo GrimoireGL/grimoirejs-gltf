@@ -17,8 +17,10 @@ varying vec2 vUV;
   attribute vec3 normal;
   @POSITION
   attribute vec3 position;
+#ifdef ATTRIBUTE_TEXCOORD_0_ENABLED
   @TEXCOORD_0
   attribute vec2 texCoord;
+#endif
 #if JOINT_COUNT > 0
   @JOINT
   attribute vec4 joint;
@@ -35,7 +37,11 @@ varying vec2 vUV;
       transform *= skinMat;
       projectionTransform *= skinMat;
     #endif
-    vUV = texCoord;
+    #ifdef ATTRIBUTE_TEXCOORD_0_ENABLED
+        vUV = texCoord;
+    #else
+        vUV  = position.xy /2.0 + vec2(0.5);
+    #endif
     vNormal = normalize((transform * vec4(normal,0.0)).xyz);
     vPosition = (transform * vec4(position,1.0)).xyz;
     gl_Position = projectionTransform * vec4(position,1.0);
