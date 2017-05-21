@@ -157,7 +157,7 @@ export default class DefaultParserModule extends ParserModule {
 
     public async loadMaterial(args: { material: GLTFMaterial, textures: { [key: string]: Texture2D } }): Promise<Material> {
         if (args.material["pbrMetallicRoughness"]) {
-            const material = await MaterialFactory.get(this.__gl).instanciate("gltf-pbr-metalic-roughness");
+            const material = await MaterialFactory.get(this.__gl).instanciate("gltf-pbr-metallic-roughness");
             const pmr = args.material["pbrMetallicRoughness"];
             const matArgs = material.arguments;
             if (pmr.baseColorFactor) {
@@ -166,17 +166,20 @@ export default class DefaultParserModule extends ParserModule {
             if (pmr.baseColorTexture) {
                 matArgs.baseColorTexture = args.textures[pmr.baseColorTexture.index];
             }
-            if (pmr.metalicFactor) {
-                matArgs.metalicFactor = pmr.metalicFactor;
+            if (pmr.metallicFactor) {
+                matArgs.metallicFactor = pmr.metallicFactor;
             }
-            if (pmr.metalicTexture) {
-                matArgs.metalicTexture = args.textures[pmr.metalicTexture.index];
+            if (pmr.metallicTexture) {
+                matArgs.metallicTexture = args.textures[pmr.metallicTexture.index];
             }
             if (pmr.roughnessFactor) {
                 matArgs.roughnessFactor = pmr.roughnessFactor;
             }
             if (pmr.roughnessTexture) {
                 matArgs.roughnessTexture = args.textures[pmr.roughnessTexture.index];
+            }
+            if(pmr.metallicRoughnessTexture){
+              matArgs.metallicRoughnessTexture = args.textures[pmr.metallicRoughnessTexture.index];
             }
             if (args.material["emissiveFactor"]) {
                 matArgs.emissiveFactor = args.material["emissiveFactor"];
@@ -186,9 +189,6 @@ export default class DefaultParserModule extends ParserModule {
             }
             if (args.material["normalTexture"]) {
                 matArgs.normalTexture = args.textures[args.material["normalTexture"].index];
-            }
-            if (args.material["metalicRoughnessTexture"]) {
-                matArgs.metalicRoughnessTexture = args.textures[args.material["metalicRoughnessTexture"].index];
             }
             if (args.material["occlusionTexture"]) {
                 matArgs.occlusionTexture = args.textures[args.material["occlusionTexture"].index];

@@ -60,12 +60,12 @@ varying vec2 vUV;
   uniform bool has_baseColorTexture;
 
   @{default:"1"}
-  uniform float metalicFactor;
+  uniform float metallicFactor;
 
-  uniform sampler2D metalicTexture;
+  uniform sampler2D metallicTexture;
 
-  @HAS_TEXTURE{sampler:"metalicTexture"}
-  uniform bool has_metalicTexture;
+  @HAS_TEXTURE{sampler:"metallicTexture"}
+  uniform bool has_metallicTexture;
 
   @{default:"1"}
   uniform float roughnessFactor;
@@ -83,10 +83,10 @@ varying vec2 vUV;
   @HAS_TEXTURE{sampler:"emissiveTexture"}
   uniform bool has_emissiveTexture;
 
-  uniform sampler2D metalicRoughnessTexture;
+  uniform sampler2D metallicRoughnessTexture;
 
-  @HAS_TEXTURE{sampler:"metalicRoughnessTexture"}
-  uniform bool has_metalicRoughnessTexture;
+  @HAS_TEXTURE{sampler:"metallicRoughnessTexture"}
+  uniform bool has_metallicRoughnessTexture;
 
   uniform sampler2D occlusionTexture;
 
@@ -158,17 +158,17 @@ varying vec2 vUV;
     if(has_emissiveTexture){
       emissive *= texture2D(emissiveTexture,vUV).rgb;
     }
-    float metalic = metalicFactor;
-    if(has_metalicTexture){
-      metalic *= texture2D(metalicTexture,vUV).r;
+    float metallic = metallicFactor;
+    if(has_metallicTexture){
+      metallic *= texture2D(metallicTexture,vUV).r;
     }
     float roughness = roughnessFactor;
     if(has_roughnessTexture){
       roughness *= texture2D(roughnessTexture,vUV).r;
     }
-    if(has_metalicRoughnessTexture){
-      vec2 rm = texture2D(metalicRoughnessTexture,vUV).rg;
-      metalic *= rm.r;
+    if(has_metallicRoughnessTexture){
+      vec3 rm = texture2D(metallicRoughnessTexture,vUV).rgb;
+      metallic *= rm.b;
       roughness *= rm.g;
     }
     vec3 normal = vNormal;
@@ -185,17 +185,17 @@ varying vec2 vUV;
       normal = normalize(tbn * (2.0 * n - 1.0));
     }
     vec3 dielectricSpecular = vec3(0.04);
-    vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metalic);
-    vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metalic);
+    vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metallic);
+    vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metallic);
     float alpha = roughness * roughness;
     #ifdef GR_FORWARD_SHADING_ENABLED
-      BRDF_PARAMS param = BRDF_PARAMS(baseColor.rgb,f0,roughness);
+      pbr_params param = pbr_params(diffuse,f0,alpha,roughness);
       gl_FragColor.rgb = shading(param,normal,vPosition);
     #endif
     #ifndef GR_FORWARD_SHADING_ENABLED
       simple_pbr_params params = simple_pbr_params(diffuse,f0,alpha,roughness);
       float lam = lambert(simpleLightDirection,normal);
-      vec3 brdfCoeff = BRDF(params,-simpleLightDirection,normalize(_cameraPosition - vPosition),n);
+      vec3 brdfCoeff = BRDF(params,-simpleLightDirection,normalize(_cameraPosition - vPosition),normal);
       gl_FragColor.rgb = vec3(lam) * simpleLightIntencity * simpleLightColor * brdfCoeff;
     #endif
     gl_FragColor.rgb += emissive;
