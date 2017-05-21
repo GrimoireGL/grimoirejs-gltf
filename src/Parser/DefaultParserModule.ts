@@ -144,7 +144,12 @@ export default class DefaultParserModule extends ParserModule {
             };
             args.geometry.addAttributes(args.bufferViews[accessor.bufferView], bufAccessor);
         }
+        this.parser.callParserModule(t=>t.complementVertexAttributes,args);
         return true;
+    }
+
+    public complementVertexAttributes(args: AddVertexAttributesArgument):boolean{
+      return true;
     }
 
     public async loadMaterials(args: { tf: GLTF, textures: { [key: string]: Texture2D } }): Promise<{ [key: string]: Material }> {

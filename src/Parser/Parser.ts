@@ -16,8 +16,16 @@ import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import ParserModule from "./ParserModule";
 import DefaultParserModule from "./DefaultParserModule";
 import InstanciationRecipe from "./InstanciationRecipe";
+
+// Modules
+
+import NormalComplementorModule from "./Modules/NormalComplementorModule";
+import IndexComplementorModule from "./Modules/IndexComplementorModule";
+
 export default class GLTFParser {
     public static parserModules: (typeof ParserModule)[] = [
+        IndexComplementorModule,
+        NormalComplementorModule,
         DefaultParserModule
     ];
 

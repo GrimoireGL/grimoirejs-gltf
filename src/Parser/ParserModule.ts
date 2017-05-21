@@ -96,6 +96,10 @@ export default class ParserModule extends ParserModuleBase {
         return undefined;
     }
 
+    public complementVertexAttributes(args: AddVertexAttributesArgument):boolean {
+        return undefined;
+    }
+
     public loadMaterials(args: { tf: GLTF, textures: { [key: string]: Texture2D } }): Promise<{ [key: string]: Material }> {
         return undefined;
     }
