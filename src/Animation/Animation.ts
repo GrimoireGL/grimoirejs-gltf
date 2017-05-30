@@ -61,7 +61,7 @@ export default class Animator {
       return v1;
     }
 
-    const delta = ((t - t1[0]) / (t2[0] - t1[0])); // TODO interpolator?
+    const delta = ((t - t1[0]) / (t2[0] - t1[0]));
     return Interpolators[interpolation](delta, v1, v2)
   }
 }
