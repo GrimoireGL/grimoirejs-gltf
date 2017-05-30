@@ -16,12 +16,10 @@ export default class MaterialParser {
         if (material.extensions && material.extensions.KHR_materials_common) {
             return this._parseMaterialCommon(tf, matKey, textures);
         } else {
-            if (MaterialFactory.registerdHandlers[material.technique] === void 0) {
-                const techniqueRecipe = await this._convertIntoTechniqueRecipe(tf, matKey, rr);
-                MaterialFactory.addMaterialType(material.technique, (factory) => {
-                    return new Material(factory.gl, techniqueRecipe);
-                });
-            }
+            const techniqueRecipe = await this._convertIntoTechniqueRecipe(tf, matKey, rr);
+            MaterialFactory.addMaterialType(material.technique, (factory) => {
+                return new Material(factory.gl, techniqueRecipe);
+            });
             const result = {
                 type: material.technique,
                 class: "gltf-" + tf.id + "-" + matKey

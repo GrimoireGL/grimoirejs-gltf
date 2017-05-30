@@ -150,7 +150,7 @@ export default class GLTFModelComponent extends Component {
         }
         if (node.matrix) {
             const mat = new Matrix(node.matrix);
-            gomlNode.setAttribute("rawMatrix", mat);
+            gomlNode.getComponent(TransformComponent).applyMatrix(mat);
         }
     }
 }
