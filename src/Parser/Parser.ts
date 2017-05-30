@@ -21,9 +21,11 @@ import InstanciationRecipe from "./InstanciationRecipe";
 
 import NormalComplementorModule from "./Modules/NormalComplementorModule";
 import IndexComplementorModule from "./Modules/IndexComplementorModule";
+import EmbeddedBufferModule from "./Modules/EmbeddedBufferModule";
 
 export default class GLTFParser {
     public static parserModules: (typeof ParserModule)[] = [
+        EmbeddedBufferModule,
         IndexComplementorModule,
         NormalComplementorModule,
         DefaultParserModule
