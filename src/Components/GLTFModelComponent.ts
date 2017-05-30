@@ -7,6 +7,7 @@ import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import Component from "grimoirejs/ref/Node/Component";
 import IAttributeDeclaration from "grimoirejs/ref/Node/IAttributeDeclaration";
 import GLTFParser from "../Parser/Parser";
+import AssetLoader from "grimoirejs-fundamental/ref/Asset/AssetLoader";
 
 import DefaultInstanciator from "../Instanciator/DefaultInstanciator";
 
@@ -23,6 +24,10 @@ export default class GLTFModelComponent extends Component {
         scene: {
             converter: "String",
             default: null
+        },
+        waitForLoad:{
+          converter: "Boolean",
+          default: false
         }
     };
 
@@ -34,9 +39,13 @@ export default class GLTFModelComponent extends Component {
         const src = this.getAttribute("src");
         if (src) {
             const gl: WebGLRenderingContext = this.companion.get("gl") as WebGLRenderingContext;
-            GLTFParser.parseFromURL(gl, src).then((data) => {
+            const promise = GLTFParser.parseFromURL(gl, src).then((data) => {
                 GLTFModelComponent.instanciator.instanciateAll(data,this.node,this.getAttribute("scene"));
             });
+            if(this.getAttribute("waitForLoad")){
+              const loader = this.companion.get("loader") as AssetLoader;
+              loader.register(promise);
+            }
         }
     }
 }
