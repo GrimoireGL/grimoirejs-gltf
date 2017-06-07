@@ -33,14 +33,16 @@ export default class GLTFModelComponent extends Component {
 
     private _assetRoot: GomlNode;
 
-    private _jointMatrices: { [skinName: string]: Float32Array } = {};
+    public jointMatrices: { [skinName: string]: Float32Array } = {};
+
+    public skeletons: {[skinName: string]: TransformComponent} = {};
 
     public $mount(): void {
         const src = this.getAttribute("src");
         if (src) {
             const gl: WebGLRenderingContext = this.companion.get("gl") as WebGLRenderingContext;
             const promise = GLTFParser.parseFromURL(gl, src).then((data) => {
-                GLTFModelComponent.instanciator.instanciateAll(data,this.node,this.getAttribute("scene"));
+                GLTFModelComponent.instanciator.instanciateAll(data,this,this.getAttribute("scene"));
             });
             if(this.getAttribute("waitForLoad")){
               const loader = this.companion.get("loader") as AssetLoader;

@@ -5,6 +5,7 @@ interface InstanciationRecipe {
     tf: GLTF;
     primitives: { [key: string]: Geometry[] };
     materials: { [key: string]: Material };
+    bufferViews: {[key:string]: ArrayBufferView };
 }
 
 export default InstanciationRecipe;

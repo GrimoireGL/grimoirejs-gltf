@@ -73,6 +73,7 @@ export default class GLTFParser {
             const primitives = this.callParserModule(t=>t.loadPrimitivesOfMesh,{tf:gltf,bufferViews:bufferViews});
             const animations = this.callParserModule(t => t.loadAnimations, { tf: gltf, bufferViews: bufferViews });
             result.primitives = primitives;
+            result.bufferViews = bufferViews;
           }
         );
         return result;
