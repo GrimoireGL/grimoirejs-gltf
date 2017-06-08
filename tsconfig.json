@@ -16,10 +16,6 @@
   ],
   "files": [
     "./src/Accessor/Accessor.ts",
-    "./src/Animation/Animation.ts",
-    "./src/Animation/Interpolator.ts",
-    "./src/Animation/Interpolators.ts",
-    "./src/Components/GLTFAnimationComponent.ts",
     "./src/Components/GLTFJointComponent.ts",
     "./src/Components/GLTFModelComponent.ts",
     "./src/index.ts",

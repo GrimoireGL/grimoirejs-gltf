@@ -1,7 +1,6 @@
 import MeshRenderer from "grimoirejs-fundamental/ref/Components/MeshRendererComponent";
 import TransformComponent from "grimoirejs-fundamental/ref/Components/TransformComponent";
 import GLTFNode from "../Parser/Schema/GLTFNode";
-import Animation from "../Animation/Animation";
 import Matrix from "grimoirejs-math/ref/Matrix";
 import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import Component from "grimoirejs/ref/Node/Component";

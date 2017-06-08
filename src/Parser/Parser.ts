@@ -1,7 +1,6 @@
 import ResourceResolver from "../Util/ResourceResolver";
 import Accessor from "../Accessor/Accessor";
 import Matrix from "grimoirejs-math/ref/Matrix";
-import Animation from "../Animation/Animation";
 import GLTFConstantConverter from "./ConstantConverter";
 import Vector3 from "grimoirejs-math/ref/Vector3";
 import AABB from "grimoirejs-math/ref/AABB";
@@ -74,6 +73,7 @@ export default class GLTFParser {
             const animations = this.callParserModule(t => t.loadAnimations, { tf: gltf, bufferViews: bufferViews });
             result.primitives = primitives;
             result.bufferViews = bufferViews;
+            result.animations = animations;
           }
         );
         return result;

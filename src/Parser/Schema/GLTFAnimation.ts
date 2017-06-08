@@ -5,9 +5,6 @@ interface GLTFAnimation {
   samplers: {
     [samplerKey: string]: GLTFAnimationSampler;
   };
-  parameters: {
-    [paramKey: string]: string;
-  };
 }
 
 export default GLTFAnimation;

@@ -2,10 +2,14 @@ import InstanciationRecipe from "../Parser/InstanciationRecipe";
 import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import GLTFNode from "../Parser/Schema/GLTFNode";
 import Transform from "grimoirejs-fundamental/ref/Components/TransformComponent";
+import MeshRenderer from "grimoirejs-fundamental/ref/Components/MeshRendererComponent";
+
 
 import Quaternion from "grimoirejs-math/ref/Quaternion";
 import Vector3 from "grimoirejs-math/ref/Vector3";
 import Matrix from "grimoirejs-math/ref/Matrix";
+
+import AnimationFactory from "grimoirejs-animation/ref/Animation/AnimationFactory";
 
 import GLTFModelComponent from "../Components/GLTFModelComponent";
 
@@ -23,6 +27,7 @@ export default class DefaultInstanciator {
     }
     const sceneInfo = recipe.tf.scenes[sceneIndex];
     this.__instanciateScene(sceneInfo, model, recipe);
+    this.__instanciateAnimations(model, recipe);
   }
 
   protected __instanciateScene(scene: { nodes: string[] }, model: GLTFModelComponent, recipe: InstanciationRecipe) {
@@ -31,9 +36,20 @@ export default class DefaultInstanciator {
     }
   }
 
+  protected __instanciateAnimations(model: GLTFModelComponent, recipe: InstanciationRecipe): void {
+    for(let key in recipe.animations){
+      AnimationFactory.addAnimation("gltf-animation-" + key,JSON.stringify(recipe.animations[key]));
+      model.node.addComponent("Animation",{
+        animation:"gltf-animation-" + key,
+        clip:"default"
+      });
+    }
+  }
+
   protected __instanciateNode(recipe: InstanciationRecipe, nodeName: string, instanciatedNodes: { [key: string]: GomlNode }, parent: GomlNode, model: GLTFModelComponent) {
     const node = recipe.tf.nodes[nodeName];
     let currentNode;
+    const meshes: GomlNode[] = [];
     if (node.mesh !== void 0) {
       const primitives = recipe.primitives[node.mesh];
       const meshInfo = recipe.tf.meshes[node.mesh];
@@ -43,6 +59,7 @@ export default class DefaultInstanciator {
           geometry: primitives[0],
           material: mat
         });
+        meshes.push(meshNode);
         currentNode = meshNode;
       } else { // If the node contains multiple mesh
         const objectNode = parent.addChildByName("object", {});
@@ -52,6 +69,7 @@ export default class DefaultInstanciator {
             geometry: primitives[i],
             material: mat
           });
+          meshes.push(meshNode);
         }
         currentNode = objectNode;
       }
@@ -59,36 +77,45 @@ export default class DefaultInstanciator {
       currentNode = parent.addChildByName("object", {});
     }
     instanciatedNodes[nodeName] = currentNode;
+    currentNode.setAttribute("class", "gltf-node-" + nodeName);
     this.__applyTransform(currentNode, node);
     if (node.children) {
       for (let child of node.children) {
-        this.__instanciateNode(recipe, child,instanciatedNodes, currentNode, model);
+        this.__instanciateNode(recipe, child, instanciatedNodes, currentNode, model);
       }
     }
     // If this node was skin, create joint matrix buffer in model
     if (node.skin !== void 0) {
       const skinInfo = recipe.tf.skins[node.skin];
       model.skeletons[node.skin] = instanciatedNodes[skinInfo.skeleton].getComponent(Transform);
-      const invBindShapeMatrixSourceAccessor= recipe.tf.accessors[skinInfo.inverseBindMatrices];
+      const invBindShapeMatrixSourceAccessor = recipe.tf.accessors[skinInfo.inverseBindMatrices];
       const invBindShapeMatrixSource = recipe.bufferViews[invBindShapeMatrixSourceAccessor.bufferView];
-      const invBindShapeMatrixSourceCasted = new Float32Array(invBindShapeMatrixSource.buffer,invBindShapeMatrixSource.byteOffset,invBindShapeMatrixSource.byteLength/4);
+      const invBindShapeMatrixSourceCasted = new Float32Array(invBindShapeMatrixSource.buffer, invBindShapeMatrixSource.byteOffset, invBindShapeMatrixSource.byteLength / 4);
       const stride = !invBindShapeMatrixSourceAccessor.byteStride ? 4 : invBindShapeMatrixSourceAccessor.byteStride;
-      const getInvBindShapeElement = (i)=>invBindShapeMatrixSourceCasted[invBindShapeMatrixSourceAccessor.byteOffset/4 + stride/4 * i];
+      const getInvBindShapeElement = (i) => invBindShapeMatrixSourceCasted[invBindShapeMatrixSourceAccessor.byteOffset / 4 + stride / 4 * i];
       if (model.jointMatrices[node.skin] === void 0) {
         model.jointMatrices[node.skin] = new Float32Array(skinInfo.joints.length * 16);
       }
-      skinInfo.joints.forEach((j,jointIndex)=>{
-        if(instanciatedNodes[j]){
+      for (let i = 0; i < meshes.length; i++) {
+        // TODO fix
+        setTimeout(() => {
+          meshes[i].setAttribute("fundamental.MaterialContainer.jointCount", skinInfo.joints.length);
+        }, 1000);
+        meshes[i].getComponent(MeshRenderer).renderArgs["gltf-jointMatrices"] = model.jointMatrices[node.skin];
+      }
+      skinInfo.joints.forEach((j, jointIndex) => {
+        if (instanciatedNodes[j]) {
           const invBindShapeMatrix = new Array(16);
-          for(let i = 0; i < 16; i++){
+          for (let i = 0; i < 16; i++) {
             invBindShapeMatrix[i] = getInvBindShapeElement(i + 16 * jointIndex);
           }
-          instanciatedNodes[j].addComponent("GLTFJoint",{
-            invBindShapeMatrix:invBindShapeMatrix,
+          instanciatedNodes[j].setAttribute("class", instanciatedNodes[j].getAttribute("class") + " gltf-joint-" + jointIndex);
+          instanciatedNodes[j].addComponent("GLTFJoint", {
+            invBindShapeMatrix: invBindShapeMatrix,
             skinIndex: node.skin,
             jointIndex: jointIndex
           });
-        }else{
+        } else {
           throw new Error("specified node was not found");
         }
       });

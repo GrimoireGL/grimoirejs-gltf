@@ -22,9 +22,9 @@ varying vec2 vUV;
   attribute vec2 texCoord;
 #endif
 #if JOINT_COUNT > 0
-  @JOINT
+  @JOINTS_0
   attribute vec4 joint;
-  @WEIGHT
+  @WEIGHTS_0
   attribute vec4 weight;
 #endif
   uniform mat4 _matPVM;

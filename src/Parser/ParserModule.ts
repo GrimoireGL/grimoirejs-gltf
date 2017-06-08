@@ -2,6 +2,7 @@ import GLTF from "./Schema/GLTF";
 import GLTFImage from "./Schema/GLTFImage";
 import GLTFBuffer from "./Schema/GLTFBuffer";
 import GLTFMaterial from "./Schema/GLTFMaterial";
+import GLTFAnimation from "./Schema/GLTFAnimation";
 
 import ParserModuleBase from "./ParserModuleBase";
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
@@ -9,7 +10,7 @@ import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
 import Material from "grimoirejs-fundamental/ref/Material/Material";
 import Parser from "./Parser";
 
-import Animation from "../Animation/Animation";
+import IAnimationRecipe from "grimoirejs-animation/ref/Animation/Schema/IAnimationRecipe";
 
 
 import {
@@ -108,7 +109,11 @@ export default class ParserModule extends ParserModuleBase {
         return undefined;
     }
 
-    public loadAnimations(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView } }): { [key: string]: Animation } {
-        return undefined;
+    public loadAnimations(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView } }): { [key: string]: IAnimationRecipe } {
+      return undefined;
+    }
+
+    public loadAnimation(args: {tf: GLTF, bufferViews: { [key:string]: ArrayBufferView}, animation: GLTFAnimation}): IAnimationRecipe {
+      return undefined;
     }
 }
