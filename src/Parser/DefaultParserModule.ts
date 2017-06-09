@@ -230,20 +230,20 @@ export default class DefaultParserModule extends ParserModule {
       const outputAccessor = args.tf.accessors[sampler.output];
       const inputBuffer = args.bufferViews[inputAccessor.bufferView];
       const outputBuffer = args.bufferViews[outputAccessor.bufferView];
+      const elemCount = ConstantConverter.asVectorSize(outputAccessor.type);
       const inputBufferF32 = new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset,inputAccessor.count);
-      const outputBufferF32 = new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset,outputAccessor.count);
+      const outputBufferF32 = new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset,outputAccessor.count * elemCount);
       const times = new Array(inputAccessor.count);
       for (let i = 0; i < inputAccessor.count; i++) {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride
       }
-      const elemCount = ConstantConverter.asVectorSize(outputAccessor.type);
       const arrays = [];
       for(let i = 0; i < elemCount; i++){
         arrays.push([]);
       }
       for (let i = 0; i < outputAccessor.count; i++) {
         for (let j = 0; j < elemCount; j++) {
-          arrays[j].push(outputBufferF32[outputAccessor.byteOffset / 4 + i * elemCount + j]); // SHould consider buffer stride
+          arrays[j].push(outputBufferF32[i * elemCount + j]); // SHould consider buffer stride
         }
       }
       for(let i = 0; i < elemCount; i++){

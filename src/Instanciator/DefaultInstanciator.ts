@@ -87,7 +87,7 @@ export default class DefaultInstanciator {
     // If this node was skin, create joint matrix buffer in model
     if (node.skin !== void 0) {
       const skinInfo = recipe.tf.skins[node.skin];
-      model.skeletons[node.skin] = instanciatedNodes[skinInfo.skeleton].getComponent(Transform);
+      model.skeletons[node.skin] = currentNode.getComponent(Transform);
       const invBindShapeMatrixSourceAccessor = recipe.tf.accessors[skinInfo.inverseBindMatrices];
       const invBindShapeMatrixSource = recipe.bufferViews[invBindShapeMatrixSourceAccessor.bufferView];
       const invBindShapeMatrixSourceCasted = new Float32Array(invBindShapeMatrixSource.buffer, invBindShapeMatrixSource.byteOffset, invBindShapeMatrixSource.byteLength / 4);

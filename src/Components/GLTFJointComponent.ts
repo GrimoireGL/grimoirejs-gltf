@@ -39,7 +39,7 @@ export default class GLTFJointComponent extends Component {
   }
 
   public $update(): void {
-     const poseMat = this._model.skeletons[this._skinIndex].globalTransformInverse.multiplyWith(this._transform.globalTransform).multiplyWith(this._invBindMatrix);
+     const poseMat = this._model.skeletons[this._skinIndex].globalTransformInverse.multiplyWith(this._transform.globalTransform).multiplyWith(this._invBindMatrix);//.multiplyWith(this._model.skeletons[this._skinIndex].globalTransform);
     for (let i = 0; i < 16; i++) {
       this._model.jointMatrices[this._skinIndex][this._jointIndex * 16 + i] = poseMat.rawElements[i];
     }
