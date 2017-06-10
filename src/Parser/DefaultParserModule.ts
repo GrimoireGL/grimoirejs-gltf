@@ -11,6 +11,7 @@ import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
 import Material from "grimoirejs-fundamental/ref/Material/Material";
 import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
+import Quaternion from "grimoirejs-math/ref/Quaternion";
 import GLTFConstantConverter from "./ConstantConverter";
 import IAnimationRecipe from "grimoirejs-animation/ref/Animation/Schema/IAnimationRecipe";
 import IAnimationClipElement from "grimoirejs-animation/ref/Animation/Schema/IAnimationClipElement";
@@ -230,25 +231,44 @@ export default class DefaultParserModule extends ParserModule {
       const outputAccessor = args.tf.accessors[sampler.output];
       const inputBuffer = args.bufferViews[inputAccessor.bufferView];
       const outputBuffer = args.bufferViews[outputAccessor.bufferView];
-      const elemCount = ConstantConverter.asVectorSize(outputAccessor.type);
-      const inputBufferF32 = new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset,inputAccessor.count);
-      const outputBufferF32 = new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset,outputAccessor.count * elemCount);
+      let elemCount = ConstantConverter.asVectorSize(outputAccessor.type);
+      const inputBufferF32 = new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
+      const outputBufferF32 = new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
       const times = new Array(inputAccessor.count);
       for (let i = 0; i < inputAccessor.count; i++) {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride
       }
-      const arrays = [];
-      for(let i = 0; i < elemCount; i++){
-        arrays.push([]);
-      }
-      for (let i = 0; i < outputAccessor.count; i++) {
-        for (let j = 0; j < elemCount; j++) {
-          arrays[j].push(outputBufferF32[i * elemCount + j]); // SHould consider buffer stride
+      let arrays = [];
+
+      if (elemCount === 4 && target.attributeName === "rotation") {
+        arrays = [];
+        for (let i = 0; i < 3; i++) {
+          arrays.push([]);
+        }
+        for (let i = 0; i < outputAccessor.count; i++) {
+          const x = outputBufferF32[i * elemCount + 0];
+          const y = outputBufferF32[i * elemCount + 1];
+          const z = outputBufferF32[i * elemCount + 2];
+          const w = outputBufferF32[i * elemCount + 3];
+          const q = (new Quaternion([x,y,z,w])).factoringQuaternionXYZ();
+          arrays[0].push(q.x);
+          arrays[1].push(q.y);
+          arrays[2].push(q.z);
+        }
+        elemCount = 3;
+      } else {
+        for (let i = 0; i < elemCount; i++) {
+          arrays.push([]);
+        }
+        for (let i = 0; i < outputAccessor.count; i++) {
+          for (let j = 0; j < elemCount; j++) {
+            arrays[j].push(outputBufferF32[i * elemCount + j]); // SHould consider buffer stride
+          }
         }
       }
-      for(let i = 0; i < elemCount; i++){
+      for (let i = 0; i < elemCount; i++) {
         clip.timelines.push({
-          times:times,
+          times: times,
           values: arrays[i]
         });
       }
