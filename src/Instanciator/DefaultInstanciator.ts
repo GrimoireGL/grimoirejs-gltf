@@ -97,10 +97,7 @@ export default class DefaultInstanciator {
         model.jointMatrices[node.skin] = new Float32Array(skinInfo.joints.length * 16);
       }
       for (let i = 0; i < meshes.length; i++) {
-        // TODO fix
-        setTimeout(() => {
-          meshes[i].setAttribute("fundamental.MaterialContainer.jointCount", skinInfo.joints.length);
-        }, 1000);
+        meshes[i].setAttribute("fundamental.MaterialContainer.jointCount", skinInfo.joints.length);
         meshes[i].getComponent(MeshRenderer).renderArgs["gltf-jointMatrices"] = model.jointMatrices[node.skin];
       }
       skinInfo.joints.forEach((j, jointIndex) => {
