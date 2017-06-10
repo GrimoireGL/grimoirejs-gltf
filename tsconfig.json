@@ -5,24 +5,22 @@
     "outDir": "./lib",
     "declaration": true,
     "moduleResolution": "node",
-    "declarationDir": "./ref"
+    "declarationDir": "./ref",
+    "lib":[
+      "dom",
+      "es2017"
+    ]
   },
   "filesGlob": [
     "./src/**/*.ts"
   ],
   "files": [
     "./src/Accessor/Accessor.ts",
-    "./src/Animation/Animation.ts",
-    "./src/Animation/Interpolator.ts",
-    "./src/Animation/Interpolators.ts",
-    "./src/Components/GLTFAnimationComponent.ts",
     "./src/Components/GLTFJointComponent.ts",
     "./src/Components/GLTFModelComponent.ts",
     "./src/index.ts",
     "./src/main.ts",
     "./src/Parser/ConstantConverter.ts",
-    "./src/Parser/MaterialParser.ts",
-    "./src/Parser/ParsedGLTF.ts",
     "./src/Parser/Parser.ts",
     "./src/Parser/Schema/GLTF.ts",
     "./src/Parser/Schema/GLTFAccessor.ts",

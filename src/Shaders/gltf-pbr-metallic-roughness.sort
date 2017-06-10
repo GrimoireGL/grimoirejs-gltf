@@ -1,0 +1,215 @@
+@Pass{
+#extension GL_OES_standard_derivatives : enable
+@BlendFunc(SRC_ALPHA,ONE_MINUS_SRC_ALPHA)
+@ExposeMacro(int,jointCount,JOINT_COUNT,0)
+FS_PREC(mediump,float)
+
+varying vec3 vPosition;
+varying vec3 vNormal;
+varying vec2 vUV;
+
+#ifdef VS
+#if JOINT_COUNT > 0
+  @JOINTMATRIX
+  uniform mat4 boneMatrices[JOINT_COUNT];
+#endif
+  @NORMAL
+  attribute vec3 normal;
+  @POSITION
+  attribute vec3 position;
+#ifdef ATTRIBUTE_TEXCOORD_0_ENABLED
+  @TEXCOORD_0
+  attribute vec2 texCoord;
+#endif
+#if JOINT_COUNT > 0
+  @JOINTS_0
+  attribute vec4 joint;
+  @WEIGHTS_0
+  attribute vec4 weight;
+#endif
+  uniform mat4 _matPVM;
+  uniform mat4 _matM;
+  void main(){
+    mat4 transform = _matM;
+    mat4 projectionTransform = _matPVM;
+    #if JOINT_COUNT > 0
+      mat4 skinMat = weight.x * boneMatrices[int(joint.x)] + weight.y * boneMatrices[int(joint.y)] + weight.z * boneMatrices[int(joint.z)] + weight.w * boneMatrices[int(joint.w)];
+      transform *= skinMat;
+      projectionTransform *= skinMat;
+    #endif
+    #ifdef ATTRIBUTE_TEXCOORD_0_ENABLED
+        vUV = texCoord;
+    #else
+        vUV  = position.xy /2.0 + vec2(0.5);
+    #endif
+    vNormal = normalize((transform * vec4(normal,0.0)).xyz);
+    vPosition = (transform * vec4(position,1.0)).xyz;
+    gl_Position = projectionTransform * vec4(position,1.0);
+  }
+
+
+#endif
+
+
+#ifdef FS
+  @HAS_TEXTURE{sampler:"normalTexture"}
+  uniform bool has_normalTexture;
+
+  uniform sampler2D normalTexture;
+
+  @{default:"1,1,1,1"}
+  uniform vec4 baseColorFactor;
+
+  uniform sampler2D baseColorTexture;
+
+  @HAS_TEXTURE{sampler:"baseColorTexture"}
+  uniform bool has_baseColorTexture;
+
+  @{default:"1"}
+  uniform float metallicFactor;
+
+  uniform sampler2D metallicTexture;
+
+  @HAS_TEXTURE{sampler:"metallicTexture"}
+  uniform bool has_metallicTexture;
+
+  @{default:"1"}
+  uniform float roughnessFactor;
+
+  uniform sampler2D roughnessTexture;
+
+  @HAS_TEXTURE{sampler:"roughnessTexture"}
+  uniform bool has_roughnessTexture;
+
+  @{default:"0,0,0"}
+  uniform vec3 emissiveFactor;
+
+  uniform sampler2D emissiveTexture;
+
+  @HAS_TEXTURE{sampler:"emissiveTexture"}
+  uniform bool has_emissiveTexture;
+
+  uniform sampler2D metallicRoughnessTexture;
+
+  @HAS_TEXTURE{sampler:"metallicRoughnessTexture"}
+  uniform bool has_metallicRoughnessTexture;
+
+  uniform sampler2D occlusionTexture;
+
+  @HAS_TEXTURE{sampler:"occlusionTexture"}
+  uniform bool has_occlusionTexture;
+
+  @CAMERA_POSITION
+  uniform vec3 _cameraPosition;
+
+  @import "forward-shading"
+
+  #ifndef GR_FORWARD_SHADING_ENABLED
+
+  struct simple_pbr_params{
+    vec3 diffuseColor;
+    vec3 f0;
+    float alpha;
+    float roughness;
+  };
+
+    @{default:"n(3,0.5,10)"}
+    uniform vec3 simpleLightDirection;
+
+    @{type:"color",default:"gray"}
+    uniform vec3 simpleLightColor;
+
+    @{default:0.3}
+    uniform float simpleLightIntencity;
+
+    float lambert(vec3 lightDirection,vec3 surfaceNormal) {
+      return max(0.0, dot(lightDirection, surfaceNormal));
+    }
+
+    float ctd_GGX_Distribution(simple_pbr_params param,vec3 l,vec3 v,vec3 n,vec3 h){
+      float alpha2 = pow(param.alpha,2.0);
+      float nh2 = pow(dot(n,h),2.0);
+      return alpha2/(PI*pow(nh2*(alpha2 - 1.0) + 1.0,2.0));
+    }
+
+    float ctg_GGX_SingleGeometryTerm(simple_pbr_params param,vec3 n,vec3 v){
+      float d = dot(n,v);
+      return 2.*d /(d + sqrt(d*d + param.alpha*param.alpha*(1. - d*d)));
+    }
+
+    vec3 ctf_Schlick(simple_pbr_params param,vec3 l,vec3 v,vec3 n,vec3 h){
+      vec3 f0 = param.f0;
+      float vh = dot(v,n);
+      return f0 + pow(1.0-vh,5.0) * (vec3(1.0) - f0);
+    }
+
+    vec3 cookTorranceBRDF(simple_pbr_params param,vec3 l,vec3 v,vec3 n){
+      vec3 h = normalize(l+v);
+      return  ctf_Schlick(param,l,v,n,h) * ctd_GGX_Distribution(param,l,v,n,h) * ctg_GGX_SingleGeometryTerm(param,n,l) * ctg_GGX_SingleGeometryTerm(param,n,v)/(4.0 * dot(l,n) * dot(v,n));
+    }
+
+    vec3 BRDF(simple_pbr_params params,vec3 li,vec3 lo,vec3 n){
+      return params.diffuseColor/PI + cookTorranceBRDF(params,li,lo,n);
+    }
+
+  #endif
+
+
+  void main(){
+    vec4 baseColor = baseColorFactor;
+    if(has_baseColorTexture){
+      baseColor *= texture2D(baseColorTexture,vUV);
+    }
+    vec3 emissive = emissiveFactor;
+    if(has_emissiveTexture){
+      emissive *= texture2D(emissiveTexture,vUV).rgb;
+    }
+    float metallic = metallicFactor;
+    if(has_metallicTexture){
+      metallic *= texture2D(metallicTexture,vUV).r;
+    }
+    float roughness = roughnessFactor;
+    if(has_roughnessTexture){
+      roughness *= texture2D(roughnessTexture,vUV).r;
+    }
+    if(has_metallicRoughnessTexture){
+      vec3 rm = texture2D(metallicRoughnessTexture,vUV).rgb;
+      metallic *= rm.b;
+      roughness *= rm.g;
+    }
+    vec3 normal = vNormal;
+    if(has_normalTexture){
+      vec3 pos_dx = dFdx(vPosition);
+      vec3 pos_dy = dFdy(vPosition);
+      vec3 tex_dx = dFdx(vec3(vUV, 0.0));
+      vec3 tex_dy = dFdy(vec3(vUV, 0.0));
+      vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
+      t = normalize(t - vNormal * dot(vNormal, t));
+      vec3 b = normalize(cross(vNormal, t));
+      mat3 tbn = mat3(t, b, vNormal);
+      vec3 n = texture2D(normalTexture, vUV).rgb;
+      normal = normalize(tbn * (2.0 * n - 1.0));
+    }
+    vec3 dielectricSpecular = vec3(0.04);
+    vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metallic);
+    vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metallic);
+    float alpha = roughness * roughness;
+    #ifdef GR_FORWARD_SHADING_ENABLED
+      pbr_params param = pbr_params(diffuse,f0,alpha,roughness);
+      gl_FragColor.rgb = shading(param,normal,vPosition);
+    #endif
+    #ifndef GR_FORWARD_SHADING_ENABLED
+      simple_pbr_params params = simple_pbr_params(diffuse,f0,alpha,roughness);
+      float lam = lambert(simpleLightDirection,normal);
+      vec3 brdfCoeff = BRDF(params,-simpleLightDirection,normalize(_cameraPosition - vPosition),normal);
+      gl_FragColor.rgb = vec3(lam) * simpleLightIntencity * simpleLightColor * brdfCoeff;
+    #endif
+    gl_FragColor.rgb += emissive;
+    gl_FragColor.rgb = pow(gl_FragColor.rgb,1.0/vec3(2.2));
+    if(has_occlusionTexture){
+      gl_FragColor.rgb *= texture2D(occlusionTexture,vUV).r;
+    }
+    gl_FragColor.a = baseColor.a;
+  }
+#endif
+}

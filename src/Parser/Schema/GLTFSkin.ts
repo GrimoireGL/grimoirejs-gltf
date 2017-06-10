@@ -1,7 +1,7 @@
 interface GLTFSkin {
-  bindShapeMatrix: number[];
+  skeleton: string;
   inverseBindMatrices: string;
-  jointNames: string[];
+  joints: string[];
 }
 
 export default GLTFSkin;
