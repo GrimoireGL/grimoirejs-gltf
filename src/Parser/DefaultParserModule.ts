@@ -226,7 +226,6 @@ export default class DefaultParserModule extends ParserModule {
       clip.query = query;
       clip.component = target.component;
       clip.attribute = target.attributeName;
-      clip.timelines = [];
       const inputAccessor = args.tf.accessors[sampler.input];
       const outputAccessor = args.tf.accessors[sampler.output];
       const inputBuffer = args.bufferViews[inputAccessor.bufferView];
@@ -238,40 +237,16 @@ export default class DefaultParserModule extends ParserModule {
       for (let i = 0; i < inputAccessor.count; i++) {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride
       }
-      let arrays = [];
-
-      if (elemCount === 4 && target.attributeName === "rotation") {
-        arrays = [];
-        for (let i = 0; i < 3; i++) {
-          arrays.push([]);
-        }
-        for (let i = 0; i < outputAccessor.count; i++) {
-          const x = outputBufferF32[i * elemCount + 0];
-          const y = outputBufferF32[i * elemCount + 1];
-          const z = outputBufferF32[i * elemCount + 2];
-          const w = outputBufferF32[i * elemCount + 3];
-          const q = (new Quaternion([x,y,z,w])).factoringQuaternionXYZ();
-          arrays[0].push(q.x);
-          arrays[1].push(q.y);
-          arrays[2].push(q.z);
-        }
-        elemCount = 3;
-      } else {
-        for (let i = 0; i < elemCount; i++) {
-          arrays.push([]);
-        }
-        for (let i = 0; i < outputAccessor.count; i++) {
-          for (let j = 0; j < elemCount; j++) {
-            arrays[j].push(outputBufferF32[i * elemCount + j]); // SHould consider buffer stride
-          }
+      clip.timeline = times;
+      clip.defaultEffect = "LINEAR";
+      let values = [];
+      for (let i = 0; i < outputAccessor.count; i++) {
+        values[i] = [];
+        for (let j = 0; j < elemCount; j++) {
+          values[i][j]=outputBufferF32[i * elemCount + j]; // SHould consider buffer stride
         }
       }
-      for (let i = 0; i < elemCount; i++) {
-        clip.timelines.push({
-          times: times,
-          values: arrays[i]
-        });
-      }
+      clip.values = values;
       defaultClip.push(clip);
     }
     return {
@@ -287,6 +262,8 @@ export default class DefaultParserModule extends ParserModule {
         return { component: "Transform", attributeName: "rotation" };
       case "scale":
         return { component: "Transform", attributeName: "scale" };
+      case "weights":
+        return { component: "VertexMorpher", attributeName: "weights" };
       default:
         throw new Error("Unsupported path type on grimoire");
     }
