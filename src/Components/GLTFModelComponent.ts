@@ -45,8 +45,11 @@ export default class GLTFModelComponent extends Component {
             });
             if(this.getAttribute("waitForLoad")){
               const loader = this.companion.get("loader") as AssetLoader;
-              loader.register(promise);
+              (loader["register"] as any)(promise,this);
             }
         }
+    }
+    public $update(): void{
+
     }
 }
