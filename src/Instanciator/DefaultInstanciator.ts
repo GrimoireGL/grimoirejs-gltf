@@ -31,8 +31,9 @@ export default class DefaultInstanciator {
   }
 
   protected __instanciateScene(scene: { nodes: string[] }, model: GLTFModelComponent, recipe: InstanciationRecipe) {
+    const nodes : { [key:string]: GomlNode} = {};
     for (let nodeName of scene.nodes) {
-      this.__instanciateNode(recipe, nodeName, {}, model.node, model);
+      this.__instanciateNode(recipe, nodeName, nodes, model.node, model);
     }
   }
 
