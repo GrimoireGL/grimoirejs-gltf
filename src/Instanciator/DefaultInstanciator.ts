@@ -31,18 +31,18 @@ export default class DefaultInstanciator {
   }
 
   protected __instanciateScene(scene: { nodes: string[] }, model: GLTFModelComponent, recipe: InstanciationRecipe) {
-    const nodes : { [key:string]: GomlNode} = {};
+    const nodes: { [key: string]: GomlNode } = {};
     for (let nodeName of scene.nodes) {
       this.__instanciateNode(recipe, nodeName, nodes, model.node, model);
     }
   }
 
   protected __instanciateAnimations(model: GLTFModelComponent, recipe: InstanciationRecipe): void {
-    for(let key in recipe.animations){
-      AnimationFactory.addAnimation("gltf-animation-" + key,JSON.stringify(recipe.animations[key]));
-      model.node.addComponent("Animation",{
-        animation:"gltf-animation-" + key,
-        clips:"default"
+    for (let key in recipe.animations) {
+      AnimationFactory.addAnimation("gltf-animation-" + key, JSON.stringify(recipe.animations[key]));
+      model.node.addComponent("Animation", {
+        animation: "gltf-animation-" + key,
+        clips: "default"
       });
     }
   }

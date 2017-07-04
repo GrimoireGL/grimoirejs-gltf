@@ -168,7 +168,7 @@ export default class DefaultParserModule extends ParserModule {
     if (args.material["pbrMetallicRoughness"]) {
       const material = await MaterialFactory.get(this.__gl).instanciate("gltf-pbr-metallic-roughness");
       const pmr = args.material["pbrMetallicRoughness"];
-      const matArgs = material.arguments;
+      const matArgs = material.techniques["default"].passes[0].arguments;
       if (pmr.baseColorFactor) {
         matArgs.baseColorFactor = pmr.baseColorFactor;
       }
@@ -238,7 +238,7 @@ export default class DefaultParserModule extends ParserModule {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride
       }
       clip.timeline = times;
-      clip.defaultEffect = "LINEAR";
+      clip.defaultEffect = "LINEAR" as any; // TODO bug of animation plugin?
       let values = [];
       for (let i = 0; i < outputAccessor.count; i++) {
         values[i] = [];
