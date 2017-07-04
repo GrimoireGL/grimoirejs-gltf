@@ -15,6 +15,7 @@ import Quaternion from "grimoirejs-math/ref/Quaternion";
 import GLTFConstantConverter from "./ConstantConverter";
 import IAnimationRecipe from "grimoirejs-animation/ref/Animation/Schema/IAnimationRecipe";
 import IAnimationClipElement from "grimoirejs-animation/ref/Animation/Schema/IAnimationClipElement";
+import TextureReference from "grimoirejs-fundamental/ref/Material/TextureReference";
 
 import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
 
@@ -168,39 +169,39 @@ export default class DefaultParserModule extends ParserModule {
     if (args.material["pbrMetallicRoughness"]) {
       const material = await MaterialFactory.get(this.__gl).instanciate("gltf-pbr-metallic-roughness");
       const pmr = args.material["pbrMetallicRoughness"];
-      const matArgs = material.arguments;
+      const pass = material.techniques["default"].passes[0];
       if (pmr.baseColorFactor) {
-        matArgs.baseColorFactor = pmr.baseColorFactor;
+        pass.setArgument("baseColorFactor", pmr.baseColorFactor, null);
       }
       if (pmr.baseColorTexture) {
-        matArgs.baseColorTexture = args.textures[pmr.baseColorTexture.index];
+        pass.setArgument("baseColorTexture",new TextureReference(args.textures[pmr.baseColorTexture.index]),null);
       }
       if (pmr.metallicFactor) {
-        matArgs.metallicFactor = pmr.metallicFactor;
+        pass.setArgument("metallicFactor",pmr.metallicFactor,null);
       }
       if (pmr.metallicTexture) {
-        matArgs.metallicTexture = args.textures[pmr.metallicTexture.index];
+        pass.setArgument("metallicTexture",new TextureReference(args.textures[pmr.metallicTexture.index]),null);
       }
       if (pmr.roughnessFactor) {
-        matArgs.roughnessFactor = pmr.roughnessFactor;
+        pass.setArgument("roughnessFactor",pmr.roughnessFactor,null);
       }
       if (pmr.roughnessTexture) {
-        matArgs.roughnessTexture = args.textures[pmr.roughnessTexture.index];
+        pass.setArgument("roughnessTexture",new TextureReference(args.textures[pmr.roughnessTexture.index]),null);
       }
       if (pmr.metallicRoughnessTexture) {
-        matArgs.metallicRoughnessTexture = args.textures[pmr.metallicRoughnessTexture.index];
+        pass.setArgument("metallicRoughnessTexture",new TextureReference(args.textures[pmr.metallicRoughnessTexture.index]),null);
       }
       if (args.material["emissiveFactor"]) {
-        matArgs.emissiveFactor = args.material["emissiveFactor"];
+        pass.setArgument("emissiveFactor",args.material["emissiveFactor"],null);
       }
       if (args.material["emissiveTexture"]) {
-        matArgs.emissiveTexture = args.textures[args.material["emissiveTexture"].index];
+        pass.setArgument("emissiveTexture",new TextureReference(args.textures[args.material["emissiveTexture"].index]),null);
       }
       if (args.material["normalTexture"]) {
-        matArgs.normalTexture = args.textures[args.material["normalTexture"].index];
+        pass.setArgument("normalTexture",new TextureReference(args.textures[args.material["normalTexture"].index]),null);
       }
       if (args.material["occlusionTexture"]) {
-        matArgs.occlusionTexture = args.textures[args.material["occlusionTexture"].index];
+        pass.setArgument("occlusionTexture",new TextureReference(args.textures[args.material["occlusionTexture"].index]),null);
       }
       return material;
     }
@@ -238,12 +239,12 @@ export default class DefaultParserModule extends ParserModule {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride
       }
       clip.timeline = times;
-      clip.defaultEffect = "LINEAR";
+      clip.defaultEffect = "LINEAR" as any; // TODO bug of animation plugin?
       let values = [];
       for (let i = 0; i < outputAccessor.count; i++) {
         values[i] = [];
         for (let j = 0; j < elemCount; j++) {
-          values[i][j]=outputBufferF32[i * elemCount + j]; // SHould consider buffer stride
+          values[i][j] = outputBufferF32[i * elemCount + j]; // SHould consider buffer stride
         }
       }
       clip.values = values;
