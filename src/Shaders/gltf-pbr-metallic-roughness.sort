@@ -191,7 +191,6 @@ varying vec2 vUV;
       gl_FragColor.rgb = vec3(lam) * simpleLightIntencity * simpleLightColor * brdfCoeff;
     #endif
     gl_FragColor.rgb += emissive;
-    gl_FragColor.rgb = pow(gl_FragColor.rgb,1.0/vec3(2.2));
     #ifdef USE_OCCLUSION_TEXTURE
       gl_FragColor.rgb *= texture2D(occlusionTexture,vUV).r;
     #endif
