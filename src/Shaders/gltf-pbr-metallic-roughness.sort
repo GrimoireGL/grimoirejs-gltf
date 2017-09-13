@@ -55,7 +55,7 @@ varying vec2 vUV;
   @{flag:"USE_NORMAL_TEXTURE"}
   uniform sampler2D normalTexture;
 
-  @{default:"1,1,1,1"}
+  @{default:"white",type:"color"}
   uniform vec4 baseColorFactor;
 
   @{flag:"USE_BASECOLOR_TEXTURE"}
@@ -73,7 +73,7 @@ varying vec2 vUV;
   @{flag:"USE_ROUGHNESS_TEXTURE"}
   uniform sampler2D roughnessTexture;
 
-  @{default:"0,0,0"}
+  @{default:"black",type:"color"}
   uniform vec3 emissiveFactor;
 
   @{flag:"USE_EMISSIVE_TEXTURE"}
