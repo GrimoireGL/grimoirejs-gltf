@@ -1,25 +1,22 @@
+import PBRMetallicRoughness from "./PBRMetallicRoughness"
+import GLTFTextureReference from "./GLTFTextureReference";
 interface GLTFMaterial {
   extensions: {
     [key: string]: any;
-    KHR_materials_common?: {
-      doubleSided: boolean;
-      jointCount: number;
-      technique: string;
-      transparent: boolean;
-      values: {
-        ambient?: number[];
-        diffuse?: number[] | string;
-        emission?: number[];
-        shininess?: number;
-        specular?: number[];
-      };
-    };
   };
+  extras:any;
+  pbrMetallicRoughness:PBRMetallicRoughness;
+  normalTexture:GLTFTextureReference;
+  occlusionTexture:GLTFTextureReference;
+  emissiveTexture:GLTFTextureReference;
+  emissiveFactor:number[];
+  alphaMode:string;
+  alphaCutoff:number;
   values: {
     [paramName: string]: any;
   };
   name: string;
-  technique:string;
+  doubleSided:boolean;
 }
 
 export default GLTFMaterial;

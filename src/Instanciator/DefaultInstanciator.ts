@@ -56,9 +56,11 @@ export default class DefaultInstanciator {
       const meshInfo = recipe.tf.meshes[node.mesh];
       if (primitives.length === 1) { // If the node contains single mesh
         const mat = recipe.materials[meshInfo.primitives[0].material];
+        const matMeta = recipe.tf.materials[meshInfo.primitives[0].material];
         const meshNode = parent.addChildByName("mesh", {
           geometry: primitives[0],
-          material: mat
+          material: mat,
+          cull:matMeta.doubleSided ? "none":"back"
         });
         meshes.push(meshNode);
         currentNode = meshNode;
@@ -66,9 +68,11 @@ export default class DefaultInstanciator {
         const objectNode = parent.addChildByName("object", {});
         for (let i = 0; i < primitives.length; i++) {
           const mat = recipe.materials[meshInfo.primitives[i].material];
+          const matMeta = recipe.tf.materials[meshInfo.primitives[i].material];          
           const meshNode = objectNode.addChildByName("mesh", {
             geometry: primitives[i],
-            material: mat
+            material: mat,
+            cull:matMeta.doubleSided ? "none":"back"            
           });
           meshes.push(meshNode);
         }
