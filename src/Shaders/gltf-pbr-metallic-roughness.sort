@@ -30,6 +30,8 @@ varying vec2 vUV;
 #endif
   uniform mat4 _matPVM;
   uniform mat4 _matM;
+  @MODELINVERSETRANSPOSE
+  uniform mat4 normalMatrix;
   void main(){
     mat4 transform = _matM;
     mat4 projectionTransform = _matPVM;
@@ -43,7 +45,7 @@ varying vec2 vUV;
     #else
         vUV  = position.xy /2.0 + vec2(0.5);
     #endif
-    vNormal = normalize((transform * vec4(normal,0.0)).xyz);
+    vNormal = normalize(mat3(normalMatrix) * normal);
     vPosition = (transform * vec4(position,1.0)).xyz;
     gl_Position = projectionTransform * vec4(position,1.0);
   }
@@ -164,7 +166,7 @@ varying vec2 vUV;
       metallic *= rm.b;
       roughness *= rm.g;
     #endif
-    vec3 normal = vNormal;
+    vec3 normal = normalize(vNormal);
     #ifdef USE_NORMAL_TEXTURE
       vec3 pos_dx = dFdx(vPosition);
       vec3 pos_dy = dFdy(vPosition);
