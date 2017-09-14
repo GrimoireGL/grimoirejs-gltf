@@ -65,7 +65,7 @@ export default class DefaultParserModule extends ParserModule {
     tex.update(arg.image);
     const texInfo = arg.tf.textures[arg.texIndex];
     let samplerInfo = {} as GLTFSampler;
-    if (!texInfo) {
+    if (texInfo && texInfo.sampler !== void 0) {
       samplerInfo = arg.tf.samplers[texInfo.sampler];
     }
     tex.magFilter = samplerInfo.magFilter || WebGLRenderingContext.LINEAR;
@@ -179,29 +179,30 @@ export default class DefaultParserModule extends ParserModule {
       if (pmr.metallicFactor) {
         pass.setArgument("metallicFactor",pmr.metallicFactor,null);
       }
-      if (pmr.metallicTexture) {
-        pass.setArgument("metallicTexture",new TextureReference(args.textures[pmr.metallicTexture.index]),null);
+      // TODO Remove? metallicTexture and roughnessTexture was removed from specification?
+      if ((pmr as any).metallicTexture) {
+        pass.setArgument("metallicTexture",new TextureReference(args.textures[(pmr as any).metallicTexture.index]),null);
+      }
+      if ((pmr as any).roughnessTexture) {
+        pass.setArgument("roughnessTexture",new TextureReference(args.textures[(pmr as any).roughnessTexture.index]),null);
       }
       if (pmr.roughnessFactor) {
         pass.setArgument("roughnessFactor",pmr.roughnessFactor,null);
-      }
-      if (pmr.roughnessTexture) {
-        pass.setArgument("roughnessTexture",new TextureReference(args.textures[pmr.roughnessTexture.index]),null);
       }
       if (pmr.metallicRoughnessTexture) {
         pass.setArgument("metallicRoughnessTexture",new TextureReference(args.textures[pmr.metallicRoughnessTexture.index]),null);
       }
       if (args.material["emissiveFactor"]) {
-        pass.setArgument("emissiveFactor",args.material["emissiveFactor"],null);
+        pass.setArgument("emissiveFactor",args.material.emissiveFactor,null);
       }
       if (args.material["emissiveTexture"]) {
-        pass.setArgument("emissiveTexture",new TextureReference(args.textures[args.material["emissiveTexture"].index]),null);
+        pass.setArgument("emissiveTexture",new TextureReference(args.textures[args.material.emissiveTexture.index]),null);
       }
       if (args.material["normalTexture"]) {
-        pass.setArgument("normalTexture",new TextureReference(args.textures[args.material["normalTexture"].index]),null);
+        pass.setArgument("normalTexture",new TextureReference(args.textures[args.material.normalTexture.index]),null);
       }
       if (args.material["occlusionTexture"]) {
-        pass.setArgument("occlusionTexture",new TextureReference(args.textures[args.material["occlusionTexture"].index]),null);
+        pass.setArgument("occlusionTexture",new TextureReference(args.textures[args.material.occlusionTexture.index]),null);
       }
       return material;
     }
