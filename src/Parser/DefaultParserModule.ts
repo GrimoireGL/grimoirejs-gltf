@@ -65,7 +65,7 @@ export default class DefaultParserModule extends ParserModule {
     tex.update(arg.image);
     const texInfo = arg.tf.textures[arg.texIndex];
     let samplerInfo = {} as GLTFSampler;
-    if (!texInfo) {
+    if (texInfo && texInfo.sampler !== void 0) {
       samplerInfo = arg.tf.samplers[texInfo.sampler];
     }
     tex.magFilter = samplerInfo.magFilter || WebGLRenderingContext.LINEAR;
