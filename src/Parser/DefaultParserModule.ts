@@ -14,7 +14,7 @@ import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory
 import Quaternion from "grimoirejs-math/ref/Quaternion";
 import GLTFConstantConverter from "./ConstantConverter";
 import IAnimationRecipe from "grimoirejs-animation/ref/Animation/Schema/IAnimationRecipe";
-import IAnimationClipElement from "grimoirejs-animation/ref/Animation/Schema/IAnimationClipElement";
+import IAnimationTimeline from "grimoirejs-animation/ref/Animation/Schema/IAnimationTimeline";
 import TextureReference from "grimoirejs-fundamental/ref/Material/TextureReference";
 
 import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
@@ -217,9 +217,9 @@ export default class DefaultParserModule extends ParserModule {
   }
 
   public loadAnimation(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView }, animation: GLTFAnimation }): IAnimationRecipe {
-    const defaultClip: IAnimationClipElement[] = [];
+    const defaultClip: IAnimationTimeline[] = [];
     for (let i = 0; i < args.animation.channels.length; i++) {
-      let clip: IAnimationClipElement = {} as IAnimationClipElement;
+      let clip: IAnimationTimeline = {} as IAnimationTimeline;
       const channel = args.animation.channels[i];
       const query = ".gltf-node-" + channel.target.node;
       const target = this._pathNameToGrimoire(channel.target.path);
