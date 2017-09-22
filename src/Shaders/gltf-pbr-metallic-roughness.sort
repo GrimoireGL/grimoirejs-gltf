@@ -67,7 +67,7 @@ varying vec2 vUV;
   @{default:"1"}
   uniform float metallicFactor;
 
-  @{flag:"USE_METALIC_TEXTURE"}
+  @{flag:"USE_METALLIC_TEXTURE"}
   uniform sampler2D metallicTexture;
 
   @{default:"1"}
@@ -82,7 +82,7 @@ varying vec2 vUV;
   @{flag:"USE_EMISSIVE_TEXTURE"}
   uniform sampler2D emissiveTexture;
 
-  @{flag:"USE_METALIC_ROUGHNESS_TEXTURE"}
+  @{flag:"USE_METALLIC_ROUGHNESS_TEXTURE"}
   uniform sampler2D metallicRoughnessTexture;
 
   @{flag:"USE_OCCLUSION_TEXTURE"}
@@ -154,14 +154,14 @@ varying vec2 vUV;
       emissive *= texture2D(emissiveTexture,vUV).rgb;
     #endif
     float metallic = metallicFactor;
-    #ifdef USE_METALIC_TEXTURE
+    #ifdef USE_METALLIC_TEXTURE
       metallic *= texture2D(metallicTexture,vUV).r;
     #endif
     float roughness = roughnessFactor;
     #ifdef USE_ROUGHNESS_TEXTURE
       roughness *= texture2D(roughnessTexture,vUV).r;
     #endif
-    #ifdef USE_METALIC_ROUGHNESS_TEXTURE
+    #ifdef USE_METALLIC_ROUGHNESS_TEXTURE
       vec3 rm = texture2D(metallicRoughnessTexture,vUV).rgb;
       metallic *= rm.b;
       roughness *= rm.g;
