@@ -56,11 +56,14 @@ export default class DefaultInstanciator {
       const meshInfo = recipe.tf.meshes[node.mesh];
       if (primitives.length === 1) { // If the node contains single mesh
         const mat = recipe.materials[meshInfo.primitives[0].material];
-        const matMeta = recipe.tf.materials[meshInfo.primitives[0].material];
+        let cull = "back";
+        if(recipe.tf.materials && meshInfo.primitives[0].material !== void 0 && recipe.tf.materials[meshInfo.primitives[0].material] !== void 0){
+          cull = recipe.tf.materials[meshInfo.primitives[0].material].doubleSided ? "none": "back";
+        }
         const meshNode = parent.addChildByName("mesh", {
           geometry: primitives[0],
           material: mat,
-          cull:matMeta.doubleSided ? "none":"back"
+          cull:cull
         });
         meshes.push(meshNode);
         currentNode = meshNode;
@@ -68,11 +71,14 @@ export default class DefaultInstanciator {
         const objectNode = parent.addChildByName("object", {});
         for (let i = 0; i < primitives.length; i++) {
           const mat = recipe.materials[meshInfo.primitives[i].material];
-          const matMeta = recipe.tf.materials[meshInfo.primitives[i].material];          
+          let cull = "back";
+          if(recipe.tf.materials && meshInfo.primitives[i].material !== void i && recipe.tf.materials[meshInfo.primitives[i].material] !== void 0){
+            cull = recipe.tf.materials[meshInfo.primitives[i].material].doubleSided ? "none": "back";
+          }    
           const meshNode = objectNode.addChildByName("mesh", {
             geometry: primitives[i],
             material: mat,
-            cull:matMeta.doubleSided ? "none":"back"            
+            cull:cull       
           });
           meshes.push(meshNode);
         }
