@@ -140,11 +140,12 @@ export default class DefaultParserModule extends ParserModule {
   public addVertexAttributes(args: AddVertexAttributesArgument): boolean {
     for (let attrib in args.primitive.attributes) {
       const accessor = args.tf.accessors[args.primitive.attributes[attrib]];
+      const bufferView = args.tf.bufferViews[accessor.bufferView];
       const bufAccessor = {};
       bufAccessor[attrib] = {
         size: GLTFConstantConverter.asVectorSize(accessor.type),
         type: accessor.componentType,
-        stride: accessor.byteStride,
+        stride: bufferView.byteStride,
         offset: accessor.byteOffset
       };
       args.geometry.addAttributes(args.bufferViews[accessor.bufferView], bufAccessor);

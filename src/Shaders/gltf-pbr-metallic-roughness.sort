@@ -32,6 +32,9 @@ varying vec2 vUV;
   uniform mat4 _matM;
   @MODELINVERSETRANSPOSE
   uniform mat4 normalMatrix;
+
+  @CAMERA_POSITION
+  uniform vec3 _cameraPositionVert;
   void main(){
     mat4 transform = _matM;
     mat4 projectionTransform = _matPVM;
@@ -45,8 +48,9 @@ varying vec2 vUV;
     #else
         vUV  = position.xy /2.0 + vec2(0.5);
     #endif
-    vNormal = normalize(mat3(normalMatrix) * normal);
+    vec3 cNormal = normalize(mat3(normalMatrix) * normal);
     vPosition = (transform * vec4(position,1.0)).xyz;
+    vNormal = cNormal * sign(dot(cNormal,normalize(_cameraPositionVert-vPosition)));
     gl_Position = projectionTransform * vec4(position,1.0);
   }
 
