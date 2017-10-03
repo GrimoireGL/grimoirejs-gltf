@@ -147,8 +147,10 @@ export default class DefaultParserModule extends ParserModule {
     for (let attrib in args.primitive.attributes) {
       const primitive = args.primitive;
       const accessor = args.tf.accessors[primitive.attributes[attrib]];
-      const bufferView = args.tf.bufferViews[accessor.bufferView];
+      const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
       const bufAccessor = {} as {[key:string]:VertexBufferAccessor};
+      const elementSize = GLTFConstantConverter.asVectorSize(accessor.type);
+      // Check morph used. If morph was used for spcified attribute, source of the buffer should be keeped for using later.
       let useMorphing = false;
       if(primitive.targets && primitive.targets.length >= 1){
         for(let target of primitive.targets){
@@ -158,24 +160,15 @@ export default class DefaultParserModule extends ParserModule {
           }
         }
       }
-      const elementSize = GLTFConstantConverter.asVectorSize(accessor.type)
       bufAccessor[attrib] = {
         size:elementSize,
         type: accessor.componentType,
-        stride: bufferView.byteStride,
+        stride: bufferViewInfo.byteStride,
         offset: 0,
         keepOnBuffer:useMorphing
       };
-      const buf = args.bufferViews[accessor.bufferView];
-      let offset = 0;
-      if(bufferView.byteOffset !== void 0){
-        offset += bufferView.byteOffset;
-      }
-      if(accessor.byteOffset !== void 0){
-        offset += accessor.byteOffset;
-      }
-      const typedBuf = new Float32Array(buf.buffer,offset,accessor.count * elementSize);
-      args.geometry.addAttributes(typedBuf, bufAccessor);
+      const bufferView = args.bufferViews[accessor.bufferView];
+      args.geometry.addAttributes(this.__convertBufferView(Float32Array,bufferView,bufferViewInfo,accessor), bufAccessor);
       if(args.primitive.targets !== void 0 && args.primitive.targets[0][attrib] !== void 0){
         // This attribute has morph
         const geometry = args.geometry as MorphGeometry;
@@ -185,28 +178,18 @@ export default class DefaultParserModule extends ParserModule {
           const accessor = args.tf.accessors[targets[i][attrib]];
           const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
           const buffer = args.bufferViews[accessor.bufferView];
-          let offset = 0;
-          if(bufferViewInfo.byteOffset !== void 0){
-            offset += bufferViewInfo.byteOffset;
-          }
-          if(accessor.byteOffset !== void 0){
-            offset += accessor.byteOffset;
-          }
           parameters.push({
-            buffer:new Float32Array(buffer.buffer,offset, accessor.count),
+            buffer:this.__convertBufferView(Float32Array,buffer,bufferViewInfo,accessor),
             accessor:{
               size: GLTFConstantConverter.asVectorSize(accessor.type),
-              stride: bufferView.byteStride,
+              stride: bufferViewInfo.byteStride,
               offset: 0
             }
           });
         }
         geometry.addMorphAttribute(attrib,parameters);
-        window["MG"] = window["MG"] || [];
-        window["MG"].push(geometry);
       }
     }
-    // debugger
     this.parser.callParserModule(t => t.complementVertexAttributes, args);
     return true;
   }
@@ -288,11 +271,13 @@ export default class DefaultParserModule extends ParserModule {
       clip.attribute = target.attributeName;
       const inputAccessor = args.tf.accessors[sampler.input];
       const outputAccessor = args.tf.accessors[sampler.output];
+      const inputBufferInfo = args.tf.bufferViews[inputAccessor.bufferView];
       const inputBuffer = args.bufferViews[inputAccessor.bufferView];
       const outputBuffer = args.bufferViews[outputAccessor.bufferView];
-      let elemCount = ConstantConverter.asVectorSize(outputAccessor.type);
-      const inputBufferF32 = new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
-      const outputBufferF32 = new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
+      const outputBufferInfo = args.tf.bufferViews[outputAccessor.bufferView];
+      const inputBufferF32 = this.__convertBufferView(Float32Array,inputBuffer,inputBufferInfo,inputAccessor);//new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
+      const outputBufferF32 = this.__convertBufferView(Float32Array,outputBuffer,outputBufferInfo,outputAccessor);//new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
+      const elemCount = outputBufferF32.length / inputBufferF32.length;
       const times = new Array(inputAccessor.count);
       for (let i = 0; i < inputAccessor.count; i++) {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride

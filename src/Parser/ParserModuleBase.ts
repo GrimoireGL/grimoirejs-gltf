@@ -1,9 +1,23 @@
 import ImageResolver from "grimoirejs-fundamental/ref/Asset/ImageResolver";
+import GLTFBufferView from "./Schema/GLTFBufferView"
+import GLTFAccessor from "./Schema/GLTFAccessor";
+import ConstantConverter from "./ConstantConverter";
 /**
  * Base class of ParserModule.
  * Provides utility for parsing glTF files.
  */
 export default class ParserModuleBase {
+
+  protected __convertBufferView<T extends ArrayBufferView>(ctor:new(buffer:ArrayBuffer,offset:number,count:number)=>T,bufferView:ArrayBufferView,bufferViewInfo:GLTFBufferView,accessor:GLTFAccessor){
+    let offset = 0;
+    if(bufferView.byteOffset){
+      offset += bufferView.byteOffset
+    }
+    if(accessor.byteOffset){
+      offset+= accessor.byteOffset;
+    }
+    return new ctor(bufferView.buffer as ArrayBuffer,offset,accessor.count * ConstantConverter.asVectorSize(accessor.type));
+  }
 
   protected __fetchBuffer(url: string): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
