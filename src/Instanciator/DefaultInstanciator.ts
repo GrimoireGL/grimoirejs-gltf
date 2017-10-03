@@ -56,6 +56,7 @@ export default class DefaultInstanciator {
       const meshInfo = recipe.tf.meshes[node.mesh];
       if (primitives.length === 1) { // If the node contains single mesh
         const mat = recipe.materials[meshInfo.primitives[0].material];
+        const primitiveInfo = recipe.tf.meshes[node.mesh].primitives[0];
         let cull = "back";
         if(recipe.tf.materials && meshInfo.primitives[0].material !== void 0 && recipe.tf.materials[meshInfo.primitives[0].material] !== void 0){
           cull = recipe.tf.materials[meshInfo.primitives[0].material].doubleSided ? "none": "back";
@@ -65,6 +66,11 @@ export default class DefaultInstanciator {
           material: mat,
           cull:cull
         });
+        if(primitiveInfo.targets !== void 0 && primitiveInfo.targets.length > 1){
+          meshNode.addComponent("GLTFVertexMorpher",{
+            weights:meshInfo.weights
+          });
+        }
         meshes.push(meshNode);
         currentNode = meshNode;
       } else { // If the node contains multiple mesh
