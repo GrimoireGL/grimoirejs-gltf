@@ -16,7 +16,7 @@ export default class GLTFVertexMorpher extends Component{
     private _morphTarget:MorphGeometry;
     public $mount():void{
         this._meshComponent = this.node.getComponent(MeshRenderer);
-        this._meshComponent.geometry.then(g=>this._morphTarget = g);
+        this._meshComponent.geometry.then(g=>this._morphTarget = g as MorphGeometry);
         this.getAttributeRaw("weights").watch(v=>{
             if(this._morphTarget){
                 this._morphTarget.setWeight(v);
