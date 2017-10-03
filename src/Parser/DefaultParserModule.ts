@@ -9,6 +9,8 @@ import ConstantConverter from "./ConstantConverter";
 
 import Texture2D from "grimoirejs-fundamental/ref/Resource/Texture2D";
 import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
+import MorphGeometry from "grimoirejs-fundamental/ref/Geometry/MorphGeometry";
+import MorphParameter from "grimoirejs-fundamental/ref/Geometry/MorphParameter";
 import Material from "grimoirejs-fundamental/ref/Material/Material";
 import MaterialFactory from "grimoirejs-fundamental/ref/Material/MaterialFactory";
 import Quaternion from "grimoirejs-math/ref/Quaternion";
@@ -16,6 +18,7 @@ import GLTFConstantConverter from "./ConstantConverter";
 import IAnimationRecipe from "grimoirejs-animation/ref/Animation/Schema/IAnimationRecipe";
 import IAnimationTimeline from "grimoirejs-animation/ref/Animation/Schema/IAnimationTimeline";
 import TextureReference from "grimoirejs-fundamental/ref/Material/TextureReference";
+import VertexBufferAccessor from "grimoirejs-fundamental/ref/Geometry/VertexBufferAccessor";
 
 import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
 
@@ -103,6 +106,9 @@ export default class DefaultParserModule extends ParserModule {
     const bufferViews: { [key: string]: ArrayBufferView } = {};
     for (let key in args.tf.bufferViews) {
       const bufferViewInfo = args.tf.bufferViews[key];
+      if(bufferViewInfo.byteOffset === void 0){
+        bufferViewInfo.byteOffset = 0;
+      }
       bufferViews[key] = new Uint8Array(args.buffers[bufferViewInfo.buffer], bufferViewInfo.byteOffset, bufferViewInfo.byteLength);
     }
     return bufferViews;
@@ -122,7 +128,7 @@ export default class DefaultParserModule extends ParserModule {
   }
 
   public loadPrimitive(args: LoadPrimitiveArgument): Geometry {
-    const geo = new Geometry(this.__gl);
+    const geo = args.primitive.targets === void 0 ? new Geometry(this.__gl):new MorphGeometry(this.__gl);
     this.parser.callParserModule(t => t.appendIndices, { tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
     this.parser.callParserModule(t => t.addVertexAttributes, { tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
     return geo;
@@ -139,16 +145,50 @@ export default class DefaultParserModule extends ParserModule {
 
   public addVertexAttributes(args: AddVertexAttributesArgument): boolean {
     for (let attrib in args.primitive.attributes) {
-      const accessor = args.tf.accessors[args.primitive.attributes[attrib]];
-      const bufferView = args.tf.bufferViews[accessor.bufferView];
-      const bufAccessor = {};
+      const primitive = args.primitive;
+      const accessor = args.tf.accessors[primitive.attributes[attrib]];
+      const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
+      const bufAccessor = {} as {[key:string]:VertexBufferAccessor};
+      const elementSize = GLTFConstantConverter.asVectorSize(accessor.type);
+      // Check morph used. If morph was used for spcified attribute, source of the buffer should be keeped for using later.
+      let useMorphing = false;
+      if(primitive.targets && primitive.targets.length >= 1){
+        for(let target of primitive.targets){
+          if(attrib in target){
+            useMorphing = true;
+            break;
+          }
+        }
+      }
       bufAccessor[attrib] = {
-        size: GLTFConstantConverter.asVectorSize(accessor.type),
+        size:elementSize,
         type: accessor.componentType,
-        stride: bufferView.byteStride,
-        offset: accessor.byteOffset
+        stride: bufferViewInfo.byteStride,
+        offset: 0,
+        keepOnBuffer:useMorphing
       };
-      args.geometry.addAttributes(args.bufferViews[accessor.bufferView], bufAccessor);
+      const bufferView = args.bufferViews[accessor.bufferView];
+      args.geometry.addAttributes(this.__convertBufferView(Float32Array,bufferView,bufferViewInfo,accessor), bufAccessor);
+      if(args.primitive.targets !== void 0 && args.primitive.targets[0][attrib] !== void 0){
+        // This attribute has morph
+        const geometry = args.geometry as MorphGeometry;
+        let parameters = [] as MorphParameter[];
+        const targets = args.primitive.targets;
+        for(let i = 0; i < targets.length; i++){
+          const accessor = args.tf.accessors[targets[i][attrib]];
+          const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
+          const buffer = args.bufferViews[accessor.bufferView];
+          parameters.push({
+            buffer:this.__convertBufferView(Float32Array,buffer,bufferViewInfo,accessor),
+            accessor:{
+              size: GLTFConstantConverter.asVectorSize(accessor.type),
+              stride: bufferViewInfo.byteStride,
+              offset: 0
+            }
+          });
+        }
+        geometry.addMorphAttribute(attrib,parameters);
+      }
     }
     this.parser.callParserModule(t => t.complementVertexAttributes, args);
     return true;
@@ -231,11 +271,13 @@ export default class DefaultParserModule extends ParserModule {
       clip.attribute = target.attributeName;
       const inputAccessor = args.tf.accessors[sampler.input];
       const outputAccessor = args.tf.accessors[sampler.output];
+      const inputBufferInfo = args.tf.bufferViews[inputAccessor.bufferView];
       const inputBuffer = args.bufferViews[inputAccessor.bufferView];
       const outputBuffer = args.bufferViews[outputAccessor.bufferView];
-      let elemCount = ConstantConverter.asVectorSize(outputAccessor.type);
-      const inputBufferF32 = new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
-      const outputBufferF32 = new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
+      const outputBufferInfo = args.tf.bufferViews[outputAccessor.bufferView];
+      const inputBufferF32 = this.__convertBufferView(Float32Array,inputBuffer,inputBufferInfo,inputAccessor);//new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
+      const outputBufferF32 = this.__convertBufferView(Float32Array,outputBuffer,outputBufferInfo,outputAccessor);//new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
+      const elemCount = outputBufferF32.length / inputBufferF32.length;
       const times = new Array(inputAccessor.count);
       for (let i = 0; i < inputAccessor.count; i++) {
         times[i] = inputBufferF32[i] * 1000; // SHould consider buffer stride
@@ -266,7 +308,7 @@ export default class DefaultParserModule extends ParserModule {
       case "scale":
         return { component: "Transform", attributeName: "scale" };
       case "weights":
-        return { component: "VertexMorpher", attributeName: "weights" };
+        return { component: "GLTFVertexMorpher", attributeName: "weights" };
       default:
         throw new Error("Unsupported path type on grimoire");
     }

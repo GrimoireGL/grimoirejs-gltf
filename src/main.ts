@@ -7,6 +7,7 @@ import gltfUnlit from "raw-loader!./Shaders/gltf-unlit.sort";
 import gltfPBRMetallicRoughness from "raw-loader!./Shaders/gltf-pbr-metallic-roughness.sort";
 import ImportResolver from "grimoirejs-fundamental/ref/Sort/ImportResolver";
 import GLExtRequestor from "grimoirejs-fundamental/ref/Resource/GLExtRequestor";
+import GLTFVertexMorpher from "./Components/GLTFVertexMorpher";
 export default () => {
     if (typeof ImportResolver.staticImports["forward-shading"] !== "string") {
         ImportResolver.staticImports["forward-shading"] = "";
@@ -17,6 +18,7 @@ export default () => {
         async () => {
             GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
             GrimoireInterface.registerComponent("GLTFJoint", GLTFJointComponent);
+            GrimoireInterface.registerComponent("GLTFVertexMorpher",GLTFVertexMorpher);
             GrimoireInterface.registerNode("model", ["GLTFModel"], {}, "object");
             GrimoireInterface.registerNode("gltf-mesh", [], {
                 material: "new(gltf-unlit)"
