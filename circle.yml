@@ -1,6 +1,6 @@
 machine:
   node:
-    version: 6.9.5
+    version: 8.5.0
 
   post:
     - curl -o- -L https://yarnpkg.com/install.sh | bash
