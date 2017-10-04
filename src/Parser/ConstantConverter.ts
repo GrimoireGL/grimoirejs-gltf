@@ -1,6 +1,28 @@
 import Color3 from "grimoirejs-math/ref/Color3";
 import Color4 from "grimoirejs-math/ref/Color4";
 export default class GLTFConstantConvert {
+    public static asTypedArrayConstructor(componentType: number): new(buffer:ArrayBuffer,offset:number,length?:number)=>ArrayBufferView {
+        switch(componentType){
+          case WebGLRenderingContext.FLOAT:
+            return Float32Array;
+          case WebGLRenderingContext.UNSIGNED_INT:
+            return Uint32Array;
+          case WebGLRenderingContext.INT:
+            return Int32Array;
+          case WebGLRenderingContext.SHORT:
+            return Int16Array;
+          case WebGLRenderingContext.UNSIGNED_SHORT:
+            return Uint16Array;
+          case WebGLRenderingContext.BYTE:
+            return Int8Array;
+          case WebGLRenderingContext.UNSIGNED_BYTE:
+            return Uint8Array;
+          default:
+            throw new Error(`Unsupported typed array constructor type ${componentType}`);
+        }
+    }
+
+  
   public static asColorValue(a: number[]): Color4 | Color3 {
     if (a.length === 3) {
       return new Color3(a[0], a[1], a[2]);

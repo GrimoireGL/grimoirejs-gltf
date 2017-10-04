@@ -106,9 +106,10 @@ export default class DefaultInstanciator {
       const skinInfo = recipe.tf.skins[node.skin];
       model.skeletons[node.skin] = currentNode.getComponent(Transform);
       const invBindShapeMatrixSourceAccessor = recipe.tf.accessors[skinInfo.inverseBindMatrices];
+      const invBindShapeMatrixSourceBufferInfo = recipe.tf.bufferViews[invBindShapeMatrixSourceAccessor.bufferView];
       const invBindShapeMatrixSource = recipe.bufferViews[invBindShapeMatrixSourceAccessor.bufferView];
       const invBindShapeMatrixSourceCasted = new Float32Array(invBindShapeMatrixSource.buffer, invBindShapeMatrixSource.byteOffset, invBindShapeMatrixSource.byteLength / 4);
-      const stride = !invBindShapeMatrixSourceAccessor.byteStride ? 4 : invBindShapeMatrixSourceAccessor.byteStride;
+      const stride = !invBindShapeMatrixSourceBufferInfo.byteStride ? 4 : invBindShapeMatrixSourceBufferInfo.byteStride;
       const getInvBindShapeElement = (i) => invBindShapeMatrixSourceCasted[invBindShapeMatrixSourceAccessor.byteOffset / 4 + stride / 4 * i];
       if (model.jointMatrices[node.skin] === void 0) {
         model.jointMatrices[node.skin] = new Float32Array(skinInfo.joints.length * 16);

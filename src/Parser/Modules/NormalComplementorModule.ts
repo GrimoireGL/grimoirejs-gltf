@@ -7,18 +7,19 @@ export default class NormalComplementorModule extends ParserModule {
       const accessor = args.tf.accessors[args.primitive.attributes["POSITION"]];
       const baseBufferView = args.bufferViews[accessor.bufferView];
       const positions = new Float32Array(baseBufferView.buffer, baseBufferView.byteOffset + accessor.byteOffset);
-      if (accessor.byteStride !== void 0 && accessor.byteStride !== 0) {
-        throw new Error("Complementing normal with a position buffer which buffer has stride as a parameter");
-      }
+      // if (accessor.byteStride !== void 0 && accessor.byteStride !== 0) {
+      //   throw new Error("Complementing normal with a position buffer which buffer has stride as a parameter");
+      // }
       if (!accessor.count) {
         throw new Error("Accessor count of POSITION buffer should be defined for complementing NORMAL buffer");
       }
       const defaultAccessor = args.tf.accessors[args.primitive.indices];
+      const defaultBufferView = args.tf.bufferViews[defaultAccessor.bufferView];
       // generate normal buffer
       const normal = new Float32Array(accessor.count * 3);
       if (defaultAccessor) {
         const bufferSource = args.bufferViews[defaultAccessor.bufferView];
-        const byteAccessor = this.__getBufferReader(bufferSource,defaultAccessor.componentType,defaultAccessor.byteOffset,defaultAccessor.byteStride);
+        const byteAccessor = this.__getBufferReader(bufferSource,defaultAccessor.componentType,defaultAccessor.byteOffset,defaultBufferView.byteStride);
         for (let i = 0; i < accessor.count / 3; i++) {
           this._calcFlatNormal(positions, normal, byteAccessor(3 * i), byteAccessor(3 * i + 1,), byteAccessor(3 * i + 2));
         }

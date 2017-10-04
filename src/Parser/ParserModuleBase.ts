@@ -16,7 +16,11 @@ export default class ParserModuleBase {
     if(accessor.byteOffset){
       offset+= accessor.byteOffset;
     }
-    return new ctor(bufferView.buffer as ArrayBuffer,offset,accessor.count * ConstantConverter.asVectorSize(accessor.type));
+    let count = accessor.count * ConstantConverter.asVectorSize(accessor.type);
+    if(bufferViewInfo.byteStride){
+      count = bufferViewInfo.byteStride * accessor.count / ConstantConverter.asByteSize(accessor.componentType);
+    }
+    return new ctor(bufferView.buffer as ArrayBuffer,offset,count);
   }
 
   protected __fetchBuffer(url: string): Promise<ArrayBuffer> {
