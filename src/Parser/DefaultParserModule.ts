@@ -168,7 +168,8 @@ export default class DefaultParserModule extends ParserModule {
         keepOnBuffer:useMorphing
       };
       const bufferView = args.bufferViews[accessor.bufferView];
-      args.geometry.addAttributes(this.__convertBufferView(Float32Array,bufferView,bufferViewInfo,accessor), bufAccessor);
+      const ctor = ConstantConverter.asTypedArrayConstructor(accessor.componentType);
+      args.geometry.addAttributes(this.__convertBufferView(ctor,bufferView,bufferViewInfo,accessor), bufAccessor);
       if(args.primitive.targets !== void 0 && args.primitive.targets[0][attrib] !== void 0){
         // This attribute has morph
         const geometry = args.geometry as MorphGeometry;

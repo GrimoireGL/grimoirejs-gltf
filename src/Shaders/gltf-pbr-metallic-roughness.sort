@@ -44,7 +44,7 @@ varying vec3 vTangent;
   void main(){
     mat4 transform = _matM;
     mat4 projectionTransform = _matPVM;
-    mat4 normalTransform = normalMatrix;
+    mat4 normalTransform = _matM;
     #if JOINT_COUNT > 0
       mat4 skinMat = weight.x * boneMatrices[int(joint.x)] + weight.y * boneMatrices[int(joint.y)] + weight.z * boneMatrices[int(joint.z)] + weight.w * boneMatrices[int(joint.w)];
       transform *= skinMat;
@@ -147,7 +147,11 @@ varying vec3 vTangent;
       vec3 n = texture2D(normalTexture, vUV).rgb;
       normal = normalize(tbn * (2.0 * n - 1.0));
     #endif
+    #ifdef CONTEXT_STATE_CULL
+    #if (CONTEXT_STATE_CULL == 0)
     normal *= (float(gl_FrontFacing) - 0.5) * 2.0;
+    #endif
+    #endif
     vec3 dielectricSpecular = vec3(0.04);
     vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metallic);
     vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metallic);
