@@ -106,7 +106,7 @@ export default class DefaultParserModule extends ParserModule {
     const bufferViews: { [key: string]: ArrayBufferView } = {};
     for (let key in args.tf.bufferViews) {
       const bufferViewInfo = args.tf.bufferViews[key];
-      if(bufferViewInfo.byteOffset === void 0){
+      if (bufferViewInfo.byteOffset === void 0) {
         bufferViewInfo.byteOffset = 0;
       }
       bufferViews[key] = new Uint8Array(args.buffers[bufferViewInfo.buffer], bufferViewInfo.byteOffset, bufferViewInfo.byteLength);
@@ -128,7 +128,7 @@ export default class DefaultParserModule extends ParserModule {
   }
 
   public loadPrimitive(args: LoadPrimitiveArgument): Geometry {
-    const geo = args.primitive.targets === void 0 ? new Geometry(this.__gl):new MorphGeometry(this.__gl);
+    const geo = args.primitive.targets === void 0 ? new Geometry(this.__gl) : new MorphGeometry(this.__gl);
     this.parser.callParserModule(t => t.appendIndices, { tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
     this.parser.callParserModule(t => t.addVertexAttributes, { tf: args.tf, bufferViews: args.bufferViews, primitive: args.primitive, geometry: geo });
     return geo;
@@ -148,47 +148,47 @@ export default class DefaultParserModule extends ParserModule {
       const primitive = args.primitive;
       const accessor = args.tf.accessors[primitive.attributes[attrib]];
       const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
-      const bufAccessor = {} as {[key:string]:VertexBufferAccessor};
+      const bufAccessor = {} as { [key: string]: VertexBufferAccessor };
       const elementSize = GLTFConstantConverter.asVectorSize(accessor.type);
       // Check morph used. If morph was used for spcified attribute, source of the buffer should be keeped for using later.
       let useMorphing = false;
-      if(primitive.targets && primitive.targets.length >= 1){
-        for(let target of primitive.targets){
-          if(attrib in target){
+      if (primitive.targets && primitive.targets.length >= 1) {
+        for (let target of primitive.targets) {
+          if (attrib in target) {
             useMorphing = true;
             break;
           }
         }
       }
       bufAccessor[attrib] = {
-        size:elementSize,
+        size: elementSize,
         type: accessor.componentType,
         stride: bufferViewInfo.byteStride,
         offset: 0,
-        keepOnBuffer:useMorphing
+        keepOnBuffer: useMorphing
       };
       const bufferView = args.bufferViews[accessor.bufferView];
       const ctor = ConstantConverter.asTypedArrayConstructor(accessor.componentType);
-      args.geometry.addAttributes(this.__convertBufferView(ctor,bufferView,bufferViewInfo,accessor), bufAccessor);
-      if(args.primitive.targets !== void 0 && args.primitive.targets[0][attrib] !== void 0){
+      args.geometry.addAttributes(this.__convertBufferView(ctor, bufferView, bufferViewInfo, accessor), bufAccessor);
+      if (args.primitive.targets !== void 0 && args.primitive.targets[0][attrib] !== void 0) {
         // This attribute has morph
         const geometry = args.geometry as MorphGeometry;
         let parameters = [] as MorphParameter[];
         const targets = args.primitive.targets;
-        for(let i = 0; i < targets.length; i++){
+        for (let i = 0; i < targets.length; i++) {
           const accessor = args.tf.accessors[targets[i][attrib]];
           const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
           const buffer = args.bufferViews[accessor.bufferView];
           parameters.push({
-            buffer:this.__convertBufferView(Float32Array,buffer,bufferViewInfo,accessor),
-            accessor:{
+            buffer: this.__convertBufferView(Float32Array, buffer, bufferViewInfo, accessor),
+            accessor: {
               size: GLTFConstantConverter.asVectorSize(accessor.type),
               stride: bufferViewInfo.byteStride,
               offset: 0
             }
           });
         }
-        geometry.addMorphAttribute(attrib,parameters);
+        geometry.addMorphAttribute(attrib, parameters);
       }
     }
     this.parser.callParserModule(t => t.complementVertexAttributes, args);
@@ -216,35 +216,35 @@ export default class DefaultParserModule extends ParserModule {
         pass.setArgument("baseColorFactor", pmr.baseColorFactor, null);
       }
       if (pmr.baseColorTexture) {
-        pass.setArgument("baseColorTexture",new TextureReference(args.textures[pmr.baseColorTexture.index]),null);
+        pass.setArgument("baseColorTexture", new TextureReference(args.textures[pmr.baseColorTexture.index]), null);
       }
       if (pmr.metallicFactor) {
-        pass.setArgument("metallicFactor",pmr.metallicFactor,null);
+        pass.setArgument("metallicFactor", pmr.metallicFactor, null);
       }
       // TODO Remove? metallicTexture and roughnessTexture was removed from specification?
       if ((pmr as any).metallicTexture) {
-        pass.setArgument("metallicTexture",new TextureReference(args.textures[(pmr as any).metallicTexture.index]),null);
+        pass.setArgument("metallicTexture", new TextureReference(args.textures[(pmr as any).metallicTexture.index]), null);
       }
       if ((pmr as any).roughnessTexture) {
-        pass.setArgument("roughnessTexture",new TextureReference(args.textures[(pmr as any).roughnessTexture.index]),null);
+        pass.setArgument("roughnessTexture", new TextureReference(args.textures[(pmr as any).roughnessTexture.index]), null);
       }
       if (pmr.roughnessFactor) {
-        pass.setArgument("roughnessFactor",pmr.roughnessFactor,null);
+        pass.setArgument("roughnessFactor", pmr.roughnessFactor, null);
       }
       if (pmr.metallicRoughnessTexture) {
-        pass.setArgument("metallicRoughnessTexture",new TextureReference(args.textures[pmr.metallicRoughnessTexture.index]),null);
+        pass.setArgument("metallicRoughnessTexture", new TextureReference(args.textures[pmr.metallicRoughnessTexture.index]), null);
       }
       if (args.material["emissiveFactor"]) {
-        pass.setArgument("emissiveFactor",args.material.emissiveFactor,null);
+        pass.setArgument("emissiveFactor", args.material.emissiveFactor, null);
       }
       if (args.material["emissiveTexture"]) {
-        pass.setArgument("emissiveTexture",new TextureReference(args.textures[args.material.emissiveTexture.index]),null);
+        pass.setArgument("emissiveTexture", new TextureReference(args.textures[args.material.emissiveTexture.index]), null);
       }
       if (args.material["normalTexture"]) {
-        pass.setArgument("normalTexture",new TextureReference(args.textures[args.material.normalTexture.index]),null);
+        pass.setArgument("normalTexture", new TextureReference(args.textures[args.material.normalTexture.index]), null);
       }
       if (args.material["occlusionTexture"]) {
-        pass.setArgument("occlusionTexture",new TextureReference(args.textures[args.material.occlusionTexture.index]),null);
+        pass.setArgument("occlusionTexture", new TextureReference(args.textures[args.material.occlusionTexture.index]), null);
       }
       return material;
     }
@@ -276,8 +276,8 @@ export default class DefaultParserModule extends ParserModule {
       const inputBuffer = args.bufferViews[inputAccessor.bufferView];
       const outputBuffer = args.bufferViews[outputAccessor.bufferView];
       const outputBufferInfo = args.tf.bufferViews[outputAccessor.bufferView];
-      const inputBufferF32 = this.__convertBufferView(Float32Array,inputBuffer,inputBufferInfo,inputAccessor);//new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
-      const outputBufferF32 = this.__convertBufferView(Float32Array,outputBuffer,outputBufferInfo,outputAccessor);//new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
+      const inputBufferF32 = this.__convertBufferView(Float32Array, inputBuffer, inputBufferInfo, inputAccessor);//new Float32Array(inputBuffer.buffer, inputBuffer.byteOffset + inputAccessor.byteOffset, inputAccessor.count);
+      const outputBufferF32 = this.__convertBufferView(Float32Array, outputBuffer, outputBufferInfo, outputAccessor);//new Float32Array(outputBuffer.buffer, outputBuffer.byteOffset + outputAccessor.byteOffset, outputAccessor.count * elemCount);
       const elemCount = outputBufferF32.length / inputBufferF32.length;
       const times = new Array(inputAccessor.count);
       for (let i = 0; i < inputAccessor.count; i++) {
