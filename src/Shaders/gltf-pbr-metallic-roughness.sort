@@ -109,6 +109,7 @@ varying vec3 vTangent;
 
   void main(){
     vec4 baseColor = baseColorFactor;
+    float occlusion = 1.0;
     #ifdef USE_BASECOLOR_TEXTURE
       baseColor *= texture2D(baseColorTexture,vUV);
     #endif
@@ -160,8 +161,9 @@ varying vec3 vTangent;
     gl_FragColor.rgb = shading(param,normal,vPosition);
     gl_FragColor.rgb += emissive;
     #ifdef USE_OCCLUSION_TEXTURE
-      gl_FragColor.rgb *= texture2D(occlusionTexture,vUV).r;
+      occlusion = texture2D(occlusionTexture,vUV).r;
     #endif
+    gl_FragColor.rgb *= occlusion;
     gl_FragColor.a = baseColor.a;
   }
 #endif

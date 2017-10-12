@@ -7,26 +7,26 @@ import GLTFModelComponent from "./GLTFModelComponent";
 export default class GLTFJointComponent extends Component {
   public static attributes: { [key: string]: IAttributeDeclaration } = {
     invBindShapeMatrix: {  // invBindShapeMatrix passed during instanciation
-      converter:"Object",
-      default:null
+      converter: "Object",
+      default: null
     },
     skinIndex: {
-      converter:"Number",
-      default:null
+      converter: "Number",
+      default: null
     },
     jointIndex: {
-      converter:"Number",
-      default:null
+      converter: "Number",
+      default: null
     }
   };
 
-  private _model:GLTFModelComponent;
+  private _model: GLTFModelComponent;
 
-  private _skinIndex:number;
+  private _skinIndex: number;
 
-  private _jointIndex:number;
+  private _jointIndex: number;
 
-  private _transform:TransformComponent;
+  private _transform: TransformComponent;
 
   private _invBindMatrix: Matrix;
 
@@ -39,7 +39,7 @@ export default class GLTFJointComponent extends Component {
   }
 
   public $update(): void {
-     const poseMat = this._model.skeletons[this._skinIndex].globalTransformInverse.multiplyWith(this._transform.globalTransform).multiplyWith(this._invBindMatrix);//.multiplyWith(this._model.skeletons[this._skinIndex].globalTransform);
+    const poseMat = this._model.skeletons[this._skinIndex].globalTransformInverse.multiplyWith(this._transform.globalTransform).multiplyWith(this._invBindMatrix);//.multiplyWith(this._model.skeletons[this._skinIndex].globalTransform);
     for (let i = 0; i < 16; i++) {
       this._model.jointMatrices[this._skinIndex][this._jointIndex * 16 + i] = poseMat.rawElements[i];
     }
