@@ -3,12 +3,13 @@ import GomlNode from "grimoirejs/ref/Node/GomlNode";
 import GLTFNode from "../Parser/Schema/GLTFNode";
 import Transform from "grimoirejs-fundamental/ref/Components/TransformComponent";
 import MeshRenderer from "grimoirejs-fundamental/ref/Components/MeshRendererComponent";
-
+import ConstantConverter from "../Parser/ConstantConverter";
 
 import Quaternion from "grimoirejs-math/ref/Quaternion";
 import Vector3 from "grimoirejs-math/ref/Vector3";
 import Matrix from "grimoirejs-math/ref/Matrix";
-
+import GLTFBufferView from "../Parser/Schema/GLTFBufferView";
+import GLTFAccessor from "../Parser/Schema/GLTFAccessor";
 import AnimationFactory from "grimoirejs-animation/ref/Animation/AnimationFactory";
 
 import GLTFModelComponent from "../Components/GLTFModelComponent";
@@ -113,10 +114,9 @@ export default class DefaultInstanciator {
         const invBindShapeMatrixSourceAccessor = recipe.tf.accessors[skinInfo.inverseBindMatrices];
         const invBindShapeMatrixSourceBufferInfo = recipe.tf.bufferViews[invBindShapeMatrixSourceAccessor.bufferView];
         const invBindShapeMatrixSource = recipe.bufferViews[invBindShapeMatrixSourceAccessor.bufferView];
-        const invBindShapeMatrixSourceCasted = new Float32Array(invBindShapeMatrixSource.buffer, invBindShapeMatrixSource.byteOffset, invBindShapeMatrixSource.byteLength / 4);
+        const invBindShapeMatrixSourceCasted = this.__convertBufferView(Float32Array, invBindShapeMatrixSource, invBindShapeMatrixSourceBufferInfo, invBindShapeMatrixSourceAccessor);
         const stride = !invBindShapeMatrixSourceBufferInfo.byteStride ? 4 : invBindShapeMatrixSourceBufferInfo.byteStride;
-        const offset = !invBindShapeMatrixSourceAccessor.byteOffset ? 0 : invBindShapeMatrixSourceAccessor.byteOffset;
-        const getInvBindShapeElement = (i) => invBindShapeMatrixSourceCasted[offset / 4 + stride / 4 * i];
+        const getInvBindShapeElement = (i) => invBindShapeMatrixSourceCasted[stride / 4 * i];
         if (model.jointMatrices[node.skin] === void 0) {
           model.jointMatrices[node.skin] = new Float32Array(skinInfo.joints.length * 16);
         }
@@ -162,5 +162,20 @@ export default class DefaultInstanciator {
       let mat = new Matrix(nodeInfo.matrix);
       transform.applyMatrix(mat);
     }
+  }
+
+  protected __convertBufferView<T extends ArrayBufferView>(ctor: new (buffer: ArrayBuffer, offset: number, count: number) => T, bufferView: ArrayBufferView, bufferViewInfo: GLTFBufferView, accessor: GLTFAccessor) {
+    let offset = 0;
+    if (bufferView.byteOffset) {
+      offset += bufferView.byteOffset
+    }
+    if (accessor.byteOffset) {
+      offset += accessor.byteOffset;
+    }
+    let count = accessor.count * ConstantConverter.asVectorSize(accessor.type);
+    if (bufferViewInfo.byteStride) {
+      count = bufferViewInfo.byteStride * accessor.count / ConstantConverter.asByteSize(accessor.componentType);
+    }
+    return new ctor(bufferView.buffer as ArrayBuffer, offset, count);
   }
 }
