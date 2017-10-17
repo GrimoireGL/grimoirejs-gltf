@@ -8,11 +8,17 @@ import gltfPBRMetallicRoughness from "raw-loader!./Shaders/gltf-pbr-metallic-rou
 import ImportResolver from "grimoirejs-fundamental/ref/Sort/ImportResolver";
 import GLExtRequestor from "grimoirejs-fundamental/ref/Resource/GLExtRequestor";
 import GLTFVertexMorpher from "./Components/GLTFVertexMorpher";
+import Vertex from "raw-loader!./Shaders/gltf-vertex.glsl";
+import Varying from "raw-loader!./Shaders/gltf-varying.glsl";
+import VaryingVertex from "raw-loader!./Shaders/gltf-varying-vertex.glsl";
 export default () => {
     GLExtRequestor.request("OES_standard_derivatives")
     GLExtRequestor.request("OES_element_index_uint")
     GrimoireInterface.register(
         async () => {
+            ImportResolver.staticImports["gltf-vertex"] = Vertex;
+            ImportResolver.staticImports["gltf-varying"] = Varying;
+            ImportResolver.staticImports["gltf-varying-vertex"] = VaryingVertex;
             GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
             GrimoireInterface.registerComponent("GLTFJoint", GLTFJointComponent);
             GrimoireInterface.registerComponent("GLTFVertexMorpher", GLTFVertexMorpher);
