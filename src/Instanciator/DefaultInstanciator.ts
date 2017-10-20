@@ -101,9 +101,9 @@ export default class DefaultInstanciator {
     instanciatedNodes[nodeKey] = currentNode;
     let nodeName = "";
     if (node.name) {
-      nodeName = `gltf-node-name-${node.name.replace(/\s+/g, "")}`;
+      nodeName = ` gltf-node-name-${node.name.replace(/\s+/g, "")}`;
     }
-    currentNode.setAttribute("class", `gltf-node-${nodeKey} ${nodeName}`);
+    currentNode.setAttribute("class", `gltf-node-${nodeKey}${nodeName}`);
     this.__applyTransform(currentNode, node);
     if (node.children) {
       for (let child of node.children) {
