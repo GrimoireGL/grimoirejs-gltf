@@ -45,6 +45,14 @@
     }
   #endif
 
+    #ifndef PRE_SHADING_SURFACE_FUNCTION
+    #define PRE_SHADING_SURFACE_FUNCTION preShadingSurfaceFunction
+
+    vec4 preShadingSurfaceFunction(vec4 baseColor,vec3 normal,vec3 position){
+        return baseColor;
+    }
+  #endif
+
   void main(){
     vec4 baseColor = baseColorFactor;
     float occlusion = 1.0;
@@ -91,6 +99,7 @@
     normal *= (float(gl_FrontFacing) - 0.5) * 2.0;
     #endif
     #endif
+    baseColor = PRE_SHADING_SURFACE_FUNCTION(baseColor,normal,vPosition);
     vec3 dielectricSpecular = vec3(0.04);
     vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metallic);
     vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metallic);
