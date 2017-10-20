@@ -11,6 +11,7 @@ import GLTFVertexMorpher from "./Components/GLTFVertexMorpher";
 import Vertex from "raw-loader!./Shaders/gltf-vertex.glsl";
 import Varying from "raw-loader!./Shaders/gltf-varying.glsl";
 import VaryingVertex from "raw-loader!./Shaders/gltf-varying-vertex.glsl";
+import Fragment from "raw-loader!./Shaders/gltf-fragment.glsl";
 export default () => {
     GLExtRequestor.request("OES_standard_derivatives")
     GLExtRequestor.request("OES_element_index_uint")
@@ -19,6 +20,7 @@ export default () => {
             ImportResolver.staticImports["gltf-vertex"] = Vertex;
             ImportResolver.staticImports["gltf-varying"] = Varying;
             ImportResolver.staticImports["gltf-varying-vertex"] = VaryingVertex;
+            ImportResolver.staticImports["gltf-fragment"] = Fragment;
             GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
             GrimoireInterface.registerComponent("GLTFJoint", GLTFJointComponent);
             GrimoireInterface.registerComponent("GLTFVertexMorpher", GLTFVertexMorpher);
