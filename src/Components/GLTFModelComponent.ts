@@ -24,9 +24,9 @@ export default class GLTFModelComponent extends Component {
             converter: "String",
             default: null
         },
-        waitForLoad:{
-          converter: "Boolean",
-          default: false
+        waitForLoad: {
+            converter: "Boolean",
+            default: false
         }
     };
 
@@ -34,22 +34,25 @@ export default class GLTFModelComponent extends Component {
 
     public jointMatrices: { [skinName: string]: Float32Array } = {};
 
-    public skeletons: {[skinName: string]: TransformComponent} = {};
+    public skeletons: { [skinName: string]: TransformComponent } = {};
+
+    public loadPromise: Promise<void>;
 
     public $mount(): void {
         const src = this.getAttribute("src");
         if (src) {
             const gl: WebGLRenderingContext = this.companion.get("gl") as WebGLRenderingContext;
             const promise = GLTFParser.parseFromURL(gl, src).then((data) => {
-                GLTFModelComponent.instanciator.instanciateAll(data,this,this.getAttribute("scene"));
+                GLTFModelComponent.instanciator.instanciateAll(data, this, this.getAttribute("scene"));
             });
-            if(this.getAttribute("waitForLoad")){
-              const loader = this.companion.get("loader") as AssetLoader;
-              (loader["register"] as any)(promise,this);
+            this.loadPromise = promise;
+            if (this.getAttribute("waitForLoad")) {
+                const loader = this.companion.get("loader") as AssetLoader;
+                (loader["register"] as any)(promise, this);
             }
         }
     }
-    public $update(): void{
+    public $update(): void {
 
     }
 }
