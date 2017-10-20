@@ -52,8 +52,8 @@ export default class DefaultInstanciator {
     }
   }
 
-  protected __instanciateNode(recipe: InstanciationRecipe, nodeName: string, instanciatedNodes: { [key: string]: GomlNode }, parent: GomlNode, model: GLTFModelComponent) {
-    const node = recipe.tf.nodes[nodeName];
+  protected __instanciateNode(recipe: InstanciationRecipe, nodeKey: string, instanciatedNodes: { [key: string]: GomlNode }, parent: GomlNode, model: GLTFModelComponent) {
+    const node = recipe.tf.nodes[nodeKey];
     let currentNode;
     const meshes: GomlNode[] = [];
     if (node.mesh !== void 0) {
@@ -98,8 +98,12 @@ export default class DefaultInstanciator {
     } else {
       currentNode = parent.addChildByName("object", {});
     }
-    instanciatedNodes[nodeName] = currentNode;
-    currentNode.setAttribute("class", "gltf-node-" + nodeName);
+    instanciatedNodes[nodeKey] = currentNode;
+    let nodeName = "";
+    if (node.name) {
+      nodeName = `gltf-node-name-${node.name.replace(/\s+/g, "")}`;
+    }
+    currentNode.setAttribute("class", `gltf-node-${nodeKey} ${nodeName}`);
     this.__applyTransform(currentNode, node);
     if (node.children) {
       for (let child of node.children) {
