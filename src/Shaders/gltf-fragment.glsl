@@ -40,7 +40,7 @@
   #ifndef POST_SHADING_SURFACE_FUNCTION
     #define POST_SHADING_SURFACE_FUNCTION postShadingSurfaceFunction
 
-    vec4 postShadingSurfaceFunction(vec4 result,vec3 normal,vec3 position){
+    vec4 postShadingSurfaceFunction(vec4 result,vec4 baseColor,vec3 normal,vec3 position){
         return result;
     }
   #endif
@@ -111,6 +111,6 @@
       occlusion = texture2D(occlusionTexture,vUV).r;
     #endif
     shadeResult *= occlusion;
-    gl_FragColor = POST_SHADING_SURFACE_FUNCTION(vec4(shadeResult,baseColor.a),normal,vPosition);
+    gl_FragColor = POST_SHADING_SURFACE_FUNCTION(vec4(shadeResult,baseColor.a),baseColor,normal,vPosition);
   }
 #endif
