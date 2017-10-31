@@ -19,6 +19,7 @@ import IAnimationRecipe from "grimoirejs-animation/ref/Animation/Schema/IAnimati
 import IAnimationTimeline from "grimoirejs-animation/ref/Animation/Schema/IAnimationTimeline";
 import TextureReference from "grimoirejs-fundamental/ref/Material/TextureReference";
 import VertexBufferAccessor from "grimoirejs-fundamental/ref/Geometry/VertexBufferAccessor";
+import Vector3 from "grimoirejs-math/ref/Vector3";
 
 import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
 
@@ -169,7 +170,14 @@ export default class DefaultParserModule extends ParserModule {
       };
       const bufferView = args.bufferViews[accessor.bufferView];
       const ctor = ConstantConverter.asTypedArrayConstructor(accessor.componentType);
-      args.geometry.addAttributes(this.__convertBufferView(ctor, bufferView, bufferViewInfo, accessor), bufAccessor);
+      const convertedBuffer = this.__convertBufferView(ctor, bufferView, bufferViewInfo, accessor);
+      args.geometry.addAttributes(convertedBuffer, bufAccessor);
+      if (attrib === "POSITION") {
+        for (let j = 0; j < accessor.count; j++) {
+          let first = j * bufferViewInfo.byteStride / 4;
+          args.geometry.aabb.expand(new Vector3(convertedBuffer[first], convertedBuffer[first + 1], convertedBuffer[first + 2]))
+        }
+      }
       if (args.primitive.targets !== void 0 && args.primitive.targets[0][attrib] !== void 0) {
         // This attribute has morph
         const geometry = args.geometry as MorphGeometry;
@@ -179,8 +187,9 @@ export default class DefaultParserModule extends ParserModule {
           const accessor = args.tf.accessors[targets[i][attrib]];
           const bufferViewInfo = args.tf.bufferViews[accessor.bufferView];
           const buffer = args.bufferViews[accessor.bufferView];
+          const morphBuffer = this.__convertBufferView(Float32Array, buffer, bufferViewInfo, accessor);
           parameters.push({
-            buffer: this.__convertBufferView(Float32Array, buffer, bufferViewInfo, accessor),
+            buffer: morphBuffer,
             accessor: {
               size: GLTFConstantConverter.asVectorSize(accessor.type),
               stride: bufferViewInfo.byteStride,
