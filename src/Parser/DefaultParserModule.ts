@@ -173,8 +173,12 @@ export default class DefaultParserModule extends ParserModule {
       const convertedBuffer = this.__convertBufferView(ctor, bufferView, bufferViewInfo, accessor);
       args.geometry.addAttributes(convertedBuffer, bufAccessor);
       if (attrib === "POSITION") {
+        let stride = bufferViewInfo.byteStride / 4;
+        if (isNaN(stride)) {
+          stride = 3;//ConstantConverter.asVectorSize(accessor.type) / ConstantConverter.asByteSize(accessor.componentType);
+        }
         for (let j = 0; j < accessor.count; j++) {
-          let first = j * bufferViewInfo.byteStride / 4;
+          let first = j * stride;
           args.geometry.aabb.expand(new Vector3(convertedBuffer[first], convertedBuffer[first + 1], convertedBuffer[first + 2]))
         }
       }
