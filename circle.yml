@@ -6,4 +6,4 @@ test:
     - npm run semantic-release || true
   override:
     - npm run build -- --env.browser && npm test
-    - sh ./shell/e2e.sh
+    - sh -x ./shell/e2e.sh
