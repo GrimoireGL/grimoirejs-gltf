@@ -22,6 +22,7 @@ import VertexBufferAccessor from "grimoirejs-fundamental/ref/Geometry/VertexBuff
 import Vector3 from "grimoirejs-math/ref/Vector3";
 
 import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
+import GLTFMaterialInstanciatorRegistry from "./MaterialInstanciator/GLTFMaterialInstanciatorRegistry";
 
 export default class DefaultParserModule extends ParserModule {
 
@@ -66,7 +67,7 @@ export default class DefaultParserModule extends ParserModule {
    */
   public convertTotexture(arg: ConvertToTextureArgument): Texture2D {
     const tex = new Texture2D(this.__gl);
-    tex.update(arg.image);
+    tex.update(arg.image, { flipY: false });
     const texInfo = arg.tf.textures[arg.texIndex];
     let samplerInfo = {} as GLTFSampler;
     if (texInfo && texInfo.sampler !== void 0) {
@@ -220,47 +221,8 @@ export default class DefaultParserModule extends ParserModule {
     return result;
   }
 
-  public async loadMaterial(args: { material: GLTFMaterial, textures: { [key: string]: Texture2D } }): Promise<Material> {
-    if (args.material["pbrMetallicRoughness"]) {
-      const material = await MaterialFactory.get(this.__gl).instanciate("gltf-pbr-metallic-roughness");
-      const pmr = args.material["pbrMetallicRoughness"];
-      const pass = material.techniques["default"].passes[0];
-      if (pmr.baseColorFactor) {
-        pass.setArgument("baseColorFactor", pmr.baseColorFactor, null);
-      }
-      if (pmr.baseColorTexture) {
-        pass.setArgument("baseColorTexture", new TextureReference(args.textures[pmr.baseColorTexture.index]), null);
-      }
-      if (pmr.metallicFactor) {
-        pass.setArgument("metallicFactor", pmr.metallicFactor, null);
-      }
-      // TODO Remove? metallicTexture and roughnessTexture was removed from specification?
-      if ((pmr as any).metallicTexture) {
-        pass.setArgument("metallicTexture", new TextureReference(args.textures[(pmr as any).metallicTexture.index]), null);
-      }
-      if ((pmr as any).roughnessTexture) {
-        pass.setArgument("roughnessTexture", new TextureReference(args.textures[(pmr as any).roughnessTexture.index]), null);
-      }
-      if (pmr.roughnessFactor) {
-        pass.setArgument("roughnessFactor", pmr.roughnessFactor, null);
-      }
-      if (pmr.metallicRoughnessTexture) {
-        pass.setArgument("metallicRoughnessTexture", new TextureReference(args.textures[pmr.metallicRoughnessTexture.index]), null);
-      }
-      if (args.material["emissiveFactor"]) {
-        pass.setArgument("emissiveFactor", args.material.emissiveFactor, null);
-      }
-      if (args.material["emissiveTexture"]) {
-        pass.setArgument("emissiveTexture", new TextureReference(args.textures[args.material.emissiveTexture.index]), null);
-      }
-      if (args.material["normalTexture"]) {
-        pass.setArgument("normalTexture", new TextureReference(args.textures[args.material.normalTexture.index]), null);
-      }
-      if (args.material["occlusionTexture"]) {
-        pass.setArgument("occlusionTexture", new TextureReference(args.textures[args.material.occlusionTexture.index]), null);
-      }
-      return material;
-    }
+  public async loadMaterial(args: { material: GLTFMaterial, textures: { [key: string]: Texture2D }, tf: GLTF }): Promise<Material> {
+    return GLTFMaterialInstanciatorRegistry.get(this.__gl).getInstanciator(args.material, args.textures, args.tf, this.parser);
   }
 
   public loadAnimations(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView } }): { [key: string]: IAnimationRecipe } {
