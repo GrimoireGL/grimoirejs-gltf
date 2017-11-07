@@ -66,7 +66,7 @@ export default class DefaultParserModule extends ParserModule {
    */
   public convertTotexture(arg: ConvertToTextureArgument): Texture2D {
     const tex = new Texture2D(this.__gl);
-    tex.update(arg.image);
+    tex.update(arg.image, { flipY: false });
     const texInfo = arg.tf.textures[arg.texIndex];
     let samplerInfo = {} as GLTFSampler;
     if (texInfo && texInfo.sampler !== void 0) {
