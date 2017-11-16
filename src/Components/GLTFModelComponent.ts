@@ -7,6 +7,7 @@ import Component from "grimoirejs/ref/Node/Component";
 import IAttributeDeclaration from "grimoirejs/ref/Node/IAttributeDeclaration";
 import GLTFParser from "../Parser/Parser";
 import AssetLoader from "grimoirejs-fundamental/ref/Asset/AssetLoader";
+import GLTF from "../Parser/Schema/GLTF";
 
 import DefaultInstanciator from "../Instanciator/DefaultInstanciator";
 
@@ -38,11 +39,14 @@ export default class GLTFModelComponent extends Component {
 
     public loadPromise: Promise<void>;
 
+    public modelMeta: GLTF;
+
     public $mount(): void {
         const src = this.getAttribute("src");
         if (src) {
             const gl: WebGLRenderingContext = this.companion.get("gl") as WebGLRenderingContext;
             const promise = GLTFParser.parseFromURL(gl, src).then((data) => {
+                this.modelMeta = data.tf;
                 GLTFModelComponent.instanciator.instanciateAll(data, this, this.getAttribute("scene"));
             });
             this.loadPromise = promise;
