@@ -58,7 +58,7 @@ export default class DefaultParserModule extends ParserModule {
    * @return {Promise<Texture2D>} [description]
    */
   public fetchTextureResource(tf: GLTFImage): Promise<HTMLImageElement> {
-    return this.__fetchImage(this.baseDirectory + tf.uri);
+    return this.__fetchImage(this.__asAbsoluteURL(this.baseDirectory, tf.uri));
   }
 
   /**
@@ -85,7 +85,7 @@ export default class DefaultParserModule extends ParserModule {
    * @return {Promise<ArrayBuffer>} [description]
    */
   public loadBufferResource(tf: GLTFBuffer): Promise<ArrayBuffer> {
-    return this.__fetchBuffer(this.baseDirectory + tf.uri);
+    return this.__fetchBuffer(this.__asAbsoluteURL(this.baseDirectory, tf.uri));
   }
 
   public async loadBufferResources(tf: GLTF): Promise<{ [key: string]: ArrayBuffer }> {
@@ -274,6 +274,7 @@ export default class DefaultParserModule extends ParserModule {
       default: defaultClip
     };
   }
+
 
   private _pathNameToGrimoire(name: string): { component: string, attributeName: string } {
     switch (name) {
