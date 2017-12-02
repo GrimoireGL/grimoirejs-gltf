@@ -8,19 +8,19 @@ import ConstantConverter from "./ConstantConverter";
  */
 export default class ParserModuleBase {
 
-  protected __convertBufferView<T extends ArrayBufferView>(ctor:new(buffer:ArrayBuffer,offset:number,count:number)=>T,bufferView:ArrayBufferView,bufferViewInfo:GLTFBufferView,accessor:GLTFAccessor){
+  protected __convertBufferView<T extends ArrayBufferView>(ctor: new (buffer: ArrayBuffer, offset: number, count: number) => T, bufferView: ArrayBufferView, bufferViewInfo: GLTFBufferView, accessor: GLTFAccessor) {
     let offset = 0;
-    if(bufferView.byteOffset){
+    if (bufferView.byteOffset) {
       offset += bufferView.byteOffset
     }
-    if(accessor.byteOffset){
-      offset+= accessor.byteOffset;
+    if (accessor.byteOffset) {
+      offset += accessor.byteOffset;
     }
     let count = accessor.count * ConstantConverter.asVectorSize(accessor.type);
-    if(bufferViewInfo.byteStride){
+    if (bufferViewInfo.byteStride) {
       count = bufferViewInfo.byteStride * accessor.count / ConstantConverter.asByteSize(accessor.componentType);
     }
-    return new ctor(bufferView.buffer as ArrayBuffer,offset,count);
+    return new ctor(bufferView.buffer as ArrayBuffer, offset, count);
   }
 
   protected __fetchBuffer(url: string): Promise<ArrayBuffer> {
@@ -43,6 +43,14 @@ export default class ParserModuleBase {
 
   protected __fetchImage(url: string): Promise<HTMLImageElement> {
     return ImageResolver.resolve(url);
+  }
+
+  protected __asAbsoluteURL(baseDirURL: string, path: string): string {
+    if (this.__isDataUri(path)) {
+      return path;
+    } else {
+      return baseDirURL + path;
+    }
   }
 
   /**
@@ -130,7 +138,7 @@ export default class ParserModuleBase {
       default:
         throw new Error("Unknown array buffer");
     }
-    if(stride !== 0){
+    if (stride !== 0) {
       throw new Error("Accessing a buffer with stride is not supported yet.");
     }
     return (i) => {
