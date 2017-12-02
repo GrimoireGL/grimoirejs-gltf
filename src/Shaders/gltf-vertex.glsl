@@ -22,6 +22,11 @@
   @WEIGHTS_0
   attribute vec4 weight;
 #endif
+
+#ifdef ATTRIBUTE_COLOR_0_ENABLED
+  @COLOR_0
+  attribute vec3 vertColor;
+#endif
   uniform mat4 _matPVM;
   uniform mat4 _matM;
   @MODELINVERSETRANSPOSE
@@ -50,5 +55,8 @@
     vTangent = normalize(mat3(normalTransform) * tangent);
     #endif
     gl_Position = projectionTransform * vec4(position,1.0);
+    #ifdef ATTRIBUTE_COLOR_0_ENABLED
+    vVertexColor = vertColor;
+    #endif
   }
 #endif
