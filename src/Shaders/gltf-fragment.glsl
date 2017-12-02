@@ -59,6 +59,9 @@
     #ifdef USE_BASECOLOR_TEXTURE
       baseColor *= texture2D(baseColorTexture,vUV);
     #endif
+    #ifdef ATTRIBUTE_COLOR_0_ENABLED
+      baseColor.rgb *= vVertexColor;
+    #endif
     vec3 emissive = emissiveFactor;
     #ifdef USE_EMISSIVE_TEXTURE
       emissive *= texture2D(emissiveTexture,vUV).rgb;

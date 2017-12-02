@@ -28,6 +28,10 @@ export default class GLTFModelComponent extends Component {
         waitForLoad: {
             converter: "Boolean",
             default: false
+        },
+        autoAnimate: {
+            converter: "Boolean",
+            default: true
         }
     };
 
