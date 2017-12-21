@@ -9,6 +9,8 @@
     "bundle": "webpack --progress --watch",
     "prepublish": "npm run build -- --env.prod && npm test",
     "build": "webpack --progress",
+    "debug": "node ./common/debug.js",
+    "doc": "node ./common/doc-timestamp.js && typedoc --out ./docs/ --options ./common/typedoc.json  ./tsconfig.json",
     "generate-expose": "cauldron generate-exposure --src ./src --dest ./src/index.ts --ts --main ./src/main.ts --dts ./ref",
     "generate-reference": "cauldron generate-reference --src ./src --dest ./src/index.ts --ts --main ./src/main.ts --dts ./ref",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"

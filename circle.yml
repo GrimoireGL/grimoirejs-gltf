@@ -6,4 +6,12 @@ test:
     - npm run semantic-release || true
   override:
     - npm run build -- --env.browser && npm test
-    - sh -x ./shell/e2e.sh
+    - sh -x ./common/e2e.sh
+deployment:
+  deploy:
+    branch: master
+    commands:
+      - npm run doc
+      - >-
+        aws s3 cp ./docs/ s3://api.grimoire.gl/$CIRCLE_PROJECT_REPONAME
+        --recursive --acl public-read
