@@ -107,7 +107,7 @@
     vec3 diffuse = mix(baseColor.rgb * (1. - dielectricSpecular.r),vec3(0),metallic);
     vec3 f0 = mix(dielectricSpecular,baseColor.rgb,metallic);
     float alpha = roughness * roughness;
-    pbr_params param = pbr_params(diffuse,f0,alpha,roughness);
+    pbr_params param = pbr_params(baseColor.rgb,diffuse,f0,alpha,roughness,metallic);
     vec3 shadeResult = shading(param,normal,vPosition);
     shadeResult += emissive;
     #ifdef USE_OCCLUSION_TEXTURE

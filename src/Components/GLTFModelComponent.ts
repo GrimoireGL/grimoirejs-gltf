@@ -2,9 +2,9 @@ import MeshRenderer from "grimoirejs-fundamental/ref/Components/MeshRendererComp
 import TransformComponent from "grimoirejs-fundamental/ref/Components/TransformComponent";
 import GLTFNode from "../Parser/Schema/GLTFNode";
 import Matrix from "grimoirejs-math/ref/Matrix";
-import GomlNode from "grimoirejs/ref/Node/GomlNode";
-import Component from "grimoirejs/ref/Node/Component";
-import IAttributeDeclaration from "grimoirejs/ref/Node/IAttributeDeclaration";
+import GomlNode from "grimoirejs/ref/Core/GomlNode";
+import Component from "grimoirejs/ref/Core/Component";
+import IAttributeDeclaration from "grimoirejs/ref/Interface/IAttributeDeclaration";
 import GLTFParser from "../Parser/Parser";
 import AssetLoader from "grimoirejs-fundamental/ref/Asset/AssetLoader";
 import GLTF from "../Parser/Schema/GLTF";
@@ -12,10 +12,8 @@ import GLTF from "../Parser/Schema/GLTF";
 import DefaultInstanciator from "../Instanciator/DefaultInstanciator";
 
 export default class GLTFModelComponent extends Component {
+    public static componentName = "GLTFModel";
     public static instanciator = new DefaultInstanciator();
-
-    public static componentName: string = "GLTFModelComponent";
-
     public static attributes: { [key: string]: IAttributeDeclaration } = {
         src: {
             converter: "String",

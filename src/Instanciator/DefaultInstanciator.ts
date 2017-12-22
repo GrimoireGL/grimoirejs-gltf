@@ -1,5 +1,5 @@
 import InstanciationRecipe from "../Parser/InstanciationRecipe";
-import GomlNode from "grimoirejs/ref/Node/GomlNode";
+import GomlNode from "grimoirejs/ref/Core/GomlNode";
 import GLTFNode from "../Parser/Schema/GLTFNode";
 import Transform from "grimoirejs-fundamental/ref/Components/TransformComponent";
 import MeshRenderer from "grimoirejs-fundamental/ref/Components/MeshRendererComponent";

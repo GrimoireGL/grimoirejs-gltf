@@ -15,16 +15,17 @@ import Fragment from "raw-loader!./Shaders/gltf-fragment.glsl";
 export default () => {
     GLExtRequestor.request("OES_standard_derivatives")
     GLExtRequestor.request("OES_element_index_uint")
+    GLExtRequestor.request("EXT_shader_texture_lod")
     GrimoireInterface.register(
         async () => {
             ImportResolver.staticImports["gltf-vertex"] = Vertex;
             ImportResolver.staticImports["gltf-varying"] = Varying;
             ImportResolver.staticImports["gltf-varying-vertex"] = VaryingVertex;
             ImportResolver.staticImports["gltf-fragment"] = Fragment;
-            GrimoireInterface.registerComponent("GLTFModel", GLTFModelComponent);
-            GrimoireInterface.registerComponent("GLTFJoint", GLTFJointComponent);
-            GrimoireInterface.registerComponent("GLTFVertexMorpher", GLTFVertexMorpher);
-            GrimoireInterface.registerNode("model", ["GLTFModel"], {}, "object");
+            GrimoireInterface.registerComponent(GLTFModelComponent);
+            GrimoireInterface.registerComponent(GLTFJointComponent);
+            GrimoireInterface.registerComponent(GLTFVertexMorpher);
+            GrimoireInterface.registerNode("model", [GLTFModelComponent], {}, "object");
             MaterialFactory.addSORTMaterial("gltf-pbr-metallic-roughness", gltfPBRMetallicRoughness);
             UniformResolverRegistry.add("JOINTMATRIX", (valInfo, material) => {
                 return (proxy, info) => {
