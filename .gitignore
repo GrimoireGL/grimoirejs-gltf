@@ -120,5 +120,6 @@ register
 src/**/*.js
 
 yarn.lock
-index.ts
+src/index.ts
+src/metaInfo.ts
 package-lock.json
