@@ -28,7 +28,7 @@ export default class NormalComplementorModule extends ParserModule {
         }
       }
       // add normal to geometry
-      args.geometry.addAttributes(complementedNormal, {
+      args.geometry.addAttributeBuffer(complementedNormal, {
         NORMAL: {
           size: 3
         }

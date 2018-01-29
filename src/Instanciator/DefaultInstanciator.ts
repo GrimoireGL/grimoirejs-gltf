@@ -152,19 +152,19 @@ export default class DefaultInstanciator {
   protected __applyTransform(node: GomlNode, nodeInfo: GLTFNode) {
     const transform = node.getComponent(Transform);
     if (nodeInfo.rotation) {
-      transform.setAttribute("rotation", new Quaternion([].concat(nodeInfo.rotation)));
+      transform.setAttribute("rotation", new Quaternion(nodeInfo.rotation[0], nodeInfo.rotation[1], nodeInfo.rotation[2], nodeInfo.rotation[3]));
     }
     if (nodeInfo.translation) {
-      transform.setAttribute("position", new Vector3([].concat(nodeInfo.translation)));
+      transform.setAttribute("position", new Vector3([].concat(nodeInfo.translation) as any));
     }
     if (nodeInfo.scale) {
-      transform.setAttribute("scale", new Vector3([].concat(nodeInfo.scale)));
+      transform.setAttribute("scale", new Vector3([].concat(nodeInfo.scale) as any));
     }
     if (nodeInfo.matrix) {
       if (nodeInfo.rotation || nodeInfo.translation || nodeInfo.scale) {
         throw new Error("Matrix property can not be existed with other transoform property");
       }
-      let mat = new Matrix(nodeInfo.matrix);
+      let mat = new Matrix(nodeInfo.matrix as any);
       transform.applyMatrix(mat);
     }
   }

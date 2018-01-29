@@ -31,7 +31,8 @@ export default class DefaultParserModule extends ParserModule {
   }
 
   public loadAsGLTF(buffer: ArrayBuffer): GLTF {
-    const rawStr = this.__bufferToString(buffer);
+    const dec = new (window as any).TextDecoder("utf-8");
+    const rawStr = dec.decode(buffer);
     return JSON.parse(rawStr) as GLTF;
   }
 
@@ -140,7 +141,13 @@ export default class DefaultParserModule extends ParserModule {
     if (args.primitive.indices !== void 0) {
       const topology = args.primitive.mode || WebGLRenderingContext.TRIANGLES;
       const indexAccessor = args.tf.accessors[args.primitive.indices];
-      args.geometry.addIndex("default", args.bufferViews[indexAccessor.bufferView], topology, indexAccessor.byteOffset, indexAccessor.count, indexAccessor.componentType);
+      args.geometry.addIndexBuffer(args.bufferViews[indexAccessor.bufferView], {
+        semantic: "default",
+        topology,
+        offset: indexAccessor.byteOffset,
+        count: indexAccessor.count,
+        type: indexAccessor.componentType
+      });// topology, indexAccessor.byteOffset, indexAccessor.count, indexAccessor.componentType);
       return true;
     }
   }
@@ -167,12 +174,12 @@ export default class DefaultParserModule extends ParserModule {
         type: accessor.componentType,
         stride: bufferViewInfo.byteStride,
         offset: 0,
-        keepOnBuffer: useMorphing
+        normalized: false
       };
       const bufferView = args.bufferViews[accessor.bufferView];
       const ctor = ConstantConverter.asTypedArrayConstructor(accessor.componentType);
       const convertedBuffer = this.__convertBufferView(ctor, bufferView, bufferViewInfo, accessor);
-      args.geometry.addAttributes(convertedBuffer, bufAccessor);
+      args.geometry.addAttributeBuffer(convertedBuffer, bufAccessor);
       if (attrib === "POSITION") {
         let stride = bufferViewInfo.byteStride / 4;
         if (isNaN(stride)) {

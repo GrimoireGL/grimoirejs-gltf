@@ -4,7 +4,7 @@ import GLTFNode from "../Parser/Schema/GLTFNode";
 import Matrix from "grimoirejs-math/ref/Matrix";
 import GomlNode from "grimoirejs/ref/Core/GomlNode";
 import Component from "grimoirejs/ref/Core/Component";
-import IAttributeDeclaration from "grimoirejs/ref/Interface/IAttributeDeclaration";
+import { IAttributeDeclaration } from "grimoirejs/ref/Interface/IAttributeDeclaration";
 import GLTFParser from "../Parser/Parser";
 import AssetLoader from "grimoirejs-fundamental/ref/Asset/AssetLoader";
 import GLTF from "../Parser/Schema/GLTF";

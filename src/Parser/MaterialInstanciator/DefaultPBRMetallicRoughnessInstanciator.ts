@@ -10,9 +10,10 @@ import TextureReference from "grimoirejs-fundamental/ref/Material/TextureReferen
 import Pass from "grimoirejs-fundamental/ref/Material/Pass";
 
 export default class DefaultPBRMetallicRoughnessInstanciator implements IGLTFMaterialInstanciator {
+    public static defaultShaderType = "gltf-pbr-metallic-roughness";
     async tryInstanciate(matFactory: MaterialFactory, materialData: GLTFMaterial, textures: { [key: string]: Texture2D; }, gltfData: GLTF, parser: GLTFParser): Promise<Material> {
         if (materialData["pbrMetallicRoughness"]) {
-            const material = await matFactory.instanciate("gltf-pbr-metallic-roughness");
+            const material = await matFactory.instanciate(DefaultPBRMetallicRoughnessInstanciator.defaultShaderType);
             const pass = material.techniques["default"].passes[0];
             this.__applyPBRMetallicRoughnessParameters(materialData, pass, textures);
             return material;

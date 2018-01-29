@@ -1,7 +1,7 @@
 import Matrix from "grimoirejs-math/ref/Matrix";
 import GLTFSkin from "../Parser/Schema/GLTFSkin";
 import TransformComponent from "grimoirejs-fundamental/ref/Components/TransformComponent";
-import IAttributeDeclaration from "grimoirejs/ref/Interface/IAttributeDeclaration";
+import { IAttributeDeclaration } from "grimoirejs/ref/Interface/IAttributeDeclaration";
 import Component from "grimoirejs/ref/Core/Component";
 import GLTFModelComponent from "./GLTFModelComponent";
 export default class GLTFJointComponent extends Component {

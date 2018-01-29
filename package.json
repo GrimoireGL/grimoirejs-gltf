@@ -1,6 +1,6 @@
 {
   "name": "grimoirejs-gltf",
-  "version": "2.0.0-beta",
+  "version": "2.0.1-beta1",
   "description": "glTF model loader for grimoire.js",
   "main": "./ref/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "condition-circle": "^1.5.0",
-    "grimoirejs-cauldron": "^4.1.5-beta2",
+    "grimoirejs-cauldron": "^4.2.0-beta1",
     "raw-loader": "^0.5.1",
     "semantic-release": "^8.2.3",
     "ts-loader": "^2.3.7",
@@ -43,11 +43,11 @@
     "yargs": "^9.0.1"
   },
   "dependencies": {
-    "grimoirejs": "^1.0.9-beta5",
-    "grimoirejs-animation": "^3.0.0-beta",
-    "grimoirejs-forward-shading": "^2.0.0-beta",
-    "grimoirejs-fundamental": "^0.37.8-beta",
-    "grimoirejs-math": "^2.0.6-beta2"
+    "grimoirejs": "^1.0.9-beta24",
+    "grimoirejs-animation": "^3.0.0-beta1",
+    "grimoirejs-forward-shading": "^2.0.0-beta2",
+    "grimoirejs-fundamental": "^0.38.0-beta14",
+    "grimoirejs-math": "^2.1.0-beta4"
   },
   "repository": {
     "type": "git",
