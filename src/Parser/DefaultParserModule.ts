@@ -21,7 +21,7 @@ import TextureReference from "grimoirejs-fundamental/ref/Material/TextureReferen
 import VertexBufferAccessor from "grimoirejs-fundamental/ref/Geometry/VertexBufferAccessor";
 import Vector3 from "grimoirejs-math/ref/Vector3";
 
-import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument } from "./Arguments";
+import { ConvertToTextureArgument, LoadBufferViewsArgument, LoadPrimitivesOfMeshArgument, LoadPrimitiveArgument, AppendIndicesArgument, AddVertexAttributesArgument, FetchImageResourceArgument, LoadTextureResourceArgument } from "./Arguments";
 import GLTFMaterialInstanciatorRegistry from "./MaterialInstanciator/GLTFMaterialInstanciatorRegistry";
 
 export default class DefaultParserModule extends ParserModule {
@@ -31,18 +31,18 @@ export default class DefaultParserModule extends ParserModule {
   }
 
   public loadAsGLTF(buffer: ArrayBuffer): GLTF {
-    const dec = new (window as any).TextDecoder("utf-8");
-    const rawStr = dec.decode(buffer);
-    return JSON.parse(rawStr) as GLTF;
+    const uArray = new Uint8Array(buffer);
+    return JSON.parse(this.__convertUint8ArrayToUTF8String(uArray)) as GLTF;
   }
 
-  public async loadTextureResources(tf: GLTF): Promise<{ [key: string]: Texture2D }> {
+  public async loadTextureResources(args: LoadTextureResourceArgument): Promise<{ [key: string]: Texture2D }> {
     const textures: { [key: number]: Texture2D } = {};
     const promises = [];
+    const tf = args.tf;
     if (tf.images) {
       for (let key in tf.textures) {
         const texture = tf.textures[key];
-        const promise = this.parser.callParserModule(t => t.fetchTextureResource, tf.images[texture.source])
+        const promise = this.parser.callParserModule(t => t.fetchImageResource, { tf, image: tf.images[texture.source], bufferViews: args.bufferViews } as FetchImageResourceArgument)
           .then(img => {
             const texture = this.parser.callParserModule(t => t.convertTotexture, { tf: tf, image: img, texIndex: key });
             textures[key] = texture;
@@ -58,8 +58,21 @@ export default class DefaultParserModule extends ParserModule {
    * Start loading texture resource.
    * @return {Promise<Texture2D>} [description]
    */
-  public fetchTextureResource(tf: GLTFImage): Promise<HTMLImageElement> {
-    return this.__fetchImage(this.__asAbsoluteURL(this.baseDirectory, tf.uri));
+  public fetchImageResource(args: FetchImageResourceArgument): Promise<HTMLImageElement> {
+    if (args.image.uri) {
+      return this.__fetchImage(this.__asAbsoluteURL(this.baseDirectory, args.image.uri));
+    } else {
+      const src = args.bufferViews[args.image.bufferView];
+      const blob = new Blob([src], { type: args.image.mimeType });
+      const img = new Image();
+      const result = new Promise<HTMLImageElement>((resolve) => {
+        img.onload = () => {
+          resolve(img);
+        }
+      })
+      img.src = URL.createObjectURL(blob);
+      return result;
+    }
   }
 
   /**

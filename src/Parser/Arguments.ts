@@ -1,11 +1,23 @@
 import GLTF from "./Schema/GLTF";
 import GLTFPrimitive from "./Schema/GLTFPrimitive";
 import Geometry from "grimoirejs-fundamental/ref/Geometry/Geometry";
+import GLTFImage from "./Schema/GLTFImage";
 
 export interface ConvertToTextureArgument {
     tf: GLTF;
     image: HTMLImageElement;
     texIndex: string;
+}
+
+export interface LoadTextureResourceArgument {
+    tf: GLTF;
+    bufferViews: { [key: string]: ArrayBufferView };
+}
+
+export interface FetchImageResourceArgument {
+    tf: GLTF;
+    image: GLTFImage;
+    bufferViews: { [key: string]: ArrayBufferView };
 }
 
 export interface LoadBufferViewsArgument {
@@ -28,14 +40,14 @@ export interface AppendIndicesArgument {
     tf: GLTF;
     bufferViews: { [key: string]: ArrayBufferView };
     primitive: GLTFPrimitive;
-    geometry:Geometry;
+    geometry: Geometry;
 }
 
-export interface AddVertexAttributesArgument{
-  tf: GLTF;
-  bufferViews: { [key: string]: ArrayBufferView };
-  primitive: GLTFPrimitive;
-  geometry:Geometry;
+export interface AddVertexAttributesArgument {
+    tf: GLTF;
+    bufferViews: { [key: string]: ArrayBufferView };
+    primitive: GLTFPrimitive;
+    geometry: Geometry;
 }
 
 export default {};

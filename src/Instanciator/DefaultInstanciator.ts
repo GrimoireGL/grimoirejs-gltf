@@ -47,8 +47,7 @@ export default class DefaultInstanciator {
       AnimationFactory.addAnimation("gltf-animation-" + key, JSON.stringify(recipe.animations[key]));
       model.node.addComponent("Animation", {
         animation: "gltf-animation-" + key,
-        clips: "default",
-        auto: model.node.getAttribute("autoAnimate")
+        clips: "default"
       });
     }
   }

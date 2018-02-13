@@ -23,6 +23,47 @@ export default class ParserModuleBase {
     return new ctor(bufferView.buffer as ArrayBuffer, offset, count);
   }
 
+  /**
+   * Convert uint8 array into string.
+   * Assume text encoding is utf-8 without BOM since that is defined in glTF specification 2.0.
+   * @param array 
+   */
+  protected __convertUint8ArrayToUTF8String(array: Uint8Array): string {
+    const TextDecoder = (window as any).TextDecoder;
+    if (TextDecoder) { // When TextDecoder is supported on this browser
+      const decoder = new TextDecoder("utf-8");
+      return decoder.decode(array);
+    }
+    let out, i, len, c;
+    let char2, char3;
+    out = "";
+    len = array.length;
+    i = 0;
+    while (i < len) {
+      c = array[i++];
+      switch (c >> 4) {
+        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+          // 0xxxxxxx
+          out += String.fromCharCode(c);
+          break;
+        case 12: case 13:
+          // 110x xxxx   10xx xxxx
+          char2 = array[i++];
+          out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+          break;
+        case 14:
+          // 1110 xxxx  10xx xxxx  10xx xxxx
+          char2 = array[i++];
+          char3 = array[i++];
+          out += String.fromCharCode(((c & 0x0F) << 12) |
+            ((char2 & 0x3F) << 6) |
+            ((char3 & 0x3F) << 0));
+          break;
+      }
+    }
+    return out;
+  }
+
   protected __fetchBuffer(url: string): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

@@ -19,7 +19,9 @@ import {
     LoadPrimitivesOfMeshArgument,
     LoadPrimitiveArgument,
     AppendIndicesArgument,
-    AddVertexAttributesArgument
+    AddVertexAttributesArgument,
+    FetchImageResourceArgument,
+    LoadTextureResourceArgument
 } from "./Arguments";
 
 export default class ParserModule extends ParserModuleBase {
@@ -45,7 +47,7 @@ export default class ParserModule extends ParserModuleBase {
      * Start loading texture resource.
      * @return {Promise<Texture2D>} [description]
      */
-    public fetchTextureResource(tf: GLTFImage): Promise<HTMLImageElement> {
+    public fetchImageResource(tf: FetchImageResourceArgument): Promise<HTMLImageElement> {
         return undefined;
     }
 
@@ -53,7 +55,7 @@ export default class ParserModule extends ParserModuleBase {
      * Start loading texture resource.
      * @return {Promise<Texture2D>} [description]
      */
-    public loadTextureResources(tf: GLTF): Promise<{ [key: string]: Texture2D }> {
+    public loadTextureResources(args: LoadTextureResourceArgument): Promise<{ [key: string]: Texture2D }> {
         return undefined;
     }
 
@@ -97,7 +99,7 @@ export default class ParserModule extends ParserModuleBase {
         return undefined;
     }
 
-    public complementVertexAttributes(args: AddVertexAttributesArgument):boolean {
+    public complementVertexAttributes(args: AddVertexAttributesArgument): boolean {
         return undefined;
     }
 
@@ -105,15 +107,15 @@ export default class ParserModule extends ParserModuleBase {
         return undefined;
     }
 
-    public loadMaterial(args: { material: GLTFMaterial, textures: { [key: string]: Texture2D } }):Promise<Material>{
+    public loadMaterial(args: { material: GLTFMaterial, textures: { [key: string]: Texture2D } }): Promise<Material> {
         return undefined;
     }
 
     public loadAnimations(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView } }): { [key: string]: IAnimationRecipe } {
-      return undefined;
+        return undefined;
     }
 
-    public loadAnimation(args: {tf: GLTF, bufferViews: { [key:string]: ArrayBufferView}, animation: GLTFAnimation}): IAnimationRecipe {
-      return undefined;
+    public loadAnimation(args: { tf: GLTF, bufferViews: { [key: string]: ArrayBufferView }, animation: GLTFAnimation }): IAnimationRecipe {
+        return undefined;
     }
 }

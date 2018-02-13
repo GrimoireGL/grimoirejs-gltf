@@ -21,18 +21,21 @@ import InstanciationRecipe from "./InstanciationRecipe";
 import NormalComplementorModule from "./Modules/NormalComplementorModule";
 import IndexComplementorModule from "./Modules/IndexComplementorModule";
 import EmbeddedBufferModule from "./Modules/EmbeddedBufferModule";
+import GLBParserModule from "./GLBParserModule";
+import { Undef } from "grimoirejs/ref/Tool/Types";
 
 export default class GLTFParser {
     public static parserModules: (typeof ParserModule)[] = [
         EmbeddedBufferModule,
         IndexComplementorModule,
         NormalComplementorModule,
+        GLBParserModule,
         DefaultParserModule
     ];
 
     private parserModuleInstances: ParserModule[];
 
-    public callParserModule<T, G>(target: (p: ParserModule) => ((arg: G) => T), arg?: G): T {
+    public callParserModule<T, G>(target: (p: ParserModule) => ((arg: G) => T), arg?: G): Undef<T> {
         for (let i = 0; i < this.parserModuleInstances.length; i++) {
             const module = this.parserModuleInstances[i];
             const moduleMethod = target(module);
@@ -44,7 +47,7 @@ export default class GLTFParser {
                 return result;
             }
         }
-        throw new Error(`Parsing gltf failed. At the module "${target.toString()}"`);
+        throw new Error(`There was no parser module returned some value. At the module "${target.toString()}"`);
     }
 
     constructor(public gl: WebGLRenderingContext, public url: string) {
@@ -56,26 +59,27 @@ export default class GLTFParser {
     }
 
     public async parse(): Promise<InstanciationRecipe> {
-        const result:InstanciationRecipe = {} as InstanciationRecipe;
+        const result: InstanciationRecipe = {} as InstanciationRecipe;
         const gltfRaw = await this.callParserModule(t => t.fetchGLTF, this.url);
         const gltf = this.callParserModule(t => t.loadAsGLTF, gltfRaw);
         result.tf = gltf;
-        const textureResourcePromise = await this.callParserModule(t => t.loadTextureResources, gltf).then(textures=>{
-          return this.callParserModule(t=>t.loadMaterials,{tf:gltf,textures:textures});
-        }).then(materials=>{
-          result.materials = materials;
-        });
+
         const bufferResources =
-        await this.callParserModule(t => t.loadBufferResources, gltf)
-        .then(buffers =>{
-            const bufferViews = this.callParserModule(t => t.loadBufferViews, { tf: gltf, buffers: buffers });
-            const primitives = this.callParserModule(t=>t.loadPrimitivesOfMesh,{tf:gltf,bufferViews:bufferViews});
-            const animations = this.callParserModule(t => t.loadAnimations, { tf: gltf, bufferViews: bufferViews });
-            result.primitives = primitives;
-            result.bufferViews = bufferViews;
-            result.animations = animations;
-          }
-        );
+            await this.callParserModule(t => t.loadBufferResources, gltf)
+                .then(async buffers => {
+                    const bufferViews = this.callParserModule(t => t.loadBufferViews, { tf: gltf, buffers: buffers });
+                    const textureResourcePromise = await this.callParserModule(t => t.loadTextureResources, { tf: gltf, bufferViews }).then(textures => {
+                        return this.callParserModule(t => t.loadMaterials, { tf: gltf, textures: textures });
+                    }).then(materials => {
+                        result.materials = materials;
+                    });
+                    const primitives = this.callParserModule(t => t.loadPrimitivesOfMesh, { tf: gltf, bufferViews: bufferViews });
+                    const animations = this.callParserModule(t => t.loadAnimations, { tf: gltf, bufferViews: bufferViews });
+                    result.primitives = primitives;
+                    result.bufferViews = bufferViews;
+                    result.animations = animations;
+                }
+                );
         return result;
     }
 
