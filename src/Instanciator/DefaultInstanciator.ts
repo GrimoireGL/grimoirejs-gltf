@@ -60,11 +60,14 @@ export default class DefaultInstanciator {
       const primitives = recipe.primitives[node.mesh];
       const meshInfo = recipe.tf.meshes[node.mesh];
       if (primitives.length === 1) { // If the node contains single mesh
-        const mat = recipe.materials[meshInfo.primitives[0].material];
+        let mat = recipe.materials[meshInfo.primitives[0].material];
         const primitiveInfo = recipe.tf.meshes[node.mesh].primitives[0];
         let cull = "back";
         if (recipe.tf.materials && meshInfo.primitives[0].material !== void 0 && recipe.tf.materials[meshInfo.primitives[0].material] !== void 0) {
           cull = recipe.tf.materials[meshInfo.primitives[0].material].doubleSided ? "none" : "back";
+        }
+        if (!mat) {
+          mat = null;
         }
         const meshNode = parent.addChildByName("mesh", {
           geometry: primitives[0],
