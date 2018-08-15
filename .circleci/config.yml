@@ -16,7 +16,7 @@ jobs:
       - run: echo 'export PATH=/home/circleci/.local/bin:$PATH' >> $BASH_ENV
       - run: yarn --version
       - run: yarn install --ignore-scripts --no-progress
-      - run: npm run lint
+      # - run: npm run lint
       - run: npm run build -- --env.browser
       - save-cache:
           key: dependency-cache-{{ checksum "package.json" }}
