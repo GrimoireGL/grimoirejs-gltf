@@ -38,7 +38,7 @@
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4",
     "webpack-shell-plugin": "^0.5.0",
-    "yargs": "^9.0.1"
+    "yargs": "^15.2.0"
   },
   "dependencies": {
     "grimoirejs": "^0.20.2",
